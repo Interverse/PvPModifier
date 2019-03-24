@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using PvPModifier.Utilities.PvPConstants;
 using Terraria;
+using Utils = TShockAPI.Utils;
 
 namespace PvPModifier.Utilities {
     public static class MiscUtils {
@@ -98,7 +101,7 @@ namespace PvPModifier.Utilities {
         /// <summary>
         /// Gets a list of projectiles based off the given Name query.
         /// </summary>
-        public static List<int> GetProjectileByName(this TShockAPI.Utils util, string name) {
+        public static List<int> GetProjectileByName(this Utils util, string name) {
             string nameLower = name.ToLower();
             var found = new List<int>();
             for (int i = 1; i < Main.maxProjectileTypes; i++) {
@@ -114,13 +117,17 @@ namespace PvPModifier.Utilities {
         /// <summary>
         /// Gets the id of an item, projectile, or buff.
         /// </summary>
-        public static List<int> GetIdFromInput(this TShockAPI.Utils util, string input, string name) {
-            if (input == DbConsts.ItemTable) {
+        public static List<int> GetIdFromInput(this Utils util, string input, string name) {
+            if (input == DbTables.ItemTable) {
                 var itemsFound = util.GetItemByName(name);
                 return itemsFound.Select(c => c.netID).ToList();
-            } else if (input == DbConsts.ProjectileTable) {
+            }
+
+            if (input == DbTables.ProjectileTable) {
                 return util.GetProjectileByName(name);
-            } else if (input == DbConsts.BuffTable) {
+            }
+
+            if (input == DbTables.BuffTable) {
                 return util.GetBuffByName(name);
             }
 
@@ -134,11 +141,11 @@ namespace PvPModifier.Utilities {
         /// <param name="id">ID of the input</param>
         /// <returns></returns>
         public static string GetNameFromInput(string input, int id) {
-            if (input == DbConsts.ItemTable) {
+            if (input == DbTables.ItemTable) {
                 return Lang.GetItemName(id).ToString();
-            } else if (input == DbConsts.ProjectileTable) {
+            } else if (input == DbTables.ProjectileTable) {
                 return Lang.GetProjectileName(id).ToString();
-            } else if (input == DbConsts.BuffTable) {
+            } else if (input == DbTables.BuffTable) {
                 return Lang.GetBuffName(id);
             }
 
@@ -171,6 +178,31 @@ namespace PvPModifier.Utilities {
             } catch {
                 return false;
             }
+        }
+
+        public static List<string> GetVariables(Type type) {
+            List<string> attributes = new List<string>();
+            var values = type.GetProperties();
+            foreach (var value in values) {
+                //({value.PropertyType.ToString().Split('.').Last()}) to get the variable type
+                attributes.Add($"{value.Name}");
+            }
+
+            return attributes;
+        }
+
+        public static List<string> GetConstants(Type type) {
+            List<string> constants = new List<string>();
+
+            var values = type.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
+                .Where(fi => fi.IsLiteral && !fi.IsInitOnly).ToList();
+
+            foreach (var value in values) {
+                //({value.FieldType.ToString().Split('.').Last()}) to get the variable type
+                constants.Add($"{value.Name}");
+            }
+
+            return constants;
         }
 
         public static string[][] SplitIntoPairs(string[] input) {

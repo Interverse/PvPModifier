@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using PvPModifier.CustomWeaponAPI;
 using PvPModifier.DataStorage;
+using PvPModifier.Utilities.PvPConstants;
 using PvPModifier.Variables;
 using Terraria;
 using TShockAPI;

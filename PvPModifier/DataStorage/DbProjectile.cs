@@ -1,13 +1,15 @@
-﻿using PvPModifier.Variables;
+﻿using PvPModifier.Utilities.PvPConstants;
+using PvPModifier.Variables;
 
 namespace PvPModifier.DataStorage {
-    public class DbProjectile {
-        public int ID;
-        public int Shoot;
-        public float VelocityMultiplier;
-        public int Damage;
-        public BuffInfo InflictBuff;
-        public BuffInfo ReceiveBuff;
+    public class DbProjectile : DbObject {
+        public override string Section => DbTables.ProjectileTable;
+
+        public int Shoot { get; set; }
+        public float VelocityMultiplier { get; set; }
+        public int Damage { get; set; }
+        public BuffInfo InflictBuff { get; set; }
+        public BuffInfo ReceiveBuff { get; set; }
 
         public override string ToString() {
             return $"ID: {ID}\n" +

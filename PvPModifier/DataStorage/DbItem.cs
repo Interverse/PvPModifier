@@ -1,19 +1,21 @@
-﻿using PvPModifier.Variables;
+﻿using PvPModifier.Utilities.PvPConstants;
+using PvPModifier.Variables;
 
 namespace PvPModifier.DataStorage {
-    public class DbItem {
-        public int ID;
-        public int Damage;
-        public float Knockback;
-        public int UseAnimation;
-        public int UseTime;
-        public int Shoot;
-        public float ShootSpeed;
-        public int AmmoIdentifier;
-        public int UseAmmoIdentifier;
-        public bool NotAmmo;
-        public BuffInfo InflictBuff;
-        public BuffInfo ReceiveBuff;
+    public class DbItem : DbObject {
+        public override string Section => DbTables.ItemTable;
+
+        public int Damage { get; set; }
+        public float Knockback { get; set; }
+        public int UseAnimation { get; set; }
+        public int UseTime { get; set; }
+        public int Shoot { get; set; }
+        public float ShootSpeed { get; set; }
+        public int AmmoIdentifier { get; set; }
+        public int UseAmmoIdentifier { get; set; }
+        public bool NotAmmo { get; set; }
+        public BuffInfo InflictBuff { get; set; }
+        public BuffInfo ReceiveBuff { get; set; }
 
         public override string ToString() {
             return $"ID: {ID}\n" +

@@ -8,6 +8,7 @@ using System.Reflection;
 using Mono.Data.Sqlite;
 using MySql.Data.MySqlClient;
 using PvPModifier.Utilities;
+using PvPModifier.Utilities.PvPConstants;
 using PvPModifier.Variables;
 using Terraria;
 using TShockAPI;
@@ -49,7 +50,7 @@ namespace PvPModifier.DataStorage {
                     ? (IQueryBuilder)new MysqlQueryCreator()
                     : new SqliteQueryCreator());
 
-            sqlCreator.EnsureTableStructure(new SqlTable(DbConsts.ItemTable,
+            sqlCreator.EnsureTableStructure(new SqlTable(DbTables.ItemTable,
                 new SqlColumn(DbConsts.ID, MySqlDbType.Int32) {Primary = true},
                 new SqlColumn(DbConsts.Damage, MySqlDbType.Int32),
                 new SqlColumn(DbConsts.Knockback, MySqlDbType.Float),
@@ -65,7 +66,7 @@ namespace PvPModifier.DataStorage {
                 new SqlColumn(DbConsts.ReceiveBuffID, MySqlDbType.Int32),
                 new SqlColumn(DbConsts.ReceiveBuffDuration, MySqlDbType.Int32)));
 
-            sqlCreator.EnsureTableStructure(new SqlTable(DbConsts.ProjectileTable,
+            sqlCreator.EnsureTableStructure(new SqlTable(DbTables.ProjectileTable,
                 new SqlColumn(DbConsts.ID, MySqlDbType.Int32) {Primary = true},
                 new SqlColumn(DbConsts.Shoot, MySqlDbType.Int32),
                 new SqlColumn(DbConsts.VelocityMultiplier, MySqlDbType.Float),
@@ -75,7 +76,7 @@ namespace PvPModifier.DataStorage {
                 new SqlColumn(DbConsts.ReceiveBuffID, MySqlDbType.Int32),
                 new SqlColumn(DbConsts.ReceiveBuffDuration, MySqlDbType.Int32)));
 
-           sqlCreator.EnsureTableStructure(new SqlTable(DbConsts.BuffTable,
+           sqlCreator.EnsureTableStructure(new SqlTable(DbTables.BuffTable,
                 new SqlColumn(DbConsts.ID, MySqlDbType.Int32) { Primary = true },
                 new SqlColumn(DbConsts.InflictBuffID, MySqlDbType.Int32),
                 new SqlColumn(DbConsts.InflictBuffDuration, MySqlDbType.Int32),
@@ -206,21 +207,21 @@ namespace PvPModifier.DataStorage {
         public static void InitDefaultTables() {
             List<string> queries = new List<string>();
 
-            var tableList = new[] { DbConsts.ItemTable, DbConsts.ProjectileTable, DbConsts.BuffTable };
+            var tableList = new[] { DbTables.ItemTable, DbTables.ProjectileTable, DbTables.BuffTable };
             foreach (string table in tableList) {
                 queries.Add("DELETE FROM {0}".SFormat(table));
             }
 
             for (int x = 0; x < Main.maxItemTypes; x++) {
-                queries.Add(GetDefaultValueSqlString(DbConsts.ItemTable, x));
+                queries.Add(GetDefaultValueSqlString(DbTables.ItemTable, x));
             }
 
             for (int x = 0; x < Main.maxProjectileTypes; x++) {
-                queries.Add(GetDefaultValueSqlString(DbConsts.ProjectileTable, x));
+                queries.Add(GetDefaultValueSqlString(DbTables.ProjectileTable, x));
             }
 
             for (int x = 0; x < Main.maxBuffTypes; x++) {
-                queries.Add(GetDefaultValueSqlString(DbConsts.BuffTable, x));
+                queries.Add(GetDefaultValueSqlString(DbTables.BuffTable, x));
             }
 
             PerformTransaction(queries.ToArray());
@@ -244,7 +245,7 @@ namespace PvPModifier.DataStorage {
                     float knockback = item.knockBack;
 
                     return "INSERT INTO {0} ({1}) VALUES ({2})"
-                        .SFormat(DbConsts.ItemTable,
+                        .SFormat(DbTables.ItemTable,
                             string.Join(", ", DbConsts.ID, DbConsts.Damage, DbConsts.Knockback, DbConsts.UseAnimation, DbConsts.UseTime, DbConsts.Shoot, DbConsts.ShootSpeed, DbConsts.AmmoIdentifier, DbConsts.UseAmmoIdentifier, DbConsts.NotAmmo, DbConsts.InflictBuffID, DbConsts.InflictBuffDuration, DbConsts.ReceiveBuffID, DbConsts.ReceiveBuffDuration),
                             string.Join(", ", id, damage, knockback, -1, -1, -1, -1, -1, -1, -1, inflictBuff.BuffId, inflictBuff.BuffDuration, receiveBuff.BuffId, receiveBuff.BuffDuration));
 
@@ -254,7 +255,7 @@ namespace PvPModifier.DataStorage {
                         : new BuffInfo();
 
                     return "INSERT INTO {0} ({1}) VALUES ({2})"
-                        .SFormat(DbConsts.ProjectileTable,
+                        .SFormat(DbTables.ProjectileTable,
                             string.Join(", ", DbConsts.ID, DbConsts.Shoot, DbConsts.VelocityMultiplier, DbConsts.Damage, DbConsts.InflictBuffID, DbConsts.InflictBuffDuration, DbConsts.ReceiveBuffID, DbConsts.ReceiveBuffDuration),
                             string.Join(", ", id, id, 1, -1, inflictBuff.BuffId, inflictBuff.BuffDuration, receiveBuff.BuffId, receiveBuff.BuffDuration));
 
@@ -264,7 +265,7 @@ namespace PvPModifier.DataStorage {
                         : new BuffInfo();
 
                     return "INSERT INTO {0} ({1}) VALUES ({2})"
-                        .SFormat(DbConsts.BuffTable,
+                        .SFormat(DbTables.BuffTable,
                             string.Join(", ", DbConsts.ID, DbConsts.InflictBuffID, DbConsts.InflictBuffDuration, DbConsts.ReceiveBuffID, DbConsts.ReceiveBuffDuration),
                             string.Join(", ", id, inflictBuff.BuffId, inflictBuff.BuffDuration, receiveBuff.BuffId, receiveBuff.BuffDuration));
 
@@ -274,7 +275,7 @@ namespace PvPModifier.DataStorage {
         }
 
         public static void LoadDatabase() {
-            using (var reader = QueryReader($"SELECT * FROM {DbConsts.ItemTable}")) {
+            using (var reader = QueryReader($"SELECT * FROM {DbTables.ItemTable}")) {
                 while (reader.Read()) {
                     int id = reader.Get<int>(DbConsts.ID);
                     Cache.Items[id] = new DbItem {
@@ -294,7 +295,7 @@ namespace PvPModifier.DataStorage {
                 }
             }
 
-            using (var reader = QueryReader($"SELECT * FROM {DbConsts.ProjectileTable}")) {
+            using (var reader = QueryReader($"SELECT * FROM {DbTables.ProjectileTable}")) {
                 while (reader.Read()) {
                     int id = reader.Get<int>(DbConsts.ID);
                     Cache.Projectiles[id] = new DbProjectile {
@@ -308,7 +309,7 @@ namespace PvPModifier.DataStorage {
                 }
             }
 
-            using (var reader = QueryReader($"SELECT * FROM {DbConsts.BuffTable}")) {
+            using (var reader = QueryReader($"SELECT * FROM {DbTables.BuffTable}")) {
                 while (reader.Read()) {
                     var id = reader.Get<int>(DbConsts.ID);
                     Cache.Buffs[id] = new DbBuff {

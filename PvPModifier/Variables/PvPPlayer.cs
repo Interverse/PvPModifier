@@ -11,6 +11,7 @@ using Terraria.ID;
 using Terraria.Localization;
 using TShockAPI;
 using System.Timers;
+using PvPModifier.Utilities.PvPConstants;
 
 namespace PvPModifier.Variables {
     public class PvPPlayer : TSPlayer {

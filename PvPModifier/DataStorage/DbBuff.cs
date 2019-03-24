@@ -1,10 +1,12 @@
-﻿using PvPModifier.Variables;
+﻿using PvPModifier.Utilities.PvPConstants;
+using PvPModifier.Variables;
 
 namespace PvPModifier.DataStorage {
-    public class DbBuff {
-        public int ID;
-        public BuffInfo InflictBuff;
-        public BuffInfo ReceiveBuff;
+    public class DbBuff : DbObject {
+        public override string Section => DbTables.BuffTable;
+
+        public BuffInfo InflictBuff { get; set; }
+        public BuffInfo ReceiveBuff { get; set; }
 
         public override string ToString() {
             return $"ID: {ID}\n" +

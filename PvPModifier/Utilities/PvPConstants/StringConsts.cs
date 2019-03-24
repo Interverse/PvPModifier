@@ -1,36 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PvPModifier.Utilities {
-    public static class DbConsts {
-        public const string ItemTable = "Items";
-        public const string ProjectileTable = "Projectiles";
-        public const string BuffTable = "Buffs";
-
-        public const string ID = "ID";
-        public const string Damage = "Damage";
-        public const string Knockback = "Knockback";
-        public const string UseAnimation = "UseAnimation";
-        public const string UseTime = "UseTime";
-        public const string Shoot = "Shoot";
-        public const string ShootSpeed = "ShootSpeed";
-        public const string VelocityMultiplier = "VelocityMultiplier";
-        public const string AmmoIdentifier = "AmmoIdentifier";
-        public const string UseAmmoIdentifier = "UseAmmoIdentifier";
-        public const string NotAmmo = "NotAmmo";
-        public const string InflictBuffID = "InflictBuffID";
-        public const string InflictBuffDuration = "InflictBuffDuration";
-        public const string ReceiveBuffID = "ReceiveBuffID";
-        public const string ReceiveBuffDuration = "ReceiveBuffDuration";
-    }
-
+﻿namespace PvPModifier.Utilities.PvPConstants {
     public static class StringConsts {
         public const string Config = "Config";
         public const string Database = "Database";
+        public const string Help = "Help";
 
         /// <summary>
         /// Gets the table name from a string.
@@ -40,20 +12,20 @@ namespace PvPModifier.Utilities {
                 case "items":
                 case "item":
                 case "i":
-                    str = DbConsts.ItemTable;
+                    str = DbTables.ItemTable;
                     break;
 
                 case "projectiles":
                 case "projectile":
                 case "proj":
                 case "p":
-                    str = DbConsts.ProjectileTable;
+                    str = DbTables.ProjectileTable;
                     break;
 
                 case "buffs":
                 case "buff":
                 case "b":
-                    str = DbConsts.BuffTable;
+                    str = DbTables.BuffTable;
                     break;
 
                 case "config":
@@ -66,6 +38,11 @@ namespace PvPModifier.Utilities {
                     str = Database;
                     break;
 
+                case "help":
+                case "h":
+                    str = Help;
+                    break;
+
                 default:
                     str = input;
                     return false;
@@ -74,7 +51,7 @@ namespace PvPModifier.Utilities {
             return true;
         }
 
-        public static bool TryGetAttributeFromString(string input, out string attribute) {
+        public static bool TryGetDatabaseAttributeFromString(string input, out string attribute) {
             switch (input.ToLower()) {
                 case "damage":
                 case "dmg":
@@ -153,11 +130,87 @@ namespace PvPModifier.Utilities {
                     return false;
             }
         }
-    }
 
-    public static class Constants {
-        public const int JunkItem = 3853;
-        public const int SpawnItemDelay = 250;
-        public const int RetryInventoryTime = 1000;
+        public static bool TryGetConfigValueFromString(string input, out string attribute) {
+            switch (input.ToLower()) {
+                case "plugin":
+                case "p":
+                    attribute = ConfigConsts.EnablePlugin;
+                    return true;
+
+                case "knockback":
+                case "kb":
+                case "k":
+                    attribute = ConfigConsts.EnableKnockback;
+                    return true;
+
+                case "turtle":
+                case "tu":
+                    attribute = ConfigConsts.EnableTurtle;
+                    return true;
+
+                case "thorns":
+                    attribute = ConfigConsts.EnableThorns;
+                    return true;
+
+                case "nebula":
+                case "n":
+                    attribute = ConfigConsts.EnableNebula;
+                    return true;
+
+                case "buffs":
+                case "b":
+                    attribute = ConfigConsts.EnableBuffs;
+                    return true;
+
+                case "frost":
+                case "f":
+                    attribute = ConfigConsts.EnableFrost;
+                    return true;
+
+                case "nebulatier1duration":
+                case "nt1d":
+                case "n1":
+                    attribute = ConfigConsts.NebulaTier1Duration;
+                    return true;
+
+                case "nebulatier2duration":
+                case "nt2d":
+                case "n2":
+                    attribute = ConfigConsts.NebulaTier2Duration;
+                    return true;
+
+                case "nebulatier3duration":
+                case "nt3d":
+                case "n3":
+                    attribute = ConfigConsts.NebulaTier3Duration;
+                    return true;
+
+                case "frostduration":
+                case "fd":
+                    attribute = ConfigConsts.FrostDuration;
+                    return true;
+
+                case "turtlemultiplier":
+                case "tum":
+                    attribute = ConfigConsts.TurtleMultiplier;
+                    return true;
+
+                case "thornsmultiplier":
+                case "thm":
+                    attribute = ConfigConsts.ThornMultiplier;
+                    return true;
+                    
+                case "iframetime":
+                case "iframe":
+                case "ift":
+                    attribute = ConfigConsts.IframeTime;
+                    return true;
+
+                default:
+                    attribute = input;
+                    return false;
+            }
+        }
     }
 }

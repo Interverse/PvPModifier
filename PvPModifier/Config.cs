@@ -8,7 +8,6 @@ namespace PvPModifier {
         public static string LogPath = Path.Combine(TShock.SavePath, "pvplog.txt");
 
         public bool EnablePlugin { get; set; }
-        public bool EnableTooltip { get; set; }
 
         public double IframeTime { get; set; }
         public bool EnableKnockback { get; set; }
@@ -53,7 +52,6 @@ namespace PvPModifier {
         public bool SetDefaultValues() {
             if (FirstConfigGeneration) {
                 EnablePlugin = true;
-                EnableTooltip = true;
 
                 IframeTime = 0.0;
                 EnableKnockback = false;

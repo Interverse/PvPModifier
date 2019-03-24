@@ -3,6 +3,7 @@ using PvPModifier.CustomWeaponAPI;
 using PvPModifier.DataStorage;
 using PvPModifier.Network.Packets;
 using PvPModifier.Utilities;
+using PvPModifier.Utilities.PvPConstants;
 using Terraria;
 using TShockAPI;
 
