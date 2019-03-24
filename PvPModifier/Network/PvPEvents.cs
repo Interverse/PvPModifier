@@ -25,6 +25,10 @@ namespace PvPModifier.Network {
             DataHandler.SlotUpdate -= OnSlotUpdate;
         }
 
+        /// <summary>
+        /// Mods the player's inventory when their pvp is turned on.
+        /// Resets their inventory to Terraria's defaults when their pvp is turned off.
+        /// </summary>
         private void OnPvPToggled(object sender, TogglePvPArgs e) {
             if (!PvPModifier.Config.EnablePlugin) return;
 
@@ -40,37 +44,48 @@ namespace PvPModifier.Network {
             }
         }
 
+        /// <summary>
+        /// Handles inventory slot updates.
+        /// </summary>
         private void OnSlotUpdate(object sender, PlayerSlotArgs e) {
             if (!PvPModifier.Config.EnablePlugin) return;
 
             if (!e.Player.TPlayer.hostile) return;
             if (e.SlotId >= 58) return;
-            if (e.NetID == Constants.JunkItem || e.NetID == 0) return;
+            if (e.NetID == Constants.JunkItem || e.NetID == Constants.EmptyItem) return;
 
-            if (e.Player.InvTracker.CheckFinishedModifications((short)e.NetID)) return;
+            //If the inventory tracker finished modding the player's inventory,
+            //the code stops in order for the hook to not detect the just modified item
+            //which would have cause an infinite loop.
+            if (e.Player.InvTracker.CheckFinishedModifications(e.NetID)) return;
 
             //Only runs after initial pvp check
             if (e.Player.InvTracker.OnPvPInventoryChecked) {
-                //If the item is being consumed, ignore
+                //If the item is being consumed, don't modify the item
                 if (Math.Abs(e.Player.TPlayer.inventory[e.SlotId].stack - e.Stack) <= 1
                     && e.Player.TPlayer.inventory[e.SlotId].netID == e.NetID) return;
 
                 //If we pick up an item and it hasn't already been added to the queue
-                if (!e.Player.InvTracker.ContainsItem((short)e.NetID)) {
+                if (!e.Player.InvTracker.ContainsItem(e.NetID)) {
                     //If the item is modified, fill empty spaces and add it to queue
                     if (PvPUtils.IsModifiedItem(e.NetID)) {
-                        SSCUtils.FillInventoryToIndex(e.Player, 0, Constants.JunkItem, e.SlotId);
-                        SSCUtils.SetItem(e.Player, (byte)e.SlotId, 0);
-                        e.Player.InvTracker.AddItem(PvPUtils.GetCustomWeapon(e.Player, e.NetID, (byte)e.Prefix, (short)e.Stack));
+                        SSCUtils.FillInventoryToIndex(e.Player, Constants.EmptyItem, Constants.JunkItem, e.SlotId);
+                        SSCUtils.SetItem(e.Player, e.SlotId, Constants.EmptyItem);
+                        e.Player.InvTracker.AddItem(PvPUtils.GetCustomWeapon(e.Player, e.NetID, e.Prefix, e.Stack));
                         e.Player.InvTracker.StartDroppingItems();
                     }
                 }
             }
         }
 
+        /// <summary>
+        /// Handles player updates.
+        /// </summary>
         private void OnPlayerUpdate(object sender, PlayerUpdateArgs e) {
             if (!PvPModifier.Config.EnablePlugin) return;
 
+            //If the player has their pvp turned on without sending a TogglePvP packet (ex. through a /pvp command),
+            //The plugin will detect it here and send the modified items.
             if (e.Player.TPlayer.hostile && !e.Player.InvTracker.StartPvPInventoryCheck) {
                 e.Player.InvTracker.StartPvPInventoryCheck = true;
                 PvPUtils.SendCustomItems(e.Player);
@@ -82,6 +97,7 @@ namespace PvPModifier.Network {
                 e.Player.InvTracker.StartPvPInventoryCheck = false;
             }
             
+            //If the player tries to use a modified item in their hand, it will be dumped back into their inventory
             if ((e.PlayerAction & 32) == 32) {
                 if (e.Player.TPlayer.hostile) {
                     Item item = e.Player.TPlayer.inventory[58];
@@ -89,7 +105,8 @@ namespace PvPModifier.Network {
                     if (item.netID != 0 && PvPUtils.IsModifiedItem(item.netID) && e.Player.CanModInventory()) {
                         SSCUtils.SetItem(e.Player, 58, 0);
                         CustomWeaponDropper.DropItem(e.Player, new CustomWeapon {
-                            ItemNetId = (short)item.netID, Prefix = item.prefix, Stack = (short)item.stack
+                            ItemNetId = (short)item.netID, Prefix = item.prefix, Stack = (short)item.stack,
+                            DropAreaWidth = short.MaxValue, DropAreaHeight = short.MaxValue
                         });
                         e.Player.SendErrorMessage("You cannot use this weapon in your hand!");
                     }
@@ -97,6 +114,9 @@ namespace PvPModifier.Network {
             }
         }
 
+        /// <summary>
+        /// Handles projectile creation.
+        /// </summary>
         private void OnNewProjectile(object sender, ProjectileNewArgs e) {
             if (!PvPModifier.Config.EnablePlugin) return;
             if (Main.projectile[e.Identity].active && Main.projectile[e.Identity].type == e.Type) return;
@@ -121,6 +141,9 @@ namespace PvPModifier.Network {
             e.Attacker.ProjTracker.Projectiles[e.Type].PerformProjectileAction();
         }
 
+        /// <summary>
+        /// Handles pvp attacks.
+        /// </summary>
         private void OnPlayerHurt(object sender, PlayerHurtArgs e) {
             if (!PvPModifier.Config.EnablePlugin) return;
 

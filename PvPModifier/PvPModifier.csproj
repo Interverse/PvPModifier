@@ -30,12 +30,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BCrypt.Net">
-      <HintPath>references\BCrypt.Net.dll</HintPath>
-    </Reference>
-    <Reference Include="HttpServer">
-      <HintPath>references\HttpServer.dll</HintPath>
-    </Reference>
     <Reference Include="Mono.Data.Sqlite">
       <HintPath>references\Mono.Data.Sqlite.dll</HintPath>
     </Reference>
@@ -51,7 +45,6 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="TerrariaServer">
       <HintPath>references\TerrariaServer.exe</HintPath>
@@ -71,7 +64,6 @@
     <Compile Include="DataStorage\DbItem.cs" />
     <Compile Include="DataStorage\DbObject.cs" />
     <Compile Include="DataStorage\DbProjectile.cs" />
-    <Compile Include="Interface.cs" />
     <Compile Include="Network\DataHandler.cs" />
     <Compile Include="Network\Packets\PlayerDeathArgs.cs" />
     <Compile Include="Network\Packets\PlayerHurtArgs.cs" />

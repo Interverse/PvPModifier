@@ -83,15 +83,18 @@ namespace PvPModifier.DataStorage {
                 new SqlColumn(DbConsts.ReceiveBuffID, MySqlDbType.Int32),
                 new SqlColumn(DbConsts.ReceiveBuffDuration, MySqlDbType.Int32)));
         }
-
-        public static QueryResult QueryReader(string query, params object[] args) {
-            return db.QueryReader(query, args);
+        
+        /// <summary>
+        /// Returns data from the SQL database from a given SQL query.
+        /// </summary>
+        public static QueryResult QueryReader(string query) {
+            return db.QueryReader(query);
         }
 
         /// <summary>
         /// Performs an SQL query
         /// </summary>
-        /// <param Name="query">The SQL statement</param>
+        /// <param name="query">The SQL statement to be ran.</param>
         /// <returns>
         /// Returns true if the statement was successful.
         /// Returns false if the statement failed.
@@ -123,9 +126,9 @@ namespace PvPModifier.DataStorage {
         }
 
         /// <summary>
-        /// Performs a series of sql statements in a transaction.
-        /// This allows for fast mass querying as opposed to querying
-        /// one statement at a time.
+        /// Performs a series of SQL statements in a transaction.
+        /// This allows for fast mass querying which is faster than
+        /// querying one statement at a time.
         /// </summary>
         /// <param name="queries"></param>
         public static void PerformTransaction(string[] queries) {
@@ -159,45 +162,6 @@ namespace PvPModifier.DataStorage {
 
             string sourceId = !selectAll ? " WHERE ID = {0}".SFormat(index) : "";
             return Query(string.Format("UPDATE {0} SET {1} = {2}{3}", table, column, value, sourceId));
-        }
-        
-        /// <summary>
-        /// Gets the value of an item, projectile, or buff based off id.
-        /// </summary>
-        public static T GetData<T> (string table, int id, string column) {
-            using (var reader = QueryReader(string.Format("SELECT {0} FROM {1} WHERE ID = {2}", column, table, id.ToString()))) {
-                while (reader.Read()) {
-                    return reader.Get<T>(column);
-                }
-            }
-
-            return default(T);
-        }
-
-        /// <summary>
-        /// Gets the value of an item, projectile, or buff based off id.
-        /// </summary>
-        public static object GetDataWithType(string table, int id, string column, Type type) {
-            MethodInfo getDataMethod = typeof(Database).GetMethod("GetData")?.MakeGenericMethod(type);
-
-            return getDataMethod?.Invoke(null, new object[] { table, id, column } );
-        }
-
-        /// <summary>
-        /// Gets the type of the sql column.
-        /// </summary>
-        public static Type GetType(string table, string column) {
-            try {
-                using (var reader = QueryReader(string.Format("SELECT {0} FROM {1}", column, table))) {
-                    while (reader.Read()) {
-                        return reader.Reader.GetFieldType(0);
-                    }
-                }
-            } catch (Exception e) {
-                TShock.Log.Write(e.ToString(), TraceLevel.Error);
-            }
-
-            return default(Type);
         }
 
         /// <summary>
@@ -289,8 +253,10 @@ namespace PvPModifier.DataStorage {
                         AmmoIdentifier = reader.Get<int>(DbConsts.AmmoIdentifier),
                         UseAmmoIdentifier = reader.Get<int>(DbConsts.UseAmmoIdentifier),
                         NotAmmo = reader.Get<int>(DbConsts.NotAmmo) == 1,
-                        InflictBuff = new BuffInfo(reader.Get<int>(DbConsts.InflictBuffID), reader.Get<int>(DbConsts.InflictBuffDuration)),
-                        ReceiveBuff = new BuffInfo(reader.Get<int>(DbConsts.ReceiveBuffDuration), reader.Get<int>(DbConsts.ReceiveBuffDuration))
+                        InflictBuffID = reader.Get<int>(DbConsts.InflictBuffID),
+                        InflictBuffDuration = reader.Get<int>(DbConsts.InflictBuffDuration),
+                        ReceiveBuffID = reader.Get<int>(DbConsts.ReceiveBuffDuration),
+                        ReceiveBuffDuration = reader.Get<int>(DbConsts.ReceiveBuffDuration)
                     };
                 }
             }
@@ -303,8 +269,10 @@ namespace PvPModifier.DataStorage {
                         Shoot = reader.Get<int>(DbConsts.Shoot),
                         VelocityMultiplier = reader.Get<float>(DbConsts.VelocityMultiplier),
                         Damage = reader.Get<int>(DbConsts.Damage),
-                        InflictBuff = new BuffInfo(reader.Get<int>(DbConsts.InflictBuffID), reader.Get<int>(DbConsts.InflictBuffDuration)),
-                        ReceiveBuff = new BuffInfo(reader.Get<int>(DbConsts.ReceiveBuffDuration), reader.Get<int>(DbConsts.ReceiveBuffDuration))
+                        InflictBuffID = reader.Get<int>(DbConsts.InflictBuffID),
+                        InflictBuffDuration = reader.Get<int>(DbConsts.InflictBuffDuration),
+                        ReceiveBuffID = reader.Get<int>(DbConsts.ReceiveBuffDuration),
+                        ReceiveBuffDuration = reader.Get<int>(DbConsts.ReceiveBuffDuration)
                     };
                 }
             }
@@ -314,8 +282,10 @@ namespace PvPModifier.DataStorage {
                     var id = reader.Get<int>(DbConsts.ID);
                     Cache.Buffs[id] = new DbBuff {
                         ID = id,
-                        InflictBuff = new BuffInfo(reader.Get<int>(DbConsts.InflictBuffID), reader.Get<int>(DbConsts.InflictBuffDuration)),
-                        ReceiveBuff = new BuffInfo(reader.Get<int>(DbConsts.ReceiveBuffDuration), reader.Get<int>(DbConsts.ReceiveBuffDuration))
+                        InflictBuffID = reader.Get<int>(DbConsts.InflictBuffID),
+                        InflictBuffDuration = reader.Get<int>(DbConsts.InflictBuffDuration),
+                        ReceiveBuffID = reader.Get<int>(DbConsts.ReceiveBuffDuration),
+                        ReceiveBuffDuration = reader.Get<int>(DbConsts.ReceiveBuffDuration)
                     };
                 }
             }

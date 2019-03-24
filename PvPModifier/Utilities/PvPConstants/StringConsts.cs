@@ -5,7 +5,7 @@
         public const string Help = "Help";
 
         /// <summary>
-        /// Gets the table name from a string.
+        /// Gets the section name from a string.
         /// </summary>
         public static bool TryGetSectionFromString(string input, out string str) {
             switch (input.ToLower()) {
@@ -51,6 +51,12 @@
             return true;
         }
 
+        /// <summary>
+        /// Gets a database attribute based off the given input.
+        /// </summary>
+        /// <param name="input">The input string</param>
+        /// <param name="attribute">Returns a <see cref="DbConsts"/> string if input matches a value, or itself if it matches nothing</param>
+        /// <returns>A boolean whether the input matches a database attribute</returns>
         public static bool TryGetDatabaseAttributeFromString(string input, out string attribute) {
             switch (input.ToLower()) {
                 case "damage":
@@ -131,6 +137,14 @@
             }
         }
 
+        /// <summary>
+        /// Gets a config value based off the given input.
+        /// </summary>
+        /// <param name="input">The input string</param>
+        /// <param name="attribute">
+        /// Returns a <see cref="ConfigConsts"/> string if input matches a value, or itself if it matches nothing
+        /// </param>
+        /// <returns>A boolean whether the input matches a config value</returns>
         public static bool TryGetConfigValueFromString(string input, out string attribute) {
             switch (input.ToLower()) {
                 case "plugin":

@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Terraria.GameContent.Generation;
-
-namespace PvPModifier.Utilities.PvPConstants {
+﻿namespace PvPModifier.Utilities.PvPConstants {
+    /// <summary>
+    /// Contains variable names of the <see cref="Config"/> into strings.
+    /// </summary>
     public static class ConfigConsts {
         public const string EnablePlugin = "EnablePlugin";
 

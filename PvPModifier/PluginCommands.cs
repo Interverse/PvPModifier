@@ -90,10 +90,11 @@ namespace PvPModifier {
 
                     string log = "Reset the values of {0}".SFormat(MiscUtils.GetNameFromInput(section, id));
                     if (section == DbTables.ItemTable)
-                        PvPUtils.RefreshItem(player, id);
+                        foreach (var pvper in PvPModifier.PvPers.Where(c => c != null))
+                            PvPUtils.RefreshItem(pvper, id);
                     player.SendSuccessMessage(log);
                     Database.LoadDatabase();
-                    PvPModifier.Config.LogChange($"({DateTime.Now}) {log}");
+                    PvPModifier.Config.LogChange($"[{player.Name} ({DateTime.Now})] {log}");
                     break;
 
                 default:
@@ -105,15 +106,13 @@ namespace PvPModifier {
         private static void CheckStat(CommandArgs args) {
             var player = args.Player;
             var input = args.Parameters;
-            int id = -1;
-            string section = "";
 
-            if (input.Count != 2 || !StringConsts.TryGetSectionFromString(input[0], out section)) {
+            if (input.Count != 2 || !StringConsts.TryGetSectionFromString(input[0], out string section)) {
                 player.SendErrorMessage(InvalidCheckStat);
                 return;
             } 
 
-            if (!int.TryParse(input[1], out id)) {
+            if (!int.TryParse(input[1], out int id)) {
                 var foundItems = TShock.Utils.GetIdFromInput(section, input[1]);
                 if (foundItems.Count == 1) {
                     id = foundItems[0];
@@ -193,7 +192,6 @@ namespace PvPModifier {
             if (section != StringConsts.Config) {
                 if (input.Count < 3) {
                     player.SendErrorMessage(HelpModPvP);
-                    player.SendErrorMessage("Possible attributes: " + DatabaseAttributes);
                     return;
                 }
 

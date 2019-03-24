@@ -7,7 +7,7 @@ namespace PvPModifier.Utilities {
         /// <summary>
         /// Gets the weapon of a projectile.
         /// For certain projectiles, it will pull from a list of
-        /// projectile-to-weapon-mapping Dictionaries and returns
+        /// projectile-to-weapon Dictionaries and returns
         /// the weapon based off the dictionary mapping.
         /// </summary>
         /// <param name="owner">Index of the owner of projectile.</param>

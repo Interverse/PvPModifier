@@ -24,6 +24,15 @@ namespace PvPModifier.Utilities {
             return tag + deathMessage;
         }
 
+        /// <summary>
+        /// Sends every modified weapon to the player.
+        /// Steps:
+        /// Change every weapon to default values.
+        /// Stores the index of every modified weapon, and stores the index as the max index.
+        /// Fill the player's inventory with a placeholder item up to the max index.
+        /// Removes every item that was modified serverside with the list of indexes.
+        /// Starts to drop the modified items.
+        /// </summary>
         public static void SendCustomItems(PvPPlayer player) {
             RefreshInventory(player);
             List<int> itemIndex = new List<int>();
@@ -43,15 +52,18 @@ namespace PvPModifier.Utilities {
             }
             
             if (itemIndex.Count != 0) {
-                SSCUtils.FillInventoryToIndex(player, 0, Constants.JunkItem, indexer.MaxIndex);
+                SSCUtils.FillInventoryToIndex(player, Constants.EmptyItem, Constants.JunkItem, indexer.MaxIndex);
                 foreach (int num in itemIndex)
-                    SSCUtils.SetItem(player, (byte)num, 0);
+                    SSCUtils.SetItem(player, (byte)num, Constants.EmptyItem);
                 player.InvTracker.StartDroppingItems();
             } else {
                 player.InvTracker.CheckFinishedModifications(0);
             }
         }
 
+        /// <summary>
+        /// Changes every item in a player's inventory to be the default values.
+        /// </summary>
         public static void RefreshInventory(PvPPlayer player) {
             player.InvTracker.OnPvPInventoryChecked = false;
             for (byte index = 0; index < 58; index++) {
@@ -59,6 +71,10 @@ namespace PvPModifier.Utilities {
             }
         }
 
+        /// <summary>
+        /// Changes every item in a player's inventory that matches the item ID to the default values.
+        /// </summary>
+        /// <param name="itemID">Numerical ID of item to be reset.</param>
         public static void RefreshItem(PvPPlayer player, int itemID) {
             for (byte index = 0; index <= 58; index++) {
                 if (player.TPlayer.inventory[index].netID == itemID)
@@ -66,6 +82,10 @@ namespace PvPModifier.Utilities {
             }
         }
 
+        /// <summary>
+        /// Gets a <see cref="CustomWeapon"/> from the <see cref="Cache"/>
+        /// </summary>
+        /// <returns></returns>
         public static CustomWeapon GetCustomWeapon(PvPPlayer player, int type, byte prefix = 0, short stack = 1) {
             Item wep = new Item();
             wep.SetDefaults(type);
@@ -91,6 +111,9 @@ namespace PvPModifier.Utilities {
             return custwep;
         }
 
+        /// <summary>
+        /// Checks whether an item was modified in the database.
+        /// </summary>
         public static bool IsModifiedItem(int type) {
             DbItem dbitem = Cache.Items[type];
             Item item = new Item();
@@ -110,6 +133,9 @@ namespace PvPModifier.Utilities {
                    dbitem.NotAmmo != item.notAmmo;
         }
 
+        /// <summary>
+        /// Checks whether a projectile was modified in the database.
+        /// </summary>
         public static bool IsModifiedProjectile(int type) {
             DbProjectile proj = Cache.Projectiles[type];
             return proj.Shoot != type ||

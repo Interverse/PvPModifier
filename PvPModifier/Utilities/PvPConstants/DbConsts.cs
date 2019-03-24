@@ -1,4 +1,7 @@
 ﻿namespace PvPModifier.Utilities.PvPConstants {
+    /// <summary>
+    /// Contains variable names of database objects into strings
+    /// </summary>
     public static class DbConsts {
         public const string ID = "ID";
         public const string Damage = "Damage";
@@ -17,6 +20,9 @@
         public const string ReceiveBuffDuration = "ReceiveBuffDuration";
     }
 
+    /// <summary>
+    /// Contains variables that have the SQL table names.
+    /// </summary>
     public static class DbTables {
         public const string ItemTable = "Items";
         public const string ProjectileTable = "Projectiles";

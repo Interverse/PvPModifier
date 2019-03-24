@@ -96,13 +96,6 @@ namespace PvPModifier.Variables {
             });
         }
 
-        public void SetSelectedSlot(int index) {
-            new SSCAction(this, () => {
-                TPlayer.selectedItem = index;
-                NetMessage.SendData(13, -1, -1, null, Index);
-            });
-        }
-
         /// <summary>
         /// Applies effects that normally won't work in vanilla pvp.
         /// Effects include nebula/frost armor, yoyo-bag projectiles, and thorns/turtle damage.
@@ -110,7 +103,7 @@ namespace PvPModifier.Variables {
         public void ApplyPvPEffects(PvPPlayer attacker, PvPItem weapon, PvPProjectile projectile, int damage) {
             this.ApplyReflectDamage(attacker, damage, weapon);
             this.ApplyArmorEffects(attacker, weapon);
-            TerrariaUtils.ActivateYoyo(attacker, this, damage, weapon.knockBack);
+            TerrariaUtils.ActivateYoyo(this, attacker, damage, weapon.knockBack);
         }
 
         /// <summary>
@@ -121,19 +114,19 @@ namespace PvPModifier.Variables {
             Random random = new Random();
             string deathmessage = PresetData.ReflectedDeathMessages[random.Next(PresetData.ReflectedDeathMessages.Count)];
 
-            if (PvPModifier.Config.EnableTurtle && this.TPlayer.setBonus == Language.GetTextValue("ArmorSetBonus.Turtle") && weapon.melee) {
+            if (PvPModifier.Config.EnableTurtle && attacker.TPlayer.setBonus == Language.GetTextValue("ArmorSetBonus.Turtle") && weapon.melee) {
                 deathmessage = Name + deathmessage + attacker.Name + "'s Turtle Armor.";
                 int turtleDamage = (int)(damage * PvPModifier.Config.TurtleMultiplier);
 
-                NetMessage.SendPlayerHurt(attacker.Index, PlayerDeathReason.ByCustomReason(PvPUtils.GetPvPDeathMessage(deathmessage, reflectTag, 2)),
+                NetMessage.SendPlayerHurt(this.Index, PlayerDeathReason.ByCustomReason(PvPUtils.GetPvPDeathMessage(deathmessage, reflectTag, 2)),
                     turtleDamage, 0, false, true, 5);
             }
 
-            if (PvPModifier.Config.EnableThorns && this.TPlayer.FindBuffIndex(14) != -1) {
+            if (PvPModifier.Config.EnableThorns && attacker.TPlayer.FindBuffIndex(14) != -1) {
                 int thornDamage = (int)(damage * PvPModifier.Config.ThornMultiplier);
                 deathmessage = Name + deathmessage + attacker.Name + "'s Thorns.";
 
-                NetMessage.SendPlayerHurt(attacker.Index, PlayerDeathReason.ByCustomReason(PvPUtils.GetPvPDeathMessage(deathmessage, reflectTag, 2)),
+                NetMessage.SendPlayerHurt(this.Index, PlayerDeathReason.ByCustomReason(PvPUtils.GetPvPDeathMessage(deathmessage, reflectTag, 2)),
                     thornDamage, 0, false, true, 5);
             } 
         }
@@ -197,29 +190,6 @@ namespace PvPModifier.Variables {
         }
 
         /// <summary>
-        /// Gets the first available ammo for a weapon.
-        /// </summary>
-        /// <param Name="weapon">The weapon to find ammo for.</param>
-        /// <returns></returns>
-        public PvPItem GetFirstAvailableAmmo(PvPItem weapon) {
-            int useAmmo = weapon.useAmmo;
-
-            if (useAmmo == AmmoID.None) return new PvPItem();
-
-            for (int x = 54; x < NetItem.InventorySlots; x++) {
-                if (this.TPlayer.inventory[x].ammo == useAmmo)
-                    return PvPUtils.ConvertToPvPItem(this.TPlayer.inventory[x]);
-            }
-
-            for (int x = 0; x < NetItem.InventorySlots - 4; x++) {
-                if (this.TPlayer.inventory[x].ammo == useAmmo)
-                    return PvPUtils.ConvertToPvPItem(this.TPlayer.inventory[x]);
-            }
-
-            return new PvPItem();
-        }
-
-        /// <summary>
         /// Applies buffs to self based off a buff, if any.
         /// </summary>
         public void ApplyReceiveBuff() {
@@ -232,7 +202,6 @@ namespace PvPModifier.Variables {
         /// <summary>
         /// Determines whether a person can be hit based off the config iframes.
         /// </summary>
-        /// <returns></returns>
         public bool CanBeHit() {
             if ((DateTime.Now - _lastHit).TotalMilliseconds >= PvPModifier.Config.IframeTime) {
                 _lastHit = DateTime.Now;
@@ -242,6 +211,9 @@ namespace PvPModifier.Variables {
             return false;
         }
 
+        /// <summary>
+        /// Sets a cooldown for when a player can have their inventory modded.
+        /// </summary>
         public bool CanModInventory() {
             if ((DateTime.Now - _lastInventoryModified).TotalMilliseconds >= Constants.SpawnItemDelay) {
                 _lastInventoryModified = DateTime.Now;
@@ -298,11 +270,14 @@ namespace PvPModifier.Variables {
         }
     }
 
+    /// <summary>
+    /// Helper class that handles inventory modifications.
+    /// </summary>
     public class InventoryTracker {
         private readonly PvPPlayer _player;
         private readonly List<CustomWeapon> _inv = new List<CustomWeapon>();
 
-        private Timer _timer;
+        private readonly Timer _timer;
         
         public bool LockModifications;
         public bool FinishedModifications;
