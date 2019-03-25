@@ -22,6 +22,7 @@ namespace PvPModifier.Utilities {
         public static void FillInventory(TSPlayer player, short targetItemID, short replacementItemID) {
             new SSCAction(player, () => {
                 for (byte index = 0; index < 58; index++) {
+                    if (!player.ConnectionAlive) return;
                     if (player.TPlayer.inventory[index].netID == targetItemID) {
                         player.TPlayer.inventory[index].SetDefaults(replacementItemID);
                         NetMessage.SendData((int)PacketTypes.PlayerSlot, -1, -1, null, player.Index, index, 1, 0, replacementItemID);
@@ -44,6 +45,7 @@ namespace PvPModifier.Utilities {
 
             new SSCAction(player, () => {
                 for (byte loop = 0; loop < indexer.MaxIndexPos; loop++) {
+                    if (!player.ConnectionAlive) return;
                     int index = indexer.NextIndex();
                     if (player.TPlayer.inventory[index].netID == targetItemID) {
                         player.TPlayer.inventory[index].SetDefaults(replacementItemID);
@@ -61,16 +63,15 @@ namespace PvPModifier.Utilities {
         /// <param name="itemID">Numerical ID of an item.</param>
         public static void SetItem(TSPlayer player, byte index, short itemID) {
             new SSCAction(player, () => {
-                new SSCAction(player, () => {
-                    player.SendRawData(new PacketWriter()
-                        .SetType((short)PacketTypes.PlayerSlot)
-                        .PackByte((byte)player.Index)
-                        .PackByte(index)
-                        .PackInt16(1)
-                        .PackByte(0)
-                        .PackInt16(itemID)
-                        .GetByteData());
-                });
+                if (!player.ConnectionAlive) return;
+                player.SendRawData(new PacketWriter()
+                    .SetType((short)PacketTypes.PlayerSlot)
+                    .PackByte((byte)player.Index)
+                    .PackByte(index)
+                    .PackInt16(1)
+                    .PackByte(0)
+                    .PackInt16(itemID)
+                    .GetByteData());
             });
         }
 
@@ -82,6 +83,7 @@ namespace PvPModifier.Utilities {
         /// <param name="item"><see cref="Terraria.Item"/> to be set.</param>
         public static void SetItem(TSPlayer player, byte index, Item item) {
             new SSCAction(player, () => {
+                if (!player.ConnectionAlive) return;
                 player.SendRawData(new PacketWriter()
                     .SetType((short)PacketTypes.PlayerSlot)
                     .PackByte((byte)player.Index)

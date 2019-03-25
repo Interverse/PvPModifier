@@ -50,6 +50,7 @@ namespace PvPModifier.Network {
         private void OnSlotUpdate(object sender, PlayerSlotArgs e) {
             if (!PvPModifier.Config.EnablePlugin) return;
 
+            if (e.Player.TPlayer.dead) return;
             if (!e.Player.TPlayer.hostile) return;
             if (e.SlotId >= 58) return;
             if (e.NetID == Constants.JunkItem || e.NetID == Constants.EmptyItem) return;
@@ -83,6 +84,7 @@ namespace PvPModifier.Network {
         /// </summary>
         private void OnPlayerUpdate(object sender, PlayerUpdateArgs e) {
             if (!PvPModifier.Config.EnablePlugin) return;
+            if (e.Player.TPlayer.dead) return;
 
             //If the player has their pvp turned on without sending a TogglePvP packet (ex. through a /pvp command),
             //The plugin will detect it here and send the modified items.
@@ -121,14 +123,14 @@ namespace PvPModifier.Network {
             if (!PvPModifier.Config.EnablePlugin) return;
             if (Main.projectile[e.Identity].active && Main.projectile[e.Identity].type == e.Type) return;
 
-            if (TShock.Players[e.Owner].TPlayer.hostile && PvPUtils.IsModifiedProjectile(e.Type)) {
+            if ((TShock.Players[e.Owner]?.TPlayer?.hostile ?? false) && PvPUtils.IsModifiedProjectile(e.Type)) {
                 e.Args.Handled = true;
                 DbProjectile proj = Cache.Projectiles[e.Type];
 
                 var projectile = Main.projectile[e.Identity];
                 projectile.SetDefaults(proj.Shoot != -1 ? proj.Shoot : e.Type);
                 projectile.velocity = e.Velocity * proj.VelocityMultiplier;
-                projectile.damage = proj.Damage != -1 ? TerrariaUtils.GetWeaponDamage(e.Attacker, e.Proj.ItemOriginated, proj.Damage) : e.Damage;
+                projectile.damage = proj.Damage != -1 ? proj.Damage : e.Damage;
                 projectile.active = true;
                 projectile.identity = e.Identity;
                 projectile.owner = e.Owner;
@@ -159,7 +161,7 @@ namespace PvPModifier.Network {
                 e.HitDirection = 0;
             }
 
-            e.Target.DamagePlayer(PvPUtils.GetPvPDeathMessage(e.PlayerHitReason.GetDeathText(e.Target.Name).ToString(), e.Weapon),
+            e.Target.DamagePlayer(PvPUtils.GetPvPDeathMessage(e.PlayerHitReason.GetDeathText(e.Target.Name).ToString(), e.Weapon, e.Projectile),
                 e.Weapon, e.InflictedDamage, e.HitDirection, (e.Flag & 1) == 1);
 
             e.Attacker.ApplyPvPEffects(e.Target, e.Weapon, e.Projectile, e.InflictedDamage);

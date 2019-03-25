@@ -10,6 +10,7 @@ namespace PvPModifier.Utilities {
 
         public SSCAction(TSPlayer player, Action action) {
             bool isSSC = Main.ServerSideCharacter;
+            if (player == null || !player.ConnectionAlive) return;
 
             if (!isSSC) {
                 Main.ServerSideCharacter = true;

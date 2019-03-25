@@ -28,6 +28,7 @@ namespace PvPModifier.Variables {
         /// Performs additional actions for projectiles.
         /// </summary>
         public void PerformProjectileAction() {
+            if (!OwnerProjectile.TPlayer.hostile) return;
             switch (type) {
                 //Medusa Ray projectile
                 case 536:

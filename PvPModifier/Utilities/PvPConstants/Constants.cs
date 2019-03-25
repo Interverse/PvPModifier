@@ -7,6 +7,6 @@
         public const int EmptyItem = 0;
         public const int JunkItem = 3853;
         public const int SpawnItemDelay = 250;
-        public const int RetryInventoryTime = 1000;
+        public const int RetryInventoryTime = 750;
     }
 }

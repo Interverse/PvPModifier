@@ -118,7 +118,7 @@ namespace PvPModifier.Variables {
                 deathmessage = Name + deathmessage + attacker.Name + "'s Turtle Armor.";
                 int turtleDamage = (int)(damage * PvPModifier.Config.TurtleMultiplier);
 
-                NetMessage.SendPlayerHurt(this.Index, PlayerDeathReason.ByCustomReason(PvPUtils.GetPvPDeathMessage(deathmessage, reflectTag, 2)),
+                NetMessage.SendPlayerHurt(this.Index, PlayerDeathReason.ByCustomReason(PvPUtils.GetPvPDeathMessage(deathmessage, reflectTag, type: 2)),
                     turtleDamage, 0, false, true, 5);
             }
 
@@ -126,7 +126,7 @@ namespace PvPModifier.Variables {
                 int thornDamage = (int)(damage * PvPModifier.Config.ThornMultiplier);
                 deathmessage = Name + deathmessage + attacker.Name + "'s Thorns.";
 
-                NetMessage.SendPlayerHurt(this.Index, PlayerDeathReason.ByCustomReason(PvPUtils.GetPvPDeathMessage(deathmessage, reflectTag, 2)),
+                NetMessage.SendPlayerHurt(this.Index, PlayerDeathReason.ByCustomReason(PvPUtils.GetPvPDeathMessage(deathmessage, reflectTag, type: 2)),
                     thornDamage, 0, false, true, 5);
             } 
         }
@@ -278,6 +278,7 @@ namespace PvPModifier.Variables {
         private readonly List<CustomWeapon> _inv = new List<CustomWeapon>();
 
         private readonly Timer _timer;
+        private int _counter;
         
         public bool LockModifications;
         public bool FinishedModifications;
@@ -304,6 +305,12 @@ namespace PvPModifier.Variables {
         private void DropModifiedItems(object sender = null, ElapsedEventArgs e = null) {
             foreach (var wep in _inv)
                 CustomWeaponDropper.DropItem(_player, wep);
+
+            _counter++;
+            if (_counter >= 10) {
+                Clear();
+                CheckFinishedModifications(0);
+            }
         }
 
         public bool ContainsItem(short id) {
@@ -335,6 +342,7 @@ namespace PvPModifier.Variables {
         public void Clear() {
             _inv.Clear();
             _timer.Enabled = false;
+            _counter = 0;
         }
     }
 }
