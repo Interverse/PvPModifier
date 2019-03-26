@@ -15,6 +15,8 @@ namespace PvPModifier.Variables {
         public PvPItem ItemOriginated;
         public PvPPlayer OwnerProjectile;
 
+        public Projectile MainProjectile;
+
         public PvPProjectile(int type) {
             SetDefaults(type);
             this.identity = -1;
@@ -23,13 +25,25 @@ namespace PvPModifier.Variables {
         public PvPProjectile(int type, int identity) {
             SetDefaults(type);
             this.identity = identity;
+            MainProjectile = Main.projectile[identity];
+        }
+
+        public PvPProjectile(int type, int index, int ownerIndex, PvPItem item) {
+            SetDefaults(type);
+            identity = index;
+            ItemOriginated = item;
+            owner = ownerIndex;
+            OwnerProjectile = PvPModifier.PvPers[ownerIndex];
+            MainProjectile = Main.projectile[identity];
+
+            PvPModifier.Projectiles[index] = this;
         }
 
         /// <summary>
         /// Performs additional actions for projectiles.
         /// </summary>
         public void PerformProjectileAction() {
-            if (!OwnerProjectile.TPlayer.hostile) return;
+            if (CheckNull() || !OwnerProjectile.TPlayer.hostile) return;
             switch (type) {
                 //Medusa Ray projectile
                 case 536:
@@ -48,6 +62,10 @@ namespace PvPModifier.Variables {
                     }
                     break;
             }
+        }
+
+        public bool CheckNull() {
+            return OwnerProjectile == null || ItemOriginated == null;
         }
     }
 }

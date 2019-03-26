@@ -144,13 +144,27 @@ namespace PvPModifier.Utilities {
             return split;
         }
 
-        public static void TurnTowards(this Vector2 vel, Vector2 pos, Vector2 target, double angularVelocity) {
+        public static Vector2 TurnTowards(Vector2 vel, Vector2 pos, Vector2 target, double angularVelocity) {
             Vector2 direction = target - pos;
             direction.Normalize();
-
+            Vector2 velocity = vel.SafeNormalize(new Vector2());
+                
             float rotateAmount = Vector3.Cross(new Vector3(vel, 0), new Vector3(direction, 0)).Z;
 
-            vel.RotatedBy(angularVelocity * -rotateAmount);
+            rotateAmount *= (float)angularVelocity;
+
+            return Rotate(vel, (float)angularVelocity * rotateAmount);
+        }
+
+        public static Vector2 Rotate(Vector2 v, float degrees) {
+            double radians = degrees * Math.PI / 180f;
+            double sin = Math.Sin(radians);
+            double cos = Math.Cos(radians);
+
+            float tx = v.X;
+            float ty = v.Y;
+
+            return new Vector2((float)(cos * tx - sin * ty), (float)(sin * tx + cos * ty));
         }
     }
 }

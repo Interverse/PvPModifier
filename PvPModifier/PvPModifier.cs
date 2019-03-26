@@ -99,7 +99,7 @@ namespace PvPModifier {
             PvPPlayer attacker = PvPers[args.Msg.whoAmI];
 
             if (attacker == null || !attacker.TPlayer.active || !attacker.ConnectionAlive) return;
-            
+
             DataHandler.HandleData(args, data, attacker);
         }
     }

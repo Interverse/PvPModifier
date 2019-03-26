@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using Microsoft.Xna.Framework;
 using PvPModifier.CustomWeaponAPI;
 using PvPModifier.DataStorage;
 using PvPModifier.Network.Packets;
@@ -27,18 +29,35 @@ namespace PvPModifier.Network {
         }
 
         public static void OnUpdate(EventArgs args) {
-            foreach (var projectile in Main.projectile) {
-                if (!projectile.active) {
-                    projectile.SetDefaultsDirect(0);
+            foreach (var projectile in PvPModifier.Projectiles) {
+                if (projectile == null) continue;
+
+                if (!projectile.MainProjectile.active) {
+                    projectile.MainProjectile.SetDefaultsDirect(0);
                     continue;
                 }
 
-                if (Main.netMode == 2) {
-                    //Schedule updates to occur every server tick (once every 1/60th second)
-                    if (projectile.netSpam > 0) projectile.netSpam = 0;
-                    projectile.netUpdate = true;
-                    projectile.netUpdate2 = true;
-                    NetMessage.SendData(27, -1, -1, null, projectile.identity);
+                float closestPersonDistance = -1;
+                PvPPlayer target = null;
+                foreach (var pvper in PvPModifier.PvPers.Where(c => c != null && c.TPlayer.hostile && !c.TPlayer.dead)) {
+                    var distance = Vector2.Distance(projectile.MainProjectile.position, pvper.TPlayer.position);
+
+                    if (pvper != projectile.OwnerProjectile && (distance < closestPersonDistance || closestPersonDistance == -1) && distance < 200) {
+                        closestPersonDistance = distance;
+                        target = pvper;
+                    }
+                }
+
+                if (target != null) {
+                    projectile.MainProjectile.velocity = 
+                        MiscUtils.TurnTowards(projectile.MainProjectile.velocity, projectile.MainProjectile.position, target.TPlayer.Center, Math.PI / 2);
+                    if (Main.netMode == 2) {
+                        //Schedule updates to occur every server tick (once every 1/60th second)
+                        if (projectile.netSpam > 0) projectile.netSpam = 0;
+                        projectile.netUpdate = true;
+                        projectile.netUpdate2 = true;
+                        NetMessage.SendData(27, -1, -1, null, projectile.identity);
+                    }
                 }
             }
         }
@@ -156,14 +175,8 @@ namespace PvPModifier.Network {
 
                 NetMessage.SendData(27, -1, -1, null, e.Identity);
             }
-
-            PvPModifier.Projectiles[e.Identity] = (PvPProjectile) projectile;
-            PvPModifier.Projectiles[e.Identity].identity = e.Identity;
-            PvPModifier.Projectiles[e.Identity].type = e.Type;
-            PvPModifier.Projectiles[e.Identity].ItemOriginated = e.Weapon;
-            PvPModifier.Projectiles[e.Identity].owner = e.Owner;
-            PvPModifier.Projectiles[e.Identity].OwnerProjectile = PvPModifier.PvPers[e.Owner];
-            e.Attacker.ProjTracker.InsertProjectile(PvPModifier.Projectiles[e.Identity]);
+            
+            e.Attacker.ProjTracker.InsertProjectile(e.Identity, e.Type, e.Owner, e.Weapon);
             e.Attacker.ProjTracker.Projectiles[e.Type].PerformProjectileAction();
         }
 

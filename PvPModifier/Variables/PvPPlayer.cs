@@ -265,16 +265,7 @@ namespace PvPModifier.Variables {
         }
 
         public void InsertProjectile(int index, int projectileType, int ownerIndex, PvPItem item) {
-            Projectiles[projectileType] = new PvPProjectile(projectileType) {
-                identity = index,
-                ItemOriginated = item,
-                owner = ownerIndex,
-                OwnerProjectile = PvPModifier.PvPers[ownerIndex]
-            };
-        }
-
-        public void InsertProjectile(PvPProjectile projectile) {
-            Projectiles[projectile.type] = projectile;
+            Projectiles[projectileType] = new PvPProjectile(projectileType, index, ownerIndex, item);
         }
     }
 
