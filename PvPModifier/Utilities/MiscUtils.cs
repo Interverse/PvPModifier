@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Microsoft.Xna.Framework;
 using PvPModifier.Utilities.PvPConstants;
 using Terraria;
 using Utils = TShockAPI.Utils;

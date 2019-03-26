@@ -28,5 +28,13 @@ namespace PvPModifier.Utilities {
             }
             return weapon;
         }
+
+        public static void SpawnProjectile(PvPPlayer player, float x, float y, float speedX, float speedY, int type, int damage, float knockBack, int owner = 255, float ai0 = 0.0f, float ai1 = 0.0f) {
+            int projIndex = Projectile.NewProjectile(x, y, speedX, speedY, type, damage, knockBack, owner, ai0, ai1);
+            NetMessage.SendData(27, -1, -1, null, projIndex);
+
+            player.ProjTracker.InsertProjectile(projIndex, type, player.Index, player.HeldItem);
+            player.ProjTracker.Projectiles[type].PerformProjectileAction();
+        }
     }
 }

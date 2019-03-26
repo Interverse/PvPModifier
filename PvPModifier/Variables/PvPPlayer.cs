@@ -103,7 +103,7 @@ namespace PvPModifier.Variables {
         public void ApplyPvPEffects(PvPPlayer attacker, PvPItem weapon, PvPProjectile projectile, int damage) {
             this.ApplyReflectDamage(attacker, damage, weapon);
             this.ApplyArmorEffects(attacker, weapon);
-            TerrariaUtils.ActivateYoyo(this, attacker, damage, weapon.knockBack);
+            TerrariaUtils.ActivateYoyoBag(this, attacker, damage, weapon.knockBack);
         }
 
         /// <summary>
@@ -132,7 +132,7 @@ namespace PvPModifier.Variables {
         }
 
         /// <summary>
-        /// Applies nebula and frost armor effects.
+        /// Applies nebula, spectre, and frost armor effects.
         /// </summary>
         public void ApplyArmorEffects(PvPPlayer target, PvPItem weapon) {
             if (TPlayer.setNebula && TPlayer.nebulaCD == 0 && Main.rand.Next(3) == 0 && PvPModifier.Config.EnableNebula) {
@@ -181,7 +181,7 @@ namespace PvPModifier.Variables {
                 int buffType = attacker.TPlayer.buffType[x];
                 if (PresetData.FlaskDebuffs.ContainsKey(buffType)) {
                     if (weapon.melee) {
-                        this.SetBuff(Cache.Buffs[buffType].InflictBuff);
+                        SetBuff(Cache.Buffs[buffType].InflictBuff);
                     }
                     continue;
                 }

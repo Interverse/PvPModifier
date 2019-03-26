@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using PvPModifier.DataStorage;
 using PvPModifier.Utilities;
+using PvPModifier.Utilities.PvPConstants;
 using Terraria;
 
 namespace PvPModifier.Variables {
@@ -34,7 +35,9 @@ namespace PvPModifier.Variables {
                 case 536:
                     foreach (PvPPlayer pvper in PvPModifier.PvPers.Where(c => c != null && c.TPlayer.hostile && !c.TPlayer.dead)) {
                         if (OwnerProjectile == pvper) continue;
-                        if (Vector2.Distance(OwnerProjectile.TPlayer.position, pvper.TPlayer.position) <= 400) {
+                        if (Vector2.Distance(OwnerProjectile.TPlayer.position, pvper.TPlayer.position) <= Constants.MedusaHeadRange &&
+                            Collision.CanHit(OwnerProjectile.TPlayer.position, OwnerProjectile.TPlayer.width, OwnerProjectile.TPlayer.height,
+                                             pvper.TPlayer.position, pvper.TPlayer.width, pvper.TPlayer.height)) {
                             if (pvper.CheckMedusa()) {
                                 string deathmessage = pvper.Name + " was petrified by " + pvper.Name + "'s Medusa Head.";
                                 pvper.DamagePlayer(PvPUtils.GetPvPDeathMessage(deathmessage, ItemOriginated), 

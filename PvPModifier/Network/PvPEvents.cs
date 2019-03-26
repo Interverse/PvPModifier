@@ -121,13 +121,13 @@ namespace PvPModifier.Network {
         /// </summary>
         private void OnNewProjectile(object sender, ProjectileNewArgs e) {
             if (!PvPModifier.Config.EnablePlugin) return;
-            if (Main.projectile[e.Identity].active && Main.projectile[e.Identity].type == e.Type) return;
-
+            var projectile = Main.projectile[e.Identity];
+            if (projectile.active && projectile.type == e.Type) return;
+            
             if ((TShock.Players[e.Owner]?.TPlayer?.hostile ?? false) && PvPUtils.IsModifiedProjectile(e.Type)) {
                 e.Args.Handled = true;
                 DbProjectile proj = Cache.Projectiles[e.Type];
-
-                var projectile = Main.projectile[e.Identity];
+                
                 projectile.SetDefaults(proj.Shoot != -1 ? proj.Shoot : e.Type);
                 projectile.velocity = e.Velocity * proj.VelocityMultiplier;
                 projectile.damage = proj.Damage != -1 ? proj.Damage : e.Damage;
