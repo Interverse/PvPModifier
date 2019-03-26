@@ -16,6 +16,7 @@ namespace PvPModifier {
 
         public static Config Config;
         public static PvPPlayer[] PvPers = new PvPPlayer[Main.maxPlayers];
+        public static PvPProjectile[] Projectiles = new PvPProjectile[Main.maxProjectiles];
         private readonly PvPEvents _pvpevents = new PvPEvents();
 
         public override string Name => "PvP Modifier";
@@ -36,6 +37,7 @@ namespace PvPModifier {
             ServerApi.Hooks.GamePostInitialize.Register(this, OnGamePostInitialize);
             ServerApi.Hooks.NetGetData.Register(this, GetData);
             ServerApi.Hooks.ServerJoin.Register(this, OnJoin);
+            ServerApi.Hooks.GameUpdate.Register(this, PvPEvents.OnUpdate);
 
             PlayerHooks.PlayerPostLogin += OnPlayerPostLogin;
 
@@ -47,6 +49,7 @@ namespace PvPModifier {
                 ServerApi.Hooks.GamePostInitialize.Deregister(this, OnGamePostInitialize);
                 ServerApi.Hooks.NetGetData.Deregister(this, GetData);
                 ServerApi.Hooks.ServerJoin.Deregister(this, OnJoin);
+                ServerApi.Hooks.GameUpdate.Deregister(this, PvPEvents.OnUpdate);
 
                 PlayerHooks.PlayerPostLogin -= OnPlayerPostLogin;
 

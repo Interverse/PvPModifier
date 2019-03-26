@@ -143,5 +143,14 @@ namespace PvPModifier.Utilities {
 
             return split;
         }
+
+        public static void TurnTowards(this Vector2 vel, Vector2 pos, Vector2 target, double angularVelocity) {
+            Vector2 direction = target - pos;
+            direction.Normalize();
+
+            float rotateAmount = Vector3.Cross(new Vector3(vel, 0), new Vector3(direction, 0)).Z;
+
+            vel.RotatedBy(angularVelocity * -rotateAmount);
+        }
     }
 }

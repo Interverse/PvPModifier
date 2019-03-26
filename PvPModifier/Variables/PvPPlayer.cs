@@ -171,6 +171,10 @@ namespace PvPModifier.Variables {
             if ((weapon.ranged || weapon.melee) && TPlayer.frostArmor && PvPModifier.Config.EnableFrost) {
                 target.SetBuff(44, (int)(PvPModifier.Config.FrostDuration * 30));
             }
+
+            if (TPlayer.ghostHurt) {
+                TerrariaUtils.ActivateSpectreBolt(this, target, weapon, weapon.ConfigDamage);
+            }
         }
 
         /// <summary>
@@ -267,6 +271,10 @@ namespace PvPModifier.Variables {
                 owner = ownerIndex,
                 OwnerProjectile = PvPModifier.PvPers[ownerIndex]
             };
+        }
+
+        public void InsertProjectile(PvPProjectile projectile) {
+            Projectiles[projectile.type] = projectile;
         }
     }
 

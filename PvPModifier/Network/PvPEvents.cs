@@ -4,6 +4,7 @@ using PvPModifier.DataStorage;
 using PvPModifier.Network.Packets;
 using PvPModifier.Utilities;
 using PvPModifier.Utilities.PvPConstants;
+using PvPModifier.Variables;
 using Terraria;
 using TShockAPI;
 
@@ -23,6 +24,23 @@ namespace PvPModifier.Network {
             DataHandler.PvPToggled -= OnPvPToggled;
             DataHandler.PlayerUpdate -= OnPlayerUpdate;
             DataHandler.SlotUpdate -= OnSlotUpdate;
+        }
+
+        public static void OnUpdate(EventArgs args) {
+            foreach (var projectile in Main.projectile) {
+                if (!projectile.active) {
+                    projectile.SetDefaultsDirect(0);
+                    continue;
+                }
+
+                if (Main.netMode == 2) {
+                    //Schedule updates to occur every server tick (once every 1/60th second)
+                    if (projectile.netSpam > 0) projectile.netSpam = 0;
+                    projectile.netUpdate = true;
+                    projectile.netUpdate2 = true;
+                    NetMessage.SendData(27, -1, -1, null, projectile.identity);
+                }
+            }
         }
 
         /// <summary>
@@ -139,7 +157,13 @@ namespace PvPModifier.Network {
                 NetMessage.SendData(27, -1, -1, null, e.Identity);
             }
 
-            e.Attacker.ProjTracker.InsertProjectile(e.Identity, e.Type, e.Owner, e.Weapon);
+            PvPModifier.Projectiles[e.Identity] = (PvPProjectile) projectile;
+            PvPModifier.Projectiles[e.Identity].identity = e.Identity;
+            PvPModifier.Projectiles[e.Identity].type = e.Type;
+            PvPModifier.Projectiles[e.Identity].ItemOriginated = e.Weapon;
+            PvPModifier.Projectiles[e.Identity].owner = e.Owner;
+            PvPModifier.Projectiles[e.Identity].OwnerProjectile = PvPModifier.PvPers[e.Owner];
+            e.Attacker.ProjTracker.InsertProjectile(PvPModifier.Projectiles[e.Identity]);
             e.Attacker.ProjTracker.Projectiles[e.Type].PerformProjectileAction();
         }
 
