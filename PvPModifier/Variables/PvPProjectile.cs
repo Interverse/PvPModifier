@@ -11,9 +11,11 @@ namespace PvPModifier.Variables {
     /// perform pvp based calculations and actions.
     /// </summary>
     public class PvPProjectile : Projectile {
-        
+
         public PvPItem ItemOriginated;
         public PvPPlayer OwnerProjectile;
+
+        public Projectile MainProjectile;
 
         public PvPProjectile(int type) {
             SetDefaults(type);
@@ -23,13 +25,14 @@ namespace PvPModifier.Variables {
         public PvPProjectile(int type, int identity) {
             SetDefaults(type);
             this.identity = identity;
+            MainProjectile = Main.projectile[identity];
         }
 
         /// <summary>
         /// Performs additional actions for projectiles.
         /// </summary>
         public void PerformProjectileAction() {
-            if (!OwnerProjectile.TPlayer.hostile) return;
+            if (CheckNull() || !OwnerProjectile.TPlayer.hostile) return;
             switch (type) {
                 //Medusa Ray projectile
                 case 536:
@@ -40,7 +43,7 @@ namespace PvPModifier.Variables {
                                              pvper.TPlayer.position, pvper.TPlayer.width, pvper.TPlayer.height)) {
                             if (pvper.CheckMedusa()) {
                                 string deathmessage = pvper.Name + " was petrified by " + pvper.Name + "'s Medusa Head.";
-                                pvper.DamagePlayer(PvPUtils.GetPvPDeathMessage(deathmessage, ItemOriginated), 
+                                pvper.DamagePlayer(PvPUtils.GetPvPDeathMessage(deathmessage, ItemOriginated),
                                     ItemOriginated, ItemOriginated.ConfigDamage, 0, false);
                                 pvper.SetBuff(Cache.Projectiles[535].InflictBuff);
                             }
@@ -48,6 +51,10 @@ namespace PvPModifier.Variables {
                     }
                     break;
             }
+        }
+
+        public bool CheckNull() {
+            return OwnerProjectile == null || ItemOriginated == null;
         }
     }
 }

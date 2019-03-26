@@ -36,6 +36,7 @@ namespace PvPModifier {
             ServerApi.Hooks.GamePostInitialize.Register(this, OnGamePostInitialize);
             ServerApi.Hooks.NetGetData.Register(this, GetData);
             ServerApi.Hooks.ServerJoin.Register(this, OnJoin);
+            ServerApi.Hooks.ServerLeave.Register(this, OnLeave);
 
             PlayerHooks.PlayerPostLogin += OnPlayerPostLogin;
 
@@ -47,6 +48,7 @@ namespace PvPModifier {
                 ServerApi.Hooks.GamePostInitialize.Deregister(this, OnGamePostInitialize);
                 ServerApi.Hooks.NetGetData.Deregister(this, GetData);
                 ServerApi.Hooks.ServerJoin.Deregister(this, OnJoin);
+                ServerApi.Hooks.ServerLeave.Deregister(this, OnLeave);
 
                 PlayerHooks.PlayerPostLogin -= OnPlayerPostLogin;
 
@@ -55,6 +57,14 @@ namespace PvPModifier {
                 Config.Write(Config.ConfigPath);
             }
             base.Dispose(disposing);
+        }
+
+        /// <summary>
+        /// Removes a player from the plugin-stored collection of players when they leave.
+        /// </summary>
+        /// <param name="args"></param>
+        private void OnLeave(LeaveEventArgs args) {
+            PvPers[args.Who] = null;
         }
 
         /// <summary>
