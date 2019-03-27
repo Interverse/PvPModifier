@@ -28,35 +28,45 @@ namespace PvPModifier.Network {
             DataHandler.SlotUpdate -= OnSlotUpdate;
         }
 
+        /// <summary>
+        /// Handles homing projectiles. Runs every 1/60th of a second.
+        /// </summary>
+        /// <param name="args"></param>
         public static void OnUpdate(EventArgs args) {
-            foreach (var projectile in PvPModifier.Projectiles) {
-                if (projectile == null) continue;
+            if (!PvPModifier.Config.EnableHoming) return;
+            
+            lock (Main.projectile) {
+                foreach (var projectile in Main.projectile.Where(c => c != null)) {
+                    if (Cache.Projectiles[projectile.type].HomingRadius < 0) continue;
 
-                if (!projectile.MainProjectile.active) {
-                    projectile.MainProjectile.SetDefaultsDirect(0);
-                    continue;
-                }
+                    float homingRadius = Cache.Projectiles[projectile.type].HomingRadius;
+                    float angularVelocity = Cache.Projectiles[projectile.type].AngularVelocity;
 
-                float closestPersonDistance = -1;
-                PvPPlayer target = null;
-                foreach (var pvper in PvPModifier.PvPers.Where(c => c != null && c.TPlayer.hostile && !c.TPlayer.dead)) {
-                    var distance = Vector2.Distance(projectile.MainProjectile.position, pvper.TPlayer.position);
-
-                    if (pvper != projectile.OwnerProjectile && (distance < closestPersonDistance || closestPersonDistance == -1) && distance < 200) {
-                        closestPersonDistance = distance;
-                        target = pvper;
+                    if (!projectile.active) {
+                        projectile.SetDefaultsDirect(0);
+                        continue;
                     }
-                }
 
-                if (target != null) {
-                    projectile.MainProjectile.velocity = 
-                        MiscUtils.TurnTowards(projectile.MainProjectile.velocity, projectile.MainProjectile.position, target.TPlayer.Center, Math.PI / 2);
-                    if (Main.netMode == 2) {
-                        //Schedule updates to occur every server tick (once every 1/60th second)
-                        if (projectile.netSpam > 0) projectile.netSpam = 0;
-                        projectile.netUpdate = true;
-                        projectile.netUpdate2 = true;
-                        NetMessage.SendData(27, -1, -1, null, projectile.identity);
+                    float closestPersonDistance = -1;
+                    PvPPlayer target = null;
+                    foreach (var pvper in PvPModifier.PvPers.Where(c => c != null && c.TPlayer.hostile && !c.TPlayer.dead)) {
+                        var distance = Vector2.Distance(projectile.position, pvper.TPlayer.Center);
+
+                        if (pvper.Index != projectile.owner && (distance < closestPersonDistance || closestPersonDistance == -1) && distance < homingRadius) {
+                            closestPersonDistance = distance;
+                            target = pvper;
+                        }
+                    }
+
+                    if (target != null) {
+                        projectile.velocity = MiscUtils.TurnTowards(projectile.velocity, projectile.position, target.TPlayer.Center, angularVelocity);
+                        if (Main.netMode == 2) {
+                            //Schedule updates to occur every server tick (once every 1/60th second)
+                            if (projectile.netSpam > 0) projectile.netSpam = 0;
+                            projectile.netUpdate = true;
+                            projectile.netUpdate2 = true;
+                            NetMessage.SendData(27, -1, -1, null, projectile.identity);
+                        }
                     }
                 }
             }

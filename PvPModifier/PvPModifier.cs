@@ -16,7 +16,6 @@ namespace PvPModifier {
 
         public static Config Config;
         public static PvPPlayer[] PvPers = new PvPPlayer[Main.maxPlayers];
-        public static PvPProjectile[] Projectiles = new PvPProjectile[Main.maxProjectiles];
         private readonly PvPEvents _pvpevents = new PvPEvents();
 
         public override string Name => "PvP Modifier";

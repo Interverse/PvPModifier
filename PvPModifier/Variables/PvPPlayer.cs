@@ -102,7 +102,7 @@ namespace PvPModifier.Variables {
         /// </summary>
         public void ApplyPvPEffects(PvPPlayer attacker, PvPItem weapon, PvPProjectile projectile, int damage) {
             this.ApplyReflectDamage(attacker, damage, weapon);
-            this.ApplyArmorEffects(attacker, weapon);
+            this.ApplyArmorEffects(attacker, weapon, projectile);
             TerrariaUtils.ActivateYoyoBag(this, attacker, damage, weapon.knockBack);
         }
 
@@ -134,7 +134,7 @@ namespace PvPModifier.Variables {
         /// <summary>
         /// Applies nebula, spectre, and frost armor effects.
         /// </summary>
-        public void ApplyArmorEffects(PvPPlayer target, PvPItem weapon) {
+        public void ApplyArmorEffects(PvPPlayer target, PvPItem weapon, PvPProjectile projectile) {
             if (TPlayer.setNebula && TPlayer.nebulaCD == 0 && Main.rand.Next(3) == 0 && PvPModifier.Config.EnableNebula) {
                 TPlayer.nebulaCD = 30;
                 int type = Terraria.Utils.SelectRandom(Main.rand, 3453, 3454, 3455);
@@ -172,7 +172,7 @@ namespace PvPModifier.Variables {
                 target.SetBuff(44, (int)(PvPModifier.Config.FrostDuration * 30));
             }
 
-            if (TPlayer.ghostHurt) {
+            if (TPlayer.ghostHurt && projectile?.type != 356) {
                 TerrariaUtils.ActivateSpectreBolt(this, target, weapon, weapon.ConfigDamage);
             }
         }
@@ -265,7 +265,8 @@ namespace PvPModifier.Variables {
         }
 
         public void InsertProjectile(int index, int projectileType, int ownerIndex, PvPItem item) {
-            Projectiles[projectileType] = new PvPProjectile(projectileType, index, ownerIndex, item);
+            var projectile = new PvPProjectile(projectileType, index, ownerIndex, item);
+            Projectiles[projectileType] = projectile;
         }
     }
 

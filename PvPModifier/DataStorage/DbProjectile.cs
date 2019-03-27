@@ -8,6 +8,8 @@ namespace PvPModifier.DataStorage {
         public int Shoot { get; set; }
         public float VelocityMultiplier { get; set; }
         public int Damage { get; set; }
+        public float HomingRadius { get; set; }
+        public float AngularVelocity { get; set; }
         public int InflictBuffID { get; set; }
         public int InflictBuffDuration { get; set; }
         public int ReceiveBuffID { get; set; }
@@ -21,6 +23,8 @@ namespace PvPModifier.DataStorage {
                    $"Shoot: {Shoot}\n" +
                    $"Damage: {Damage}\n" +
                    $"VelocityMultiplier: {VelocityMultiplier}\n" +
+                   $"HomingRadius: {HomingRadius}\n" +
+                   $"AngularVelocity: {AngularVelocity}\n" +
                    $"Inflict Buff: {Terraria.Lang.GetBuffName(InflictBuffID)} for {InflictBuffDuration / Constants.TicksPerSecond}s\n" +
                    $"Receive Buff: {Terraria.Lang.GetBuffName(ReceiveBuffID)} for {ReceiveBuffDuration / Constants.TicksPerSecond}s";
         }

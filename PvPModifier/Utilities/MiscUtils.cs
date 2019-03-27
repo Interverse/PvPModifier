@@ -149,11 +149,11 @@ namespace PvPModifier.Utilities {
             direction.Normalize();
             Vector2 velocity = vel.SafeNormalize(new Vector2());
                 
-            float rotateAmount = Vector3.Cross(new Vector3(vel, 0), new Vector3(direction, 0)).Z;
+            double rotateAmount = Vector3.Cross(new Vector3(velocity, 0), new Vector3(direction, 0)).Z;
 
-            rotateAmount *= (float)angularVelocity;
+            rotateAmount *= angularVelocity;
 
-            return Rotate(vel, (float)angularVelocity * rotateAmount);
+            return Rotate(vel, (float)rotateAmount);
         }
 
         public static Vector2 Rotate(Vector2 v, float degrees) {

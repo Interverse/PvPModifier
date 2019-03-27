@@ -96,6 +96,16 @@
                     attribute = DbConsts.VelocityMultiplier;
                     return true;
 
+                case "homingradius":
+                case "hr":
+                    attribute = DbConsts.HomingRadius;
+                    return true;
+
+                case "angularvelocity":
+                case "av":
+                    attribute = DbConsts.AngularVelocity;
+                    return true;
+
                 case "ammoidentifier":
                 case "ai":
                     attribute = DbConsts.AmmoIdentifier;
@@ -156,6 +166,11 @@
                 case "kb":
                 case "k":
                     attribute = ConfigConsts.EnableKnockback;
+                    return true;
+
+                case "homing":
+                case "h":
+                    attribute = ConfigConsts.EnableHoming;
                     return true;
 
                 case "turtle":

@@ -7,6 +7,8 @@
 
         public const string IframeTime = "IframeTime";
         public const string EnableKnockback = "EnableKnockback";
+        
+        public const string EnableHoming = "EnableHoming";
 
         public const string EnableTurtle = "EnableTurtle";
         public const string TurtleMultiplier = "TurtleMultiplier";

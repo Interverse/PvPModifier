@@ -41,7 +41,7 @@ namespace PvPModifier {
         }
 
         private static void ResetPvP(CommandArgs args) {
-            var player = PvPModifier.PvPers[args.Player.Index];
+            var player = args.Player;
             var input = args.Parameters;
 
             if (input.Count < 1 || !StringConsts.TryGetSectionFromString(input[0], out var section)) {
@@ -121,13 +121,11 @@ namespace PvPModifier {
                     foreach (int item in foundItems) {
                         player.SendMessage($"({item}) {MiscUtils.GetNameFromInput(section, item)}", Color.Yellow);
                     }
+                    return;
                 } else {
                     player.SendErrorMessage(NothingFoundError);
                     return;
                 }
-            } else {
-                player.SendErrorMessage(InvalidCheckStat);
-                return;
             }
 
             switch (section) {
