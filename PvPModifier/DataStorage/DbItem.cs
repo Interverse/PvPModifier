@@ -13,7 +13,7 @@ namespace PvPModifier.DataStorage {
         public float ShootSpeed { get; set; }
         public int AmmoIdentifier { get; set; }
         public int UseAmmoIdentifier { get; set; }
-        public bool NotAmmo { get; set; }
+        public int NotAmmo { get; set; }
         public int InflictBuffID { get; set; }
         public int InflictBuffDuration { get; set; }
         public int ReceiveBuffID { get; set; }
@@ -21,6 +21,7 @@ namespace PvPModifier.DataStorage {
 
         public BuffInfo InflictBuff => new BuffInfo(InflictBuffID, InflictBuffDuration);
         public BuffInfo ReceiveBuff => new BuffInfo(ReceiveBuffID, ReceiveBuffDuration);
+        public bool IsNotAmmo => NotAmmo == 1;
 
         public override string ToString() {
             return $"ID: {ID}\n" +
@@ -32,7 +33,7 @@ namespace PvPModifier.DataStorage {
                    $"ShootSpeed: {ShootSpeed}\n" +
                    $"AmmoIdentifier: {AmmoIdentifier}\n" +
                    $"UseAmmoIdentifier: {UseAmmoIdentifier}\n" +
-                   $"NotAmmo: {NotAmmo}\n" +
+                   $"NotAmmo: {IsNotAmmo}\n" +
                    $"Inflict Buff: {Terraria.Lang.GetBuffName(InflictBuffID)} for {InflictBuffDuration / Constants.TicksPerSecond}s\n" +
                    $"Receive Buff: {Terraria.Lang.GetBuffName(ReceiveBuffID)} for {ReceiveBuffDuration / Constants.TicksPerSecond}s";
         }

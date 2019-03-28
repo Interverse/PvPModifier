@@ -205,13 +205,13 @@ namespace PvPModifier.DataStorage {
                     Item item = new Item();
                     item.SetDefaults(id);
                     
-                    int damage = item.damage;
                     float knockback = item.knockBack;
+                    bool notAmmo = item.notAmmo;
 
                     return "INSERT INTO {0} ({1}) VALUES ({2})"
                         .SFormat(DbTables.ItemTable,
                             string.Join(", ", DbConsts.ID, DbConsts.Damage, DbConsts.Knockback, DbConsts.UseAnimation, DbConsts.UseTime, DbConsts.Shoot, DbConsts.ShootSpeed, DbConsts.AmmoIdentifier, DbConsts.UseAmmoIdentifier, DbConsts.NotAmmo, DbConsts.InflictBuffID, DbConsts.InflictBuffDuration, DbConsts.ReceiveBuffID, DbConsts.ReceiveBuffDuration),
-                            string.Join(", ", id, damage, knockback, -1, -1, -1, -1, -1, -1, -1, inflictBuff.BuffId, inflictBuff.BuffDuration, receiveBuff.BuffId, receiveBuff.BuffDuration));
+                            string.Join(", ", id, -1, knockback, -1, -1, -1, -1, -1, -1, notAmmo.ToInt(), inflictBuff.BuffId, inflictBuff.BuffDuration, receiveBuff.BuffId, receiveBuff.BuffDuration));
 
                 case "Projectiles":
                     inflictBuff = PresetData.ProjectileDebuffs.ContainsKey(id)
@@ -252,7 +252,7 @@ namespace PvPModifier.DataStorage {
                         ShootSpeed = reader.Get<float>(DbConsts.ShootSpeed),
                         AmmoIdentifier = reader.Get<int>(DbConsts.AmmoIdentifier),
                         UseAmmoIdentifier = reader.Get<int>(DbConsts.UseAmmoIdentifier),
-                        NotAmmo = reader.Get<int>(DbConsts.NotAmmo) == 1,
+                        NotAmmo = reader.Get<int>(DbConsts.NotAmmo),
                         InflictBuffID = reader.Get<int>(DbConsts.InflictBuffID),
                         InflictBuffDuration = reader.Get<int>(DbConsts.InflictBuffDuration),
                         ReceiveBuffID = reader.Get<int>(DbConsts.ReceiveBuffDuration),
