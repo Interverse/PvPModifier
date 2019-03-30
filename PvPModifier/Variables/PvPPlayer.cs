@@ -133,7 +133,7 @@ namespace PvPModifier.Variables {
         /// Applies nebula, spectre, and frost armor effects.
         /// </summary>
         public void ApplyArmorEffects(PvPPlayer target, PvPItem weapon, PvPProjectile projectile) {
-            if (TPlayer.setNebula && TPlayer.nebulaCD == 0 && Main.rand.Next(3) == 0 && PvPModifier.Config.EnableNebula) {
+            if (TPlayer.setNebula && TPlayer.nebulaCD == 0 && Main.rand.Next(3) == 0 && PvPModifier.Config.EnableNebula && weapon.magic) {
                 TPlayer.nebulaCD = 30;
                 int type = Terraria.Utils.SelectRandom(Main.rand, 3453, 3454, 3455);
 

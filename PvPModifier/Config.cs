@@ -22,9 +22,6 @@ namespace PvPModifier {
         public double ThornMultiplier { get; set; }
 
         public bool EnableNebula { get; set; }
-        public double NebulaTier3Duration { get; set; }
-        public double NebulaTier2Duration { get; set; }
-        public double NebulaTier1Duration { get; set; }
 
         public bool EnableFrost { get; set; }
         public double FrostDuration { get; set; }
@@ -70,9 +67,6 @@ namespace PvPModifier {
                 ThornMultiplier = 1.0;
 
                 EnableNebula = true;
-                NebulaTier3Duration = 1.0;
-                NebulaTier2Duration = 3.0;
-                NebulaTier1Duration = 5.0;
 
                 EnableFrost = true;
                 FrostDuration = 3.0;
