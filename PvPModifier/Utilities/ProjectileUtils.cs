@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using PvPModifier.Variables;
+﻿using PvPModifier.Variables;
 using Terraria;
 
 namespace PvPModifier.Utilities {

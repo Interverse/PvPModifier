@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.Remoting.Messaging;
 using PvPModifier.Variables;
 
 namespace PvPModifier.Network.Packets {

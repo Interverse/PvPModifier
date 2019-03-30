@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using Microsoft.Xna.Framework;
-using PvPModifier.DataStorage;
+﻿using PvPModifier.DataStorage;
 using PvPModifier.Utilities;
 using PvPModifier.Utilities.PvPConstants;
 using Terraria;

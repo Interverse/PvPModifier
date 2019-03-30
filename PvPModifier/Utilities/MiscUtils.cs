@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using Microsoft.Xna.Framework;
 using PvPModifier.Utilities.PvPConstants;
 using Terraria;

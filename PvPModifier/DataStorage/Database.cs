@@ -4,7 +4,6 @@ using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using Mono.Data.Sqlite;
 using MySql.Data.MySqlClient;
 using PvPModifier.Utilities;

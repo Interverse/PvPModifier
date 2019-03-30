@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using PvPModifier.CustomWeaponAPI;
 using PvPModifier.DataStorage;
 using PvPModifier.Utilities;
 using Terraria;
 using Terraria.DataStructures;
-using Terraria.ID;
 using Terraria.Localization;
 using TShockAPI;
 using System.Timers;

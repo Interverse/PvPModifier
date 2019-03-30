@@ -1,10 +1,8 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
-using PvPModifier.DataStorage;
 using PvPModifier.Variables;
 using Terraria;
 using Terraria.DataStructures;
-using Terraria.ID;
 
 namespace PvPModifier.Utilities {
     /// <summary>

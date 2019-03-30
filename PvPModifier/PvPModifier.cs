@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Xna.Framework;
 using PvPModifier.DataStorage;
 using PvPModifier.Network;
 using PvPModifier.Variables;
@@ -76,7 +75,6 @@ namespace PvPModifier {
         /// <summary>
         /// Adds a player who just logged in to the plugin-stored collection of players.
         /// </summary>
-        /// <param name="e"></param>
         private void OnPlayerPostLogin(PlayerPostLoginEventArgs e) {
             PvPers[e.Player.Index] = new PvPPlayer(e.Player.Index);
         }
@@ -84,7 +82,6 @@ namespace PvPModifier {
         /// <summary>
         /// Adds the player to the plugin-stored collection of players.
         /// </summary>
-        /// <param Name="args"></param>
         private void OnJoin(JoinEventArgs args) {
             PvPers[args.Who] = new PvPPlayer(args.Who);
         }
@@ -94,7 +91,6 @@ namespace PvPModifier {
         /// after the server has loaded the game.
         /// Also loads the database.
         /// </summary>
-        /// <param name="args"></param>
         private void OnGamePostInitialize(EventArgs args) {
             if (Config.SetDefaultValues()) {
                 Database.InitDefaultTables();
