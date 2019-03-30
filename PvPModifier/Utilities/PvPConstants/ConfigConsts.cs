@@ -10,6 +10,8 @@
         
         public const string EnableHoming = "EnableHoming";
 
+        public const string EnableSpectreMask = "EnableSpectreMask";
+
         public const string EnableTurtle = "EnableTurtle";
         public const string TurtleMultiplier = "TurtleMultiplier";
         public const string EnableThorns = "EnableThorns";

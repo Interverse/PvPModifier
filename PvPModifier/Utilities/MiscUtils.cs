@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Microsoft.Xna.Framework;
 using PvPModifier.Utilities.PvPConstants;
@@ -144,27 +145,37 @@ namespace PvPModifier.Utilities {
             return split;
         }
 
+        /// <summary>
+        /// Returns a vector that is turned towards a target.
+        /// </summary>
         public static Vector2 TurnTowards(Vector2 vel, Vector2 pos, Vector2 target, double angularVelocity) {
+            float speed = vel.Length();
             Vector2 direction = target - pos;
             direction.Normalize();
-            Vector2 velocity = vel.SafeNormalize(new Vector2());
+            vel.Normalize();
                 
-            double rotateAmount = Vector3.Cross(new Vector3(velocity, 0), new Vector3(direction, 0)).Z;
-
+            //Cross product (if both vectors are converted to Vector3 where Z = 0), or determinant of 2 vectors
+            double rotateAmount = vel.X * direction.Y - vel.Y * direction.X;
             rotateAmount *= angularVelocity;
-
-            return Rotate(vel, (float)rotateAmount);
+            
+            return Rotate(vel * speed, (float)rotateAmount);
         }
 
+        /// <summary>
+        /// Rotates a vector.
+        /// </summary>
         public static Vector2 Rotate(Vector2 v, float degrees) {
             double radians = degrees * Math.PI / 180f;
-            double sin = Math.Sin(radians);
-            double cos = Math.Cos(radians);
+            //Formulas for sin and cos are from the Taylor Polynomial series
+            double sin = radians - radians * radians * radians / 6;
+            double cos = 1 - radians * radians / 2;
 
             float tx = v.X;
             float ty = v.Y;
 
-            return new Vector2((float)(cos * tx - sin * ty), (float)(sin * tx + cos * ty));
+            v.X = (float)(cos * tx - sin * ty);
+            v.Y = (float)(sin * tx + cos * ty);
+            return v;
         }
     }
 }

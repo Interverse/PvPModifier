@@ -162,7 +162,7 @@ namespace PvPModifier.Variables {
                     .PackByte((byte)Index)
                     .GetByteData();
 
-                foreach (var pvper in PvPModifier.PvPers.Where(c => c != null)) {
+                foreach (var pvper in PvPModifier.ActivePlayers) {
                     pvper.SendRawData(itemDrop);
                     pvper.SendRawData(itemOwner);
                 }

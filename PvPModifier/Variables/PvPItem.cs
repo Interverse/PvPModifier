@@ -18,11 +18,21 @@ namespace PvPModifier.Variables {
 
         /// <summary>
         /// Gets damage based off server config.
+        /// Returns the base damage of an item if the config damage value is -1
         /// </summary>
-        public int ConfigDamage => Cache.Items[type].Damage;
+        public int ConfigDamage {
+            get {
+                var configDamage = Cache.Items[type].Damage;
+                if (configDamage == -1) {
+                    return base.damage;
+                }
+
+                return configDamage;
+            }
+        }
 
         /// <summary>
-        /// Gets the knockback of an item.
+        /// Gets the knockback of an item from the player's stats.
         /// </summary>
         public float GetKnockback(PvPPlayer owner) => owner.TPlayer.GetWeaponKnockback(this, Cache.Items[type].Knockback);
     }

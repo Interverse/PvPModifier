@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using PvPModifier.CustomWeaponAPI;
@@ -8,6 +9,7 @@ using PvPModifier.Utilities;
 using PvPModifier.Utilities.PvPConstants;
 using PvPModifier.Variables;
 using Terraria;
+using TerrariaApi.Server;
 using TShockAPI;
 
 namespace PvPModifier.Network {
@@ -29,45 +31,47 @@ namespace PvPModifier.Network {
         }
 
         /// <summary>
-        /// Handles homing projectiles. Runs every 1/60th of a second.
+        /// Runs every 1/60th second to reset any inactive projectiles.
         /// </summary>
-        /// <param name="args"></param>
-        public static void OnUpdate(EventArgs args) {
+        public static void CleanupInactiveProjectiles(EventArgs args) {
+            for (int x = 0; x < Main.maxProjectiles; x++) {
+                if (!Main.projectile[x].active)
+                    Main.projectile[x] = new Projectile();
+            }
+        }
+
+        /// <summary>
+        /// Handles homing projectiles.
+        /// </summary>
+        public static void UpdateProjectileHoming(ProjectileAiUpdateEventArgs args) {
             if (!PvPModifier.Config.EnableHoming) return;
             
-            lock (Main.projectile) {
-                foreach (var projectile in Main.projectile.Where(c => c != null)) {
-                    if (Cache.Projectiles[projectile.type].HomingRadius < 0) continue;
+            var projectile = args.Projectile;
 
-                    float homingRadius = Cache.Projectiles[projectile.type].HomingRadius;
-                    float angularVelocity = Cache.Projectiles[projectile.type].AngularVelocity;
+            float homingRadius = Cache.Projectiles[projectile.type].HomingRadius;
+            if (homingRadius < 0) return;
 
-                    if (!projectile.active) {
-                        projectile.SetDefaultsDirect(0);
-                        continue;
-                    }
-
-                    float closestPersonDistance = -1;
-                    PvPPlayer target = null;
-                    foreach (var pvper in PvPModifier.PvPers.Where(c => c != null && c.TPlayer.hostile && !c.TPlayer.dead)) {
-                        var distance = Vector2.Distance(projectile.position, pvper.TPlayer.Center);
-
-                        if (pvper.Index != projectile.owner && (distance < closestPersonDistance || closestPersonDistance == -1) && distance < homingRadius) {
-                            closestPersonDistance = distance;
-                            target = pvper;
-                        }
-                    }
-
-                    if (target != null) {
-                        projectile.velocity = MiscUtils.TurnTowards(projectile.velocity, projectile.position, target.TPlayer.Center, angularVelocity);
-                        if (Main.netMode == 2) {
-                            //Schedule updates to occur every server tick (once every 1/60th second)
-                            if (projectile.netSpam > 0) projectile.netSpam = 0;
-                            projectile.netUpdate = true;
-                            projectile.netUpdate2 = true;
-                            NetMessage.SendData(27, -1, -1, null, projectile.identity);
-                        }
-                    }
+            float angularVelocity = Cache.Projectiles[projectile.type].AngularVelocity;
+            
+            PvPPlayer target = PvPUtils.FindClosestPlayer(projectile.position, projectile.owner, homingRadius * Constants.PixelToWorld);
+            
+            if (target != null) {
+                projectile.velocity = MiscUtils.TurnTowards(projectile.velocity, projectile.position, target.TPlayer.Center, angularVelocity);
+                foreach (var pvper in PvPModifier.ActivePlayers) {
+                    pvper.SendRawData(new PacketWriter()
+                        .SetType((short)PacketTypes.ProjectileNew)
+                        .PackInt16((short)projectile.identity)
+                        .PackSingle(projectile.position.X)
+                        .PackSingle(projectile.position.Y)
+                        .PackSingle(projectile.velocity.X)
+                        .PackSingle(projectile.velocity.Y)
+                        .PackSingle(projectile.knockBack)
+                        .PackInt16((short)projectile.damage)
+                        .PackByte((byte)projectile.owner)
+                        .PackInt16((short)projectile.type)
+                        .PackByte(0)
+                        .PackSingle(projectile.ai[0])
+                        .GetByteData());
                 }
             }
         }
@@ -207,7 +211,7 @@ namespace PvPModifier.Network {
                     e.Target.IsLeftFrom(e.Attacker.TPlayer.position) ? -direction : direction);
                 e.HitDirection = 0;
             }
-
+            
             e.Target.DamagePlayer(PvPUtils.GetPvPDeathMessage(e.PlayerHitReason.GetDeathText(e.Target.Name).ToString(), e.Weapon, e.Projectile),
                 e.Weapon, e.InflictedDamage, e.HitDirection, (e.Flag & 1) == 1);
 

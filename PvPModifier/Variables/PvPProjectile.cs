@@ -15,8 +15,6 @@ namespace PvPModifier.Variables {
         public PvPItem ItemOriginated;
         public PvPPlayer OwnerProjectile;
 
-        public Projectile MainProjectile => Main.projectile[identity];
-
         public PvPProjectile(int type) {
             SetDefaults(type);
             this.identity = -1;
@@ -43,16 +41,17 @@ namespace PvPModifier.Variables {
             switch (type) {
                 //Medusa Ray projectile
                 case 536:
-                    foreach (PvPPlayer pvper in PvPModifier.PvPers.Where(c => c != null && c.TPlayer.hostile && !c.TPlayer.dead)) {
-                        if (OwnerProjectile == pvper) continue;
-                        if (Vector2.Distance(OwnerProjectile.TPlayer.position, pvper.TPlayer.position) <= Constants.MedusaHeadRange &&
-                            Collision.CanHit(OwnerProjectile.TPlayer.position, OwnerProjectile.TPlayer.width, OwnerProjectile.TPlayer.height,
-                                             pvper.TPlayer.position, pvper.TPlayer.width, pvper.TPlayer.height)) {
-                            if (pvper.CheckMedusa()) {
-                                string deathmessage = pvper.Name + " was petrified by " + pvper.Name + "'s Medusa Head.";
-                                pvper.DamagePlayer(PvPUtils.GetPvPDeathMessage(deathmessage, ItemOriginated), 
+                    var target = PvPUtils.FindClosestPlayer(OwnerProjectile.TPlayer.position, OwnerProjectile.Index,
+                        Constants.MedusaHeadRange);
+
+                    if (target != null) {
+                        if (Collision.CanHit(OwnerProjectile.TPlayer.position, OwnerProjectile.TPlayer.width, OwnerProjectile.TPlayer.height,
+                            target.TPlayer.position, target.TPlayer.width, target.TPlayer.height)) {
+                            if (target.CheckMedusa()) {
+                                string deathmessage = target.Name + " was petrified by " + target.Name + "'s Medusa Head.";
+                                target.DamagePlayer(PvPUtils.GetPvPDeathMessage(deathmessage, ItemOriginated),
                                     ItemOriginated, ItemOriginated.ConfigDamage, 0, false);
-                                pvper.SetBuff(Cache.Projectiles[535].InflictBuff);
+                                target.SetBuff(Cache.Projectiles[535].InflictBuff);
                             }
                         }
                     }
