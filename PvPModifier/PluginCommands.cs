@@ -37,7 +37,6 @@ namespace PvPModifier {
             Commands.ChatCommands.Add(new Command(CheckStat, "checkstat", "cs") { HelpText = "Checks the stat of an item" });
 
             Commands.ChatCommands.Add(new Command("pvpmodifier.dev", SqlInject, "sqlinject") { HelpText = "Allows you to run a SQL command" });
-            Commands.ChatCommands.Add(new Command("pvpmodifier.dev", Reload, "reload") { HelpText = "Reloads pvp data" });
         }
 
         private static void ResetPvP(CommandArgs args) {
@@ -285,12 +284,6 @@ namespace PvPModifier {
                     player.SendErrorMessage(HelpModPvP);
                     return;
             }
-        }
-
-        private static void Reload(CommandArgs args) {
-            PvPModifier.Config = Config.Read(Config.ConfigPath);
-            Database.LoadDatabase();
-            args.Player.SendSuccessMessage("PvPModifier reloaded.");
         }
 
         private static void SqlInject(CommandArgs args) {

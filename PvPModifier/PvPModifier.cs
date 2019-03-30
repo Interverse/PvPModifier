@@ -41,6 +41,8 @@ namespace PvPModifier {
             ServerApi.Hooks.GameUpdate.Register(this, PvPEvents.CleanupInactiveProjectiles);
             ServerApi.Hooks.ServerLeave.Register(this, OnLeave);
 
+            GeneralHooks.ReloadEvent += OnReload;
+
             PlayerHooks.PlayerPostLogin += OnPlayerPostLogin;
 
             PluginCommands.RegisterCommands();
@@ -55,6 +57,8 @@ namespace PvPModifier {
                 ServerApi.Hooks.GameUpdate.Deregister(this, PvPEvents.CleanupInactiveProjectiles);
                 ServerApi.Hooks.ServerLeave.Deregister(this, OnLeave);
 
+                GeneralHooks.ReloadEvent -= OnReload;
+
                 PlayerHooks.PlayerPostLogin -= OnPlayerPostLogin;
 
                 _pvpevents.Unsubscribe();
@@ -62,6 +66,12 @@ namespace PvPModifier {
                 Config.Write(Config.ConfigPath);
             }
             base.Dispose(disposing);
+        }
+
+        private void OnReload(ReloadEventArgs e) {
+            Config = Config.Read(Config.ConfigPath);
+            Database.LoadDatabase();
+            e.Player.SendSuccessMessage("PvPModifier reloaded.");
         }
 
         /// <summary>
