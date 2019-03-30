@@ -23,7 +23,7 @@ namespace PvPModifier {
 
         private static string DatabaseAttributes = string.Join(", ", MiscUtils.GetConstants(typeof(DbConsts)));
         private static string ConfigAttributes = string.Join(", ", MiscUtils.GetConstants(typeof(ConfigConsts)));
-        
+
         private static string InvalidValue(string attribute, string section) => attribute + " does not exist for " + section;
         private static string ConfigValueFail(string attribute, string value) => "Failed to set " + value + " to " + attribute;
 
@@ -32,12 +32,12 @@ namespace PvPModifier {
         private static string NegativeExplanation = "-1 means the value was not modified.";
 
         public static void RegisterCommands() {
-            Commands.ChatCommands.Add(new Command("pvpmodifier", ModPvP, "modpvp", "mp") {HelpText = "Allows you to mod pvp values"});
+            Commands.ChatCommands.Add(new Command("pvpmodifier", ModPvP, "modpvp", "mp") { HelpText = "Allows you to mod pvp values" });
             Commands.ChatCommands.Add(new Command("pvpmodifier", ResetPvP, "resetpvp", "rpvp") { HelpText = "Allows you to reset pvp values" });
             Commands.ChatCommands.Add(new Command(CheckStat, "checkstat", "cs") { HelpText = "Checks the stat of an item" });
 
-            Commands.ChatCommands.Add(new Command("pvpmodifier.dev", SqlInject, "sqlinject") {HelpText = "Allows you to run a SQL command"});
-            Commands.ChatCommands.Add(new Command("pvpmodifier.dev", Reload, "reload") {HelpText = "Reloads pvp data"});
+            Commands.ChatCommands.Add(new Command("pvpmodifier.dev", SqlInject, "sqlinject") { HelpText = "Allows you to run a SQL command" });
+            Commands.ChatCommands.Add(new Command("pvpmodifier.dev", Reload, "reload") { HelpText = "Reloads pvp data" });
         }
 
         private static void ResetPvP(CommandArgs args) {
@@ -110,7 +110,7 @@ namespace PvPModifier {
             if (input.Count != 2 || !StringConsts.TryGetSectionFromString(input[0], out string section)) {
                 player.SendErrorMessage(InvalidCheckStat);
                 return;
-            } 
+            }
 
             if (!int.TryParse(input[1], out int id)) {
                 var foundItems = TShock.Utils.GetIdFromInput(section, input[1]);
@@ -224,7 +224,7 @@ namespace PvPModifier {
                     return;
                 }
             }
-            
+
             var pairedInputs = MiscUtils.SplitIntoPairs(input.Skip((section != StringConsts.Config).ToInt() + 1).ToArray());
 
             foreach (var pair in pairedInputs) {

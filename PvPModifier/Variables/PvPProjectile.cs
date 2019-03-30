@@ -11,9 +11,11 @@ namespace PvPModifier.Variables {
     /// perform pvp based calculations and actions.
     /// </summary>
     public class PvPProjectile : Projectile {
-        
+
         public PvPItem ItemOriginated;
         public PvPPlayer OwnerProjectile;
+
+        public Projectile MainProjectile;
 
         public PvPProjectile(int type) {
             SetDefaults(type);
@@ -23,6 +25,7 @@ namespace PvPModifier.Variables {
         public PvPProjectile(int type, int identity) {
             SetDefaults(type);
             this.identity = identity;
+            MainProjectile = Main.projectile[identity];
         }
 
         public PvPProjectile(int type, int index, int ownerIndex, PvPItem item) {

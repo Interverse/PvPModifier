@@ -110,7 +110,7 @@ namespace PvPModifier.Utilities {
             if (dbitem.ShootSpeed != -1) custwep.ShootSpeed = dbitem.ShootSpeed;
             if (dbitem.AmmoIdentifier != -1) custwep.AmmoIdentifier = (short)dbitem.AmmoIdentifier;
             if (dbitem.UseAmmoIdentifier != -1) custwep.UseAmmoIdentifier = (short)dbitem.AmmoIdentifier;
-            if (wep.notAmmo != dbitem.NotAmmo) custwep.NotAmmo = dbitem.NotAmmo;
+            if (wep.notAmmo != dbitem.IsNotAmmo) custwep.NotAmmo = dbitem.NotAmmo == 1;
 
             return custwep;
         }
@@ -123,10 +123,7 @@ namespace PvPModifier.Utilities {
             Item item = new Item();
             item.SetDefaults(type);
 
-            //Ignore coins
-            if (type >= 71 && type <= 74) return false;
-
-            return dbitem.Damage != item.damage ||
+            return dbitem.Damage != -1 ||
                    dbitem.Knockback != item.knockBack ||
                    dbitem.UseAnimation != -1 ||
                    dbitem.UseTime != -1 ||
@@ -134,7 +131,7 @@ namespace PvPModifier.Utilities {
                    dbitem.ShootSpeed != -1 ||
                    dbitem.AmmoIdentifier != -1 ||
                    dbitem.UseAmmoIdentifier != -1 ||
-                   dbitem.NotAmmo != item.notAmmo;
+                   dbitem.IsNotAmmo != item.notAmmo;
         }
 
         /// <summary>
