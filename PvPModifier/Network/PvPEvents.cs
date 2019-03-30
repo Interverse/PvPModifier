@@ -16,7 +16,8 @@ namespace PvPModifier.Network {
             DataHandler.ProjectileNew += OnNewProjectile;
             DataHandler.PvPToggled += OnPvPToggled;
             DataHandler.PlayerUpdate += OnPlayerUpdate;
-            DataHandler.SlotUpdate += OnSlotUpdate;
+            DataHandler.SlotUpdate += CheckIncomingItems;
+            DataHandler.SlotUpdate += CheckDrops;
         }
 
         public void Unsubscribe() {
@@ -24,7 +25,8 @@ namespace PvPModifier.Network {
             DataHandler.ProjectileNew -= OnNewProjectile;
             DataHandler.PvPToggled -= OnPvPToggled;
             DataHandler.PlayerUpdate -= OnPlayerUpdate;
-            DataHandler.SlotUpdate -= OnSlotUpdate;
+            DataHandler.SlotUpdate -= CheckIncomingItems;
+            DataHandler.SlotUpdate -= CheckDrops;
         }
 
         /// <summary>
@@ -81,50 +83,61 @@ namespace PvPModifier.Network {
             if (!PvPModifier.Config.EnablePlugin) return;
 
             if (e.Hostile) {
-                e.Player.InvTracker.StartPvPInventoryCheck = true;
+                e.Player.InvTracker.StartForcePvPInventoryCheck = true;
                 PvPUtils.SendCustomItems(e.Player);
             }
 
             if (!e.Hostile) {
                 PvPUtils.RefreshInventory(e.Player);
                 e.Player.InvTracker.Clear();
-                e.Player.InvTracker.StartPvPInventoryCheck = false;
+                e.Player.InvTracker.StartForcePvPInventoryCheck = false;
             }
         }
 
         /// <summary>
-        /// Handles inventory slot updates.
+        /// Replaces items placed into the inventory into the pvp versions.
         /// </summary>
-        private void OnSlotUpdate(object sender, PlayerSlotArgs e) {
+        private void CheckIncomingItems(object sender, PlayerSlotArgs e) {
+            if (!PvPModifier.Config.EnablePlugin) return;
+
+            if (!e.Player.TPlayer.hostile) return;
+            if (e.SlotId >= 58) return;
+
+            //Only runs after initial pvp check
+            if (e.Player.InvTracker.OnPvPInventoryChecked) {
+                if (e.Player.InvTracker.LockModifications) return;
+
+                //If the item is being consumed, don't modify the item
+                if (Math.Abs(e.Player.TPlayer.inventory[e.SlotId].stack - e.Stack) <= 1
+                    && e.Player.TPlayer.inventory[e.SlotId].netID == e.NetID) return;
+                
+                //If the item is modified, fill empty spaces and add it to queue
+                if (PvPUtils.IsModifiedItem(e.NetID)) {
+                    SSCUtils.FillInventoryToIndex(e.Player, Constants.EmptyItem, Constants.JunkItem, e.SlotId);
+                    SSCUtils.SetItem(e.Player, e.SlotId, Constants.EmptyItem);
+                    e.Player.InvTracker.AddItem(PvPUtils.GetCustomWeapon(e.Player, e.NetID, e.Prefix, e.Stack));
+                    e.Player.InvTracker.StartDroppingItems();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Checks if the player has received their modified items.
+        /// </summary>
+        private void CheckDrops(object sender, PlayerSlotArgs e) {
             if (!PvPModifier.Config.EnablePlugin) return;
 
             if (e.Player.TPlayer.dead) return;
             if (!e.Player.TPlayer.hostile) return;
-            if (e.SlotId >= 58) return;
-            if (e.NetID == Constants.JunkItem || e.NetID == Constants.EmptyItem) return;
 
-            //If the inventory tracker finished modding the player's inventory,
-            //the code stops in order for the hook to not detect the just modified item
-            //which would have cause an infinite loop.
-            if (e.Player.InvTracker.CheckFinishedModifications(e.NetID)) return;
-
-            //Only runs after initial pvp check
-            if (e.Player.InvTracker.OnPvPInventoryChecked) {
-                //If the item is being consumed, don't modify the item
-                if (Math.Abs(e.Player.TPlayer.inventory[e.SlotId].stack - e.Stack) <= 1
-                    && e.Player.TPlayer.inventory[e.SlotId].netID == e.NetID) return;
-
-                //If we pick up an item and it hasn't already been added to the queue
-                if (!e.Player.InvTracker.ContainsItem(e.NetID)) {
-                    //If the item is modified, fill empty spaces and add it to queue
-                    if (PvPUtils.IsModifiedItem(e.NetID)) {
-                        SSCUtils.FillInventoryToIndex(e.Player, Constants.EmptyItem, Constants.JunkItem, e.SlotId);
-                        SSCUtils.SetItem(e.Player, e.SlotId, Constants.EmptyItem);
-                        e.Player.InvTracker.AddItem(PvPUtils.GetCustomWeapon(e.Player, e.NetID, e.Prefix, e.Stack));
-                        e.Player.InvTracker.StartDroppingItems();
-                    }
-                }
+            //This method runs right after the replacement method, and since the PlayerSlotArgs will be the same,
+            //we add this check so the item doesn't instantly get checked off as being modified
+            if (e.Player.InvTracker.StartPvPInventoryCheck) {
+                e.Player.InvTracker.StartPvPInventoryCheck = false;
+                return;
             }
+
+            e.Player.InvTracker.CheckFinishedModifications(e.NetID);
         }
 
         /// <summary>
@@ -136,15 +149,15 @@ namespace PvPModifier.Network {
 
             //If the player has their pvp turned on without sending a TogglePvP packet (ex. through a /pvp command),
             //The plugin will detect it here and send the modified items.
-            if (e.Player.TPlayer.hostile && !e.Player.InvTracker.StartPvPInventoryCheck) {
-                e.Player.InvTracker.StartPvPInventoryCheck = true;
+            if (e.Player.TPlayer.hostile && !e.Player.InvTracker.StartForcePvPInventoryCheck) {
+                e.Player.InvTracker.StartForcePvPInventoryCheck = true;
                 PvPUtils.SendCustomItems(e.Player);
             }
 
-            if (!e.Player.TPlayer.hostile && e.Player.InvTracker.StartPvPInventoryCheck) {
+            if (!e.Player.TPlayer.hostile && e.Player.InvTracker.StartForcePvPInventoryCheck) {
                 PvPUtils.RefreshInventory(e.Player);
                 e.Player.InvTracker.Clear();
-                e.Player.InvTracker.StartPvPInventoryCheck = false;
+                e.Player.InvTracker.StartForcePvPInventoryCheck = false;
             }
             
             //If the player tries to use a modified item in their hand, it will be dumped back into their inventory

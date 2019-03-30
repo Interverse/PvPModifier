@@ -279,8 +279,8 @@ namespace PvPModifier.Variables {
         private int _counter;
         
         public bool LockModifications;
-        public bool FinishedModifications;
         public bool OnPvPInventoryChecked;
+        public bool StartForcePvPInventoryCheck;
         public bool StartPvPInventoryCheck;
 
         public InventoryTracker(PvPPlayer player) {
@@ -290,8 +290,8 @@ namespace PvPModifier.Variables {
         }
 
         public void AddItem(CustomWeapon wep) {
-            LockModifications = false;
-            FinishedModifications = false;
+            LockModifications = true;
+            StartPvPInventoryCheck = true;
             _inv.Add(wep);
         }
 
@@ -311,24 +311,20 @@ namespace PvPModifier.Variables {
             }
         }
 
-        public bool ContainsItem(short id) {
-            return _inv.Contains(new CustomWeapon { ItemNetId = id });
-        }
-
-        public void CheckItem(short id) {
+        public bool CheckItem(short id) {
             _inv.Remove(new CustomWeapon {ItemNetId = id});
 
-            if (_inv.Count == 0 && !LockModifications) {
-                LockModifications = true;
-                FinishedModifications = true;
+            if (_inv.Count == 0 && LockModifications) {
+                LockModifications = false;
             }
+
+            return !LockModifications;
         }
 
         public bool CheckFinishedModifications(short id) {
-            CheckItem(id);
-            if (LockModifications && FinishedModifications || _player == null) {
-                SSCUtils.FillInventory(_player, Constants.JunkItem, 0);
-                FinishedModifications = false;
+            if (CheckItem(id) || _player == null) {
+                SSCUtils.FillInventory(_player, Constants.JunkItem, Constants.EmptyItem);
+                LockModifications = false;
                 OnPvPInventoryChecked = true;
                 Clear();
                 return true;
