@@ -96,6 +96,16 @@
                     attribute = DbConsts.VelocityMultiplier;
                     return true;
 
+                case "homingradius":
+                case "hr":
+                    attribute = DbConsts.HomingRadius;
+                    return true;
+
+                case "angularvelocity":
+                case "av":
+                    attribute = DbConsts.AngularVelocity;
+                    return true;
+
                 case "ammoidentifier":
                 case "ai":
                     attribute = DbConsts.AmmoIdentifier;
@@ -147,37 +157,65 @@
         /// <returns>A boolean whether the input matches a config value</returns>
         public static bool TryGetConfigValueFromString(string input, out string attribute) {
             switch (input.ToLower()) {
+                case "enableplugin":
                 case "plugin":
+                case "ep":
                 case "p":
                     attribute = ConfigConsts.EnablePlugin;
                     return true;
 
+                case "enableknockback":
                 case "knockback":
+                case "ekb":
                 case "kb":
+                case "ek":
                 case "k":
                     attribute = ConfigConsts.EnableKnockback;
                     return true;
 
+                case "enablehoming":
+                case "homing":
+                case "eh":
+                case "h":
+                    attribute = ConfigConsts.EnableHoming;
+                    return true;
+
+                case "enablespectremask":
+                case "spectremask":
+                case "esm":
+                case "sm":
+                    attribute = ConfigConsts.EnableSpectreMask;
+                    return true;
+
+                case "enableturtle":
                 case "turtle":
-                case "tu":
+                case "etu":
                     attribute = ConfigConsts.EnableTurtle;
                     return true;
 
+                case "enablethorns":
                 case "thorns":
+                case "eth":
                     attribute = ConfigConsts.EnableThorns;
                     return true;
 
+                case "enablenebula":
                 case "nebula":
+                case "en":
                 case "n":
                     attribute = ConfigConsts.EnableNebula;
                     return true;
 
+                case "enablebuffs":
                 case "buffs":
+                case "eb":
                 case "b":
                     attribute = ConfigConsts.EnableBuffs;
                     return true;
 
+                case "enablefrost":
                 case "frost":
+                case "ef":
                 case "f":
                     attribute = ConfigConsts.EnableFrost;
                     return true;

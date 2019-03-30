@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
 using PvPModifier.CustomWeaponAPI;
 using PvPModifier.DataStorage;
 using PvPModifier.Utilities.PvPConstants;
@@ -147,5 +148,30 @@ namespace PvPModifier.Utilities {
         /// Converts a regular Terraria <see cref="Item"/> into a <see cref="PvPItem"/>.
         /// </summary>
         public static PvPItem ConvertToPvPItem(Item item) => new PvPItem(item);
+
+        /// <summary>
+        /// Finds the closest pvper from a position.
+        /// </summary>
+        /// <param name="position">The position to find players from</param>
+        /// <param name="selfIndex">The user to ignore</param>
+        /// <param name="radius">The radius in which to find players (in pixels)</param>
+        public static PvPPlayer FindClosestPlayer(Vector2 position, int selfIndex, float radius = -1) {
+            float closestPersonDistance = -1;
+            PvPPlayer target = null;
+            for (int pvperIndex = 0; pvperIndex < Main.maxPlayers; pvperIndex++) {
+                var pvper = PvPModifier.PvPers[pvperIndex];
+                if (pvper == null || !pvper.TPlayer.hostile || pvper.TPlayer.dead) continue;
+
+                var distance = Vector2.Distance(position, pvper.TPlayer.Center);
+
+                if (pvper.Index != selfIndex && (distance < closestPersonDistance || closestPersonDistance == -1) 
+                                             && (distance < radius || radius == -1)) {
+                    closestPersonDistance = distance;
+                    target = pvper;
+                }
+            }
+
+            return target;
+        }
     }
 }

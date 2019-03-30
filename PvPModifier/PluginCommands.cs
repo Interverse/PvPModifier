@@ -53,7 +53,7 @@ namespace PvPModifier {
                 case StringConsts.Database:
                     Database.InitDefaultTables();
                     Database.LoadDatabase();
-                    foreach (var pvper in PvPModifier.PvPers.Where(c => c != null))
+                    foreach (var pvper in PvPModifier.ActivePlayers)
                         PvPUtils.RefreshInventory(pvper);
                     player.SendSuccessMessage("Reset database to default.");
                     return;
@@ -90,7 +90,7 @@ namespace PvPModifier {
 
                     string log = "Reset the values of {0}".SFormat(MiscUtils.GetNameFromInput(section, id));
                     if (section == DbTables.ItemTable)
-                        foreach (var pvper in PvPModifier.PvPers.Where(c => c != null))
+                        foreach (var pvper in PvPModifier.ActivePlayers)
                             PvPUtils.RefreshItem(pvper, id);
                     player.SendSuccessMessage(log);
                     Database.LoadDatabase();
@@ -250,7 +250,9 @@ namespace PvPModifier {
                     }
 
                     if (dbObject is DbItem) {
-                        foreach (var pvper in PvPModifier.PvPers.Where(c => c != null && c.TPlayer.hostile)) {
+                        foreach (var pvper in PvPModifier.ActivePlayers) {
+                            if (!pvper.TPlayer.hostile) continue;
+
                             int itemindex = pvper.TPlayer.FindItem(id);
                             if (itemindex != -1) {
                                 SSCUtils.FillInventoryToIndex(pvper, 0, Constants.JunkItem, itemindex);

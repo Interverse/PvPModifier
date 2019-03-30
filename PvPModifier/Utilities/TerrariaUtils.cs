@@ -202,5 +202,28 @@ namespace PvPModifier.Utilities {
                     attacker.TPlayer.whoAmI, (num2 > 0).ToInt());
             }
         }
+
+        public static void ActivateSpectreBolt(PvPPlayer attacker, PvPPlayer target, PvPItem weapon, int dmg) {
+            if (!weapon.magic)
+                return;
+            int Damage = dmg / 2;
+            if (dmg / 2 <= 1)
+                return;
+            int? attackingIndex = null;
+            if (Collision.CanHit(attacker.TPlayer.position, attacker.TPlayer.width, attacker.TPlayer.height, target.TPlayer.position, target.TPlayer.width, target.TPlayer.height)) {
+                attackingIndex = target.Index;
+            }
+            if (attackingIndex == null)
+                return;
+            int num3 = (int)attackingIndex;
+            double num4 = 4.0;
+            float num5 = (float)Main.rand.Next(-100, 101);
+            float num6 = (float)Main.rand.Next(-100, 101);
+            double num7 = Math.Sqrt((double)num5 * (double)num5 + (double)num6 * (double)num6);
+            float num8 = (float)(num4 / num7);
+            float SpeedX = num5 * num8;
+            float SpeedY = num6 * num8;
+            ProjectileUtils.SpawnProjectile(attacker, attacker.X, attacker.Y, SpeedX, SpeedY, 356, Damage, 0.0f, attacker.Index, (float)num3, 0.0f);
+        }
     }
 }

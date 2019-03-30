@@ -12,6 +12,10 @@ namespace PvPModifier {
         public double IframeTime { get; set; }
         public bool EnableKnockback { get; set; }
 
+        public bool EnableHoming { get; set; }
+        
+        public bool EnableSpectreMask { get; set; }
+
         public bool EnableTurtle { get; set; }
         public double TurtleMultiplier { get; set; }
         public bool EnableThorns { get; set; }
@@ -55,6 +59,10 @@ namespace PvPModifier {
 
                 IframeTime = 0.0;
                 EnableKnockback = false;
+
+                EnableHoming = true;
+
+                EnableSpectreMask = true;
 
                 EnableTurtle = true;
                 TurtleMultiplier = 1.0;

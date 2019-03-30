@@ -23,6 +23,8 @@ namespace PvPModifier {
         public override string Description => "Adds customizability to pvp";
         public override Version Version => Assembly.GetExecutingAssembly().GetName().Version;
 
+        public static PvPPlayer[] ActivePlayers => PvPers.Where(c => c != null).ToArray();
+
         public PvPModifier(Main game) : base(game) { }
 
         public override void Initialize() {
@@ -36,6 +38,8 @@ namespace PvPModifier {
             ServerApi.Hooks.GamePostInitialize.Register(this, OnGamePostInitialize);
             ServerApi.Hooks.NetGetData.Register(this, GetData);
             ServerApi.Hooks.ServerJoin.Register(this, OnJoin);
+            ServerApi.Hooks.ProjectileAIUpdate.Register(this, PvPEvents.UpdateProjectileHoming);
+            ServerApi.Hooks.GameUpdate.Register(this, PvPEvents.CleanupInactiveProjectiles);
             ServerApi.Hooks.ServerLeave.Register(this, OnLeave);
 
             PlayerHooks.PlayerPostLogin += OnPlayerPostLogin;
@@ -48,6 +52,8 @@ namespace PvPModifier {
                 ServerApi.Hooks.GamePostInitialize.Deregister(this, OnGamePostInitialize);
                 ServerApi.Hooks.NetGetData.Deregister(this, GetData);
                 ServerApi.Hooks.ServerJoin.Deregister(this, OnJoin);
+                ServerApi.Hooks.ProjectileAIUpdate.Deregister(this, PvPEvents.UpdateProjectileHoming);
+                ServerApi.Hooks.GameUpdate.Deregister(this, PvPEvents.CleanupInactiveProjectiles);
                 ServerApi.Hooks.ServerLeave.Deregister(this, OnLeave);
 
                 PlayerHooks.PlayerPostLogin -= OnPlayerPostLogin;
@@ -106,7 +112,7 @@ namespace PvPModifier {
             PvPPlayer attacker = PvPers[args.Msg.whoAmI];
 
             if (attacker == null || !attacker.TPlayer.active || !attacker.ConnectionAlive) return;
-            
+
             DataHandler.HandleData(args, data, attacker);
         }
     }
