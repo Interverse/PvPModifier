@@ -202,6 +202,7 @@ namespace PvPModifier {
                         foreach (int item in foundItems) {
                             player.SendMessage($"({item}) {MiscUtils.GetNameFromInput(section, item)}", Color.Yellow);
                         }
+                        return;
                     } else {
                         player.SendErrorMessage(NothingFoundError);
                         return;
@@ -215,7 +216,7 @@ namespace PvPModifier {
                 }
 
                 if (input.Count < 4) {
-                    player.SendErrorMessage(InvalidSyntax + "Please enter values for the attribute.");
+                    player.SendErrorMessage(InvalidSyntax + "Please enter value(s) for the attribute(s).");
                     return;
                 }
             } else {
@@ -241,9 +242,11 @@ namespace PvPModifier {
                 case DbTables.ItemTable:
                 case DbTables.ProjectileTable:
                 case DbTables.BuffTable:
+                    player.SendMessage($"Modifying {MiscUtils.GetNameFromInput(section, id)} ({id})", Color.Green);
+
                     foreach (var pair in pairedInputs) {
                         if (dbObject.TrySetValue(pair[0], pair[1])) {
-                            player.SendSuccessMessage($"Set {pair[0]} to {pair[1]}");
+                            player.SendMessage($"Set {pair[0]} to {pair[1]}", Color.YellowGreen);
                         } else {
                             player.SendErrorMessage(InvalidValue(pair[0], section));
                         }
