@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using PvPModifier.DataStorage;
@@ -35,6 +36,8 @@ namespace PvPModifier {
             Commands.ChatCommands.Add(new Command("pvpmodifier", ModPvP, "modpvp", "mp") { HelpText = "Allows you to mod pvp values" });
             Commands.ChatCommands.Add(new Command("pvpmodifier", ResetPvP, "resetpvp", "rpvp") { HelpText = "Allows you to reset pvp values" });
             Commands.ChatCommands.Add(new Command(CheckStat, "checkstat", "cs") { HelpText = "Checks the stat of an item" });
+
+            Commands.ChatCommands.Add(new Command("pvpcontroller.dpsify", DPSify, "dpsify") { HelpText = "Tries to change all weapon's damage to be around the same dps." });
 
             Commands.ChatCommands.Add(new Command("pvpmodifier.dev", SqlInject, "sqlinject") { HelpText = "Allows you to run a SQL command" });
         }
@@ -293,6 +296,39 @@ namespace PvPModifier {
                 args.Player.SendErrorMessage("SQL statement failed.");
             else
                 args.Player.SendSuccessMessage("SQL statement was successful.");
+        }
+
+        private static void DPSify(CommandArgs args) {
+            List<string> queries = new List<string>();
+
+            if (args.Parameters.Count < 1 || !Double.TryParse(args.Parameters[0], out double dps)) {
+                args.Player.SendErrorMessage("Invalid dps value.");
+                return;
+            }
+
+            dps = dps * dps;
+
+            for (int x = 0; x < Terraria.Main.maxItemTypes; x++) {
+                Item item = new Item();
+                item.SetDefaults(x);
+
+                int useanimation = Cache.Items[x].UseAnimation != -1 ? Cache.Items[x].UseAnimation.Replace(0, 1) : item.useAnimation;
+
+                if (item.damage > 0 && item.ammo == 0) {
+                    queries.Add($"UPDATE {DbTables.ItemTable} SET {DbConsts.Damage} = {(int)Math.Sqrt(dps * useanimation / 60.0)} WHERE ID = {x}");
+                }
+            }
+
+            Database.PerformTransaction(queries.ToArray());
+            Database.LoadDatabase();
+            string log = $"Set all weapon's pvp dps to be approx {Math.Sqrt(dps)}";
+            args.Player.SendSuccessMessage(log);
+            PvPModifier.Config.LogChange($"({DateTime.Now}) {log}");
+
+            foreach (var player in PvPModifier.ActivePlayers) {
+                if (player.TPlayer.hostile)
+                    PvPUtils.SendCustomItems(player);
+            }
         }
     }
 }
