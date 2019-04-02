@@ -33,8 +33,8 @@ namespace PvPModifier {
         private static string NegativeExplanation = "-1 means the value was not modified.";
 
         public static void RegisterCommands() {
-            Commands.ChatCommands.Add(new Command("pvpmodifier", ModPvP, "modpvp", "mp") { HelpText = "Allows you to mod pvp values" });
-            Commands.ChatCommands.Add(new Command("pvpmodifier", ResetPvP, "resetpvp", "rpvp") { HelpText = "Allows you to reset pvp values" });
+            Commands.ChatCommands.Add(new Command("pvpmodifier.modpvp", ModPvP, "modpvp", "mp") { HelpText = "Allows you to mod pvp values" });
+            Commands.ChatCommands.Add(new Command("pvpmodifier.resetpvp", ResetPvP, "resetpvp", "rpvp") { HelpText = "Allows you to reset pvp values" });
             Commands.ChatCommands.Add(new Command(CheckStat, "checkstat", "cs") { HelpText = "Checks the stat of an item" });
 
             Commands.ChatCommands.Add(new Command("pvpcontroller.dpsify", DPSify, "dpsify") { HelpText = "Tries to change all weapon's damage to be around the same dps." });
