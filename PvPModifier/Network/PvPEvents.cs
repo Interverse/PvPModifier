@@ -215,7 +215,7 @@ namespace PvPModifier.Network {
             if (e.Attacker.TPlayer.immune || !e.Target.CanBeHit()) return;
 
             if (PvPModifier.Config.EnableKnockback) {
-                int direction = e.HitDirection - 1;
+                int direction = e.HitDirection;
                 e.Target.KnockBack(e.Weapon.GetKnockback(e.Attacker),
                     e.Attacker.AngleFrom(e.Target.TPlayer.position),
                     e.Target.IsLeftFrom(e.Attacker.TPlayer.position) ? -direction : direction);

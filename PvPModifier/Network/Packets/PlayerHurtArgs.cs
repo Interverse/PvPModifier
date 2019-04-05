@@ -58,7 +58,7 @@ namespace PvPModifier.Network.Packets {
                 Weapon = weapon,
                 InflictedDamage = data.ReadInt16(),
                 DamageReceived = target.DamageReceived(InflictedDamage),
-                HitDirection = data.ReadByte(),
+                HitDirection = data.ReadByte() - 1,
                 Flag = data.ReadByte()
             };
 
