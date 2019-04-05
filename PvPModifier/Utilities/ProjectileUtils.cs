@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using PvPModifier.Variables;
+﻿using PvPModifier.Variables;
 using Terraria;
 
 namespace PvPModifier.Utilities {
@@ -7,7 +6,7 @@ namespace PvPModifier.Utilities {
         /// <summary>
         /// Gets the weapon of a projectile.
         /// For certain projectiles, it will pull from a list of
-        /// projectile-to-weapon-mapping Dictionaries and returns
+        /// projectile-to-weapon Dictionaries and returns
         /// the weapon based off the dictionary mapping.
         /// </summary>
         /// <param name="owner">Index of the owner of projectile.</param>
@@ -27,6 +26,14 @@ namespace PvPModifier.Utilities {
                 weapon = owner.HeldItem;
             }
             return weapon;
+        }
+
+        public static void SpawnProjectile(PvPPlayer player, float x, float y, float speedX, float speedY, int type, int damage, float knockBack, int owner = 255, float ai0 = 0.0f, float ai1 = 0.0f) {
+            int projIndex = Projectile.NewProjectile(x, y, speedX, speedY, type, damage, knockBack, owner, ai0, ai1);
+            NetMessage.SendData(27, -1, -1, null, projIndex);
+
+            player.ProjTracker.InsertProjectile(projIndex, type, player.Index, player.HeldItem);
+            player.ProjTracker.Projectiles[type].PerformProjectileAction();
         }
     }
 }

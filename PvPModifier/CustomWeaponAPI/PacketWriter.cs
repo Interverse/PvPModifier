@@ -2,6 +2,9 @@
 using System.IO;
 
 namespace PvPModifier.CustomWeaponAPI {
+    /// <summary>
+    /// Made by Rofle(popstarfreas) from DarkGaming
+    /// </summary>
     public class PacketWriter {
         private MemoryStream memoryStream;
         private BinaryWriter writer;

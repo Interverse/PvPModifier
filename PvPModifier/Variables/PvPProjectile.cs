@@ -1,7 +1,6 @@
-﻿using System.Linq;
-using Microsoft.Xna.Framework;
-using PvPModifier.DataStorage;
+﻿using PvPModifier.DataStorage;
 using PvPModifier.Utilities;
+using PvPModifier.Utilities.PvPConstants;
 using Terraria;
 
 namespace PvPModifier.Variables {
@@ -10,9 +9,11 @@ namespace PvPModifier.Variables {
     /// perform pvp based calculations and actions.
     /// </summary>
     public class PvPProjectile : Projectile {
-        
+
         public PvPItem ItemOriginated;
         public PvPPlayer OwnerProjectile;
+
+        public Projectile MainProjectile;
 
         public PvPProjectile(int type) {
             SetDefaults(type);
@@ -22,28 +23,45 @@ namespace PvPModifier.Variables {
         public PvPProjectile(int type, int identity) {
             SetDefaults(type);
             this.identity = identity;
+            MainProjectile = Main.projectile[identity];
+        }
+
+        public PvPProjectile(int type, int index, int ownerIndex, PvPItem item) {
+            SetDefaults(type);
+            identity = index;
+            ItemOriginated = item;
+            owner = ownerIndex;
+            OwnerProjectile = PvPModifier.PvPers[ownerIndex];
         }
 
         /// <summary>
         /// Performs additional actions for projectiles.
         /// </summary>
         public void PerformProjectileAction() {
+            if (CheckNull() || !OwnerProjectile.TPlayer.hostile) return;
             switch (type) {
                 //Medusa Ray projectile
                 case 536:
-                    foreach (PvPPlayer pvper in PvPModifier.PvPers.Where(c => c != null && c.TPlayer.hostile)) {
-                        if (OwnerProjectile == pvper) continue;
-                        if (Vector2.Distance(OwnerProjectile.TPlayer.position, pvper.TPlayer.position) <= 300) {
-                            if (pvper.CheckMedusa()) {
-                                string deathmessage = pvper.Name + " was petrified by " + pvper.Name + "'s Medusa Head.";
-                                pvper.DamagePlayer(PvPUtils.GetPvPDeathMessage(deathmessage, ItemOriginated), 
-                                    ItemOriginated, pvper.DamageReceived(ItemOriginated.ConfigDamage), 0, false);
-                                pvper.SetBuff(Cache.Projectiles[535].InflictBuff);
+                    var target = PvPUtils.FindClosestPlayer(OwnerProjectile.TPlayer.position, OwnerProjectile.Index,
+                        Constants.MedusaHeadRange);
+
+                    if (target != null) {
+                        if (Collision.CanHit(OwnerProjectile.TPlayer.position, OwnerProjectile.TPlayer.width, OwnerProjectile.TPlayer.height,
+                            target.TPlayer.position, target.TPlayer.width, target.TPlayer.height)) {
+                            if (target.CheckMedusa()) {
+                                string deathmessage = target.Name + " was petrified by " + target.Name + "'s Medusa Head.";
+                                target.DamagePlayer(PvPUtils.GetPvPDeathMessage(deathmessage, ItemOriginated),
+                                    ItemOriginated, ItemOriginated.ConfigDamage, 0, false);
+                                target.SetBuff(Cache.Projectiles[535].InflictBuff);
                             }
                         }
                     }
                     break;
             }
+        }
+
+        public bool CheckNull() {
+            return OwnerProjectile == null || ItemOriginated == null;
         }
     }
 }

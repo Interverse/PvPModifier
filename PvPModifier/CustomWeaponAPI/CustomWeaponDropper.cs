@@ -2,6 +2,9 @@
 using Terraria;
 
 namespace PvPModifier.CustomWeaponAPI {
+    /// <summary>
+    /// Made by Rofle(popstarfreas) from DarkGaming
+    /// </summary>
     public static class CustomWeaponDropper {
         private static byte GetAlterStartFlags(CustomWeapon weapon) {
             byte flagByte = 0;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using PvPModifier.DataStorage;
 using PvPModifier.Network;
@@ -21,6 +22,8 @@ namespace PvPModifier {
         public override string Description => "Adds customizability to pvp";
         public override Version Version => Assembly.GetExecutingAssembly().GetName().Version;
 
+        public static PvPPlayer[] ActivePlayers => PvPers.Where(c => c != null).ToArray();
+
         public PvPModifier(Main game) : base(game) { }
 
         public override void Initialize() {
@@ -34,6 +37,11 @@ namespace PvPModifier {
             ServerApi.Hooks.GamePostInitialize.Register(this, OnGamePostInitialize);
             ServerApi.Hooks.NetGetData.Register(this, GetData);
             ServerApi.Hooks.ServerJoin.Register(this, OnJoin);
+            ServerApi.Hooks.ProjectileAIUpdate.Register(this, PvPEvents.UpdateProjectileHoming);
+            ServerApi.Hooks.GameUpdate.Register(this, PvPEvents.CleanupInactiveProjectiles);
+            ServerApi.Hooks.ServerLeave.Register(this, OnLeave);
+
+            GeneralHooks.ReloadEvent += OnReload;
 
             PlayerHooks.PlayerPostLogin += OnPlayerPostLogin;
 
@@ -45,6 +53,11 @@ namespace PvPModifier {
                 ServerApi.Hooks.GamePostInitialize.Deregister(this, OnGamePostInitialize);
                 ServerApi.Hooks.NetGetData.Deregister(this, GetData);
                 ServerApi.Hooks.ServerJoin.Deregister(this, OnJoin);
+                ServerApi.Hooks.ProjectileAIUpdate.Deregister(this, PvPEvents.UpdateProjectileHoming);
+                ServerApi.Hooks.GameUpdate.Deregister(this, PvPEvents.CleanupInactiveProjectiles);
+                ServerApi.Hooks.ServerLeave.Deregister(this, OnLeave);
+
+                GeneralHooks.ReloadEvent -= OnReload;
 
                 PlayerHooks.PlayerPostLogin -= OnPlayerPostLogin;
 
@@ -55,10 +68,23 @@ namespace PvPModifier {
             base.Dispose(disposing);
         }
 
+        private void OnReload(ReloadEventArgs e) {
+            Config = Config.Read(Config.ConfigPath);
+            Database.LoadDatabase();
+            e.Player.SendSuccessMessage("PvPModifier reloaded.");
+        }
+
+        /// <summary>
+        /// Removes a player from the plugin-stored collection of players when they leave.
+        /// </summary>
+        /// <param name="args"></param>
+        private void OnLeave(LeaveEventArgs args) {
+            PvPers[args.Who] = null;
+        }
+
         /// <summary>
         /// Adds a player who just logged in to the plugin-stored collection of players.
         /// </summary>
-        /// <param name="e"></param>
         private void OnPlayerPostLogin(PlayerPostLoginEventArgs e) {
             PvPers[e.Player.Index] = new PvPPlayer(e.Player.Index);
         }
@@ -66,7 +92,6 @@ namespace PvPModifier {
         /// <summary>
         /// Adds the player to the plugin-stored collection of players.
         /// </summary>
-        /// <param Name="args"></param>
         private void OnJoin(JoinEventArgs args) {
             PvPers[args.Who] = new PvPPlayer(args.Who);
         }
@@ -76,7 +101,6 @@ namespace PvPModifier {
         /// after the server has loaded the game.
         /// Also loads the database.
         /// </summary>
-        /// <param name="args"></param>
         private void OnGamePostInitialize(EventArgs args) {
             if (Config.SetDefaultValues()) {
                 Database.InitDefaultTables();
@@ -94,7 +118,7 @@ namespace PvPModifier {
             PvPPlayer attacker = PvPers[args.Msg.whoAmI];
 
             if (attacker == null || !attacker.TPlayer.active || !attacker.ConnectionAlive) return;
-            
+
             DataHandler.HandleData(args, data, attacker);
         }
     }

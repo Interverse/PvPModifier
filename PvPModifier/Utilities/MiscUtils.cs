@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Text;
+using System.Reflection;
+using Microsoft.Xna.Framework;
+using PvPModifier.Utilities.PvPConstants;
 using Terraria;
+using Utils = TShockAPI.Utils;
 
 namespace PvPModifier.Utilities {
     public static class MiscUtils {
@@ -28,77 +30,15 @@ namespace PvPModifier.Utilities {
         public static string SqlString(this string s) => "'" + SanitizeString(s) + "'";
 
         /// <summary>
-        /// Determines whether a bit is a 1 or a 0 in an integer in a specified index, 
-        /// where the index starts at 0 from the right.
-        /// </summary>
-        /// <param name="bitIndex">Index of the bit, starting from 0 on the left</param>
-        /// <returns>True if the bit in the specified index is 1</returns>
-        public static bool GetBit(this int x, int bitIndex) => (x & (1 << bitIndex)) != 0;
-
-        /// <summary>
-        /// Restricts a number between a minimum and maximum value.
-        /// </summary>
-        public static T Clamp<T>(this T num, T min, T max) where T : IComparable =>
-            num.CompareTo(min) < 0 ? min : num.CompareTo(max) > 0 ? max : num;
-
-        /// <summary>
         /// Replaces a value with another.
         /// </summary>
         public static T Replace<T>(this T num, T value, T replace) where T : IComparable =>
             num.CompareTo(value) == 0 ? replace : num;
 
         /// <summary>
-        /// Generates a string with a specified amount of line breaks.
-        /// </summary>
-        /// <param name="amount">The amount of line breaks.</param>
-        public static string LineBreaks(int amount) {
-            StringBuilder sb = new StringBuilder();
-            for (int x = 0; x < amount; x++) {
-                sb.Append("\r\n");
-            }
-            return sb.ToString();
-        }
-
-        /// <summary>
-        /// Separates a string into lines after a specified amount of characters.
-        /// </summary>
-        public static string SeparateToLines(this string s, int charPerLine = 45, string breakSpecifier = "") {
-            StringBuilder sb = new StringBuilder();
-            int count = 0;
-
-            foreach (char ch in s) {
-                if (count != 0 && count >= charPerLine) {
-                    if (breakSpecifier != "" && ch.ToString() == breakSpecifier) {
-                        sb.Append("\r\n");
-                        count = 0;
-                    }
-                }
-                sb.Append(ch);
-                count++;
-            }
-
-            return sb.ToString();
-        }
-
-        /// <summary>
-        /// Converts a string into a given Type.
-        /// </summary>
-        /// <returns>Returns false if the string is incompatible with the given Type</returns>
-        public static bool TryConvertStringToType(Type referenceType, string input, out object obj) {
-            try {
-                TypeConverter typeConverter = TypeDescriptor.GetConverter(referenceType);
-                obj = typeConverter.ConvertFromString(input.SanitizeString());
-                return true;
-            } catch {
-                obj = default(object);
-                return false;
-            }
-        }
-
-        /// <summary>
         /// Gets a list of projectiles based off the given Name query.
         /// </summary>
-        public static List<int> GetProjectileByName(this TShockAPI.Utils util, string name) {
+        public static List<int> GetProjectileByName(this Utils util, string name) {
             string nameLower = name.ToLower();
             var found = new List<int>();
             for (int i = 1; i < Main.maxProjectileTypes; i++) {
@@ -114,13 +54,17 @@ namespace PvPModifier.Utilities {
         /// <summary>
         /// Gets the id of an item, projectile, or buff.
         /// </summary>
-        public static List<int> GetIdFromInput(this TShockAPI.Utils util, string input, string name) {
-            if (input == DbConsts.ItemTable) {
+        public static List<int> GetIdFromInput(this Utils util, string section, string name) {
+            if (section == DbTables.ItemTable) {
                 var itemsFound = util.GetItemByName(name);
                 return itemsFound.Select(c => c.netID).ToList();
-            } else if (input == DbConsts.ProjectileTable) {
+            }
+
+            if (section == DbTables.ProjectileTable) {
                 return util.GetProjectileByName(name);
-            } else if (input == DbConsts.BuffTable) {
+            }
+
+            if (section == DbTables.BuffTable) {
                 return util.GetBuffByName(name);
             }
 
@@ -128,34 +72,24 @@ namespace PvPModifier.Utilities {
         }
 
         /// <summary>
-        /// Gets the name from the ID from a given table
+        /// Gets the name from the ID from a given section
         /// </summary>
         /// <param name="input">Input: ItemTable, ProjectileTable, BuffTable</param>
-        /// <param name="id">ID of the input</param>
-        /// <returns></returns>
+        /// <param name="id">ID of the section</param>
         public static string GetNameFromInput(string input, int id) {
-            if (input == DbConsts.ItemTable) {
+            if (input == DbTables.ItemTable) {
                 return Lang.GetItemName(id).ToString();
-            } else if (input == DbConsts.ProjectileTable) {
+            }
+
+            if (input == DbTables.ProjectileTable) {
                 return Lang.GetProjectileName(id).ToString();
-            } else if (input == DbConsts.BuffTable) {
+            }
+
+            if (input == DbTables.BuffTable) {
                 return Lang.GetBuffName(id);
             }
 
             return default(string);
-        }
-
-        /// <summary>
-        /// Converts a string to the reference value type,
-        /// and sets the string to the given reference value.
-        /// </summary>
-        public static bool SetValueWithString<T>(ref T value, string val) {
-            try {
-                value = (T)Convert.ChangeType(val, value.GetType());
-                return true;
-            } catch {
-                return false;
-            }
         }
 
         /// <summary>
@@ -173,14 +107,72 @@ namespace PvPModifier.Utilities {
             }
         }
 
-        public static string[][] SplitIntoPairs(string[] input) {
-            string[][] split = new string[input.Length / 2][];
+        /// <summary>
+        /// Gets all the constants of a class and stores it in a list.
+        /// </summary>
+        /// <param name="class">The class to pull constants from.</param>
+        /// <returns>A list of strings containing all the constants in a class.</returns>
+        public static List<string> GetConstants(Type @class) {
+            List<string> constants = new List<string>();
+
+            var values = @class.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
+                .Where(fi => fi.IsLiteral && !fi.IsInitOnly).ToList();
+
+            foreach (var value in values) {
+                //({value.FieldType.ToString().Split('.').Last()}) to get the variable class
+                constants.Add($"{value.Name}");
+            }
+
+            return constants;
+        }
+
+        /// <summary>
+        /// Pairs up an array of inputs into a two dimensional array.
+        /// First array is the number of paired inputs.
+        /// Second array contains the paired inputs, with length 2.
+        /// </summary>
+        /// <param name="input">An array of objects to be paired up with</param>
+        public static T[][] SplitIntoPairs<T>(T[] input) {
+            T[][] split = new T[input.Length / 2][];
 
             for (int x = 0; x < input.Length / 2; x++) {
                 split[x] = new [] { input[x * 2] , input[x * 2 + 1] };
             }
 
             return split;
+        }
+
+        /// <summary>
+        /// Returns a vector that is turned towards a target.
+        /// </summary>
+        public static Vector2 TurnTowards(Vector2 vel, Vector2 pos, Vector2 target, double angularVelocity) {
+            float speed = vel.Length();
+            Vector2 direction = target - pos;
+            direction.Normalize();
+            vel.Normalize();
+                
+            //Cross product (if both vectors are converted to Vector3 where Z = 0), or determinant of 2 vectors
+            double rotateAmount = vel.X * direction.Y - vel.Y * direction.X;
+            rotateAmount *= angularVelocity;
+            
+            return Rotate(vel * speed, (float)rotateAmount);
+        }
+
+        /// <summary>
+        /// Rotates a vector.
+        /// </summary>
+        public static Vector2 Rotate(Vector2 v, float degrees) {
+            double radians = degrees * Math.PI / 180f;
+            //Formulas for sin and cos are from the Taylor Polynomial series
+            double sin = radians - radians * radians * radians / 6;
+            double cos = 1 - radians * radians / 2;
+
+            float tx = v.X;
+            float ty = v.Y;
+
+            v.X = (float)(cos * tx - sin * ty);
+            v.Y = (float)(sin * tx + cos * ty);
+            return v;
         }
     }
 }

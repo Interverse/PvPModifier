@@ -1,12 +1,8 @@
 ﻿using PvPModifier.DataStorage;
-using PvPModifier.Utilities;
 using Terraria;
 
 namespace PvPModifier.Variables {
     public class PvPItem : Item {
-        public double Damage;
-        public float Knockback;
-
         public PvPItem() {
             SetDefaults();
         }
@@ -14,28 +10,29 @@ namespace PvPModifier.Variables {
         public PvPItem(Item item) {
             SetDefaults(item.type);
             prefix = item.prefix;
-            Damage = item.damage;
-            Knockback = item.knockBack;
         }
 
         public PvPItem(int type) {
             SetDefaults(type);
-            Damage = damage;
-            Knockback = knockBack;
         }
 
         /// <summary>
         /// Gets damage based off server config.
+        /// Returns the base damage of an item if the config damage value is -1
         /// </summary>
-        public int ConfigDamage => Cache.Items[type].Damage;
+        public int ConfigDamage {
+            get {
+                var configDamage = Cache.Items[type].Damage;
+                if (configDamage == -1) {
+                    return base.damage;
+                }
+
+                return configDamage;
+            }
+        }
 
         /// <summary>
-        /// Gets the projectile shot by an item.
-        /// </summary>
-        public PvPProjectile Shoot => new PvPProjectile(Cache.Items[type].Shoot);
-
-        /// <summary>
-        /// Gets the knockback of an item.
+        /// Gets the knockback of an item from the player's stats.
         /// </summary>
         public float GetKnockback(PvPPlayer owner) => owner.TPlayer.GetWeaponKnockback(this, Cache.Items[type].Knockback);
     }

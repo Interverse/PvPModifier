@@ -8,10 +8,13 @@ namespace PvPModifier {
         public static string LogPath = Path.Combine(TShock.SavePath, "pvplog.txt");
 
         public bool EnablePlugin { get; set; }
-        public bool EnableTooltip { get; set; }
 
         public double IframeTime { get; set; }
         public bool EnableKnockback { get; set; }
+
+        public bool EnableHoming { get; set; }
+        
+        public bool EnableSpectreMask { get; set; }
 
         public bool EnableTurtle { get; set; }
         public double TurtleMultiplier { get; set; }
@@ -19,9 +22,6 @@ namespace PvPModifier {
         public double ThornMultiplier { get; set; }
 
         public bool EnableNebula { get; set; }
-        public double NebulaTier3Duration { get; set; }
-        public double NebulaTier2Duration { get; set; }
-        public double NebulaTier1Duration { get; set; }
 
         public bool EnableFrost { get; set; }
         public double FrostDuration { get; set; }
@@ -53,10 +53,13 @@ namespace PvPModifier {
         public bool SetDefaultValues() {
             if (FirstConfigGeneration) {
                 EnablePlugin = true;
-                EnableTooltip = true;
 
                 IframeTime = 0.0;
                 EnableKnockback = false;
+
+                EnableHoming = true;
+
+                EnableSpectreMask = true;
 
                 EnableTurtle = true;
                 TurtleMultiplier = 1.0;
@@ -64,9 +67,6 @@ namespace PvPModifier {
                 ThornMultiplier = 1.0;
 
                 EnableNebula = true;
-                NebulaTier3Duration = 1.0;
-                NebulaTier2Duration = 3.0;
-                NebulaTier1Duration = 5.0;
 
                 EnableFrost = true;
                 FrostDuration = 3.0;

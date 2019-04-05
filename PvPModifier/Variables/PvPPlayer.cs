@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using PvPModifier.CustomWeaponAPI;
 using PvPModifier.DataStorage;
 using PvPModifier.Utilities;
 using Terraria;
 using Terraria.DataStructures;
-using Terraria.ID;
 using Terraria.Localization;
 using TShockAPI;
 using System.Timers;
+using PvPModifier.Utilities.PvPConstants;
 
 namespace PvPModifier.Variables {
     public class PvPPlayer : TSPlayer {
@@ -95,21 +94,14 @@ namespace PvPModifier.Variables {
             });
         }
 
-        public void SetSelectedSlot(int index) {
-            new SSCAction(this, () => {
-                TPlayer.selectedItem = index;
-                NetMessage.SendData(13, -1, -1, null, Index);
-            });
-        }
-
         /// <summary>
         /// Applies effects that normally won't work in vanilla pvp.
         /// Effects include nebula/frost armor, yoyo-bag projectiles, and thorns/turtle damage.
         /// </summary>
         public void ApplyPvPEffects(PvPPlayer attacker, PvPItem weapon, PvPProjectile projectile, int damage) {
             this.ApplyReflectDamage(attacker, damage, weapon);
-            this.ApplyArmorEffects(attacker, weapon);
-            TerrariaUtils.ActivateYoyo(attacker, this, damage, weapon.knockBack);
+            this.ApplyArmorEffects(attacker, weapon, projectile);
+            TerrariaUtils.ActivateYoyoBag(this, attacker, damage, weapon.knockBack);
         }
 
         /// <summary>
@@ -120,28 +112,28 @@ namespace PvPModifier.Variables {
             Random random = new Random();
             string deathmessage = PresetData.ReflectedDeathMessages[random.Next(PresetData.ReflectedDeathMessages.Count)];
 
-            if (PvPModifier.Config.EnableTurtle && this.TPlayer.setBonus == Language.GetTextValue("ArmorSetBonus.Turtle") && weapon.melee) {
+            if (PvPModifier.Config.EnableTurtle && attacker.TPlayer.setBonus == Language.GetTextValue("ArmorSetBonus.Turtle") && weapon.melee) {
                 deathmessage = Name + deathmessage + attacker.Name + "'s Turtle Armor.";
                 int turtleDamage = (int)(damage * PvPModifier.Config.TurtleMultiplier);
 
-                NetMessage.SendPlayerHurt(attacker.Index, PlayerDeathReason.ByCustomReason(PvPUtils.GetPvPDeathMessage(deathmessage, reflectTag, 2)),
+                NetMessage.SendPlayerHurt(this.Index, PlayerDeathReason.ByCustomReason(PvPUtils.GetPvPDeathMessage(deathmessage, reflectTag, type: 2)),
                     turtleDamage, 0, false, true, 5);
             }
 
-            if (PvPModifier.Config.EnableThorns && this.TPlayer.FindBuffIndex(14) != -1) {
+            if (PvPModifier.Config.EnableThorns && attacker.TPlayer.FindBuffIndex(14) != -1) {
                 int thornDamage = (int)(damage * PvPModifier.Config.ThornMultiplier);
                 deathmessage = Name + deathmessage + attacker.Name + "'s Thorns.";
 
-                NetMessage.SendPlayerHurt(attacker.Index, PlayerDeathReason.ByCustomReason(PvPUtils.GetPvPDeathMessage(deathmessage, reflectTag, 2)),
+                NetMessage.SendPlayerHurt(this.Index, PlayerDeathReason.ByCustomReason(PvPUtils.GetPvPDeathMessage(deathmessage, reflectTag, type: 2)),
                     thornDamage, 0, false, true, 5);
             } 
         }
 
         /// <summary>
-        /// Applies nebula and frost armor effects.
+        /// Applies nebula, spectre, and frost armor effects.
         /// </summary>
-        public void ApplyArmorEffects(PvPPlayer target, PvPItem weapon) {
-            if (TPlayer.setNebula && TPlayer.nebulaCD == 0 && Main.rand.Next(3) == 0 && PvPModifier.Config.EnableNebula) {
+        public void ApplyArmorEffects(PvPPlayer target, PvPItem weapon, PvPProjectile projectile) {
+            if (TPlayer.setNebula && TPlayer.nebulaCD == 0 && Main.rand.Next(3) == 0 && PvPModifier.Config.EnableNebula && weapon.magic) {
                 TPlayer.nebulaCD = 30;
                 int type = Terraria.Utils.SelectRandom(Main.rand, 3453, 3454, 3455);
 
@@ -168,7 +160,7 @@ namespace PvPModifier.Variables {
                     .PackByte((byte)Index)
                     .GetByteData();
 
-                foreach (var pvper in PvPModifier.PvPers.Where(c => c != null)) {
+                foreach (var pvper in PvPModifier.ActivePlayers) {
                     pvper.SendRawData(itemDrop);
                     pvper.SendRawData(itemOwner);
                 }
@@ -176,6 +168,10 @@ namespace PvPModifier.Variables {
 
             if ((weapon.ranged || weapon.melee) && TPlayer.frostArmor && PvPModifier.Config.EnableFrost) {
                 target.SetBuff(44, (int)(PvPModifier.Config.FrostDuration * 30));
+            }
+
+            if (TPlayer.ghostHurt && projectile?.type != 356) {
+                TerrariaUtils.ActivateSpectreBolt(this, target, weapon, weapon.ConfigDamage);
             }
         }
 
@@ -187,35 +183,12 @@ namespace PvPModifier.Variables {
                 int buffType = attacker.TPlayer.buffType[x];
                 if (PresetData.FlaskDebuffs.ContainsKey(buffType)) {
                     if (weapon.melee) {
-                        this.SetBuff(Cache.Buffs[buffType].InflictBuff);
+                        SetBuff(Cache.Buffs[buffType].InflictBuff);
                     }
                     continue;
                 }
                 SetBuff(Cache.Buffs[buffType].InflictBuff);
             }
-        }
-
-        /// <summary>
-        /// Gets the first available ammo for a weapon.
-        /// </summary>
-        /// <param Name="weapon">The weapon to find ammo for.</param>
-        /// <returns></returns>
-        public PvPItem GetFirstAvailableAmmo(PvPItem weapon) {
-            int useAmmo = weapon.useAmmo;
-
-            if (useAmmo == AmmoID.None) return new PvPItem();
-
-            for (int x = 54; x < NetItem.InventorySlots; x++) {
-                if (this.TPlayer.inventory[x].ammo == useAmmo)
-                    return PvPUtils.ConvertToPvPItem(this.TPlayer.inventory[x]);
-            }
-
-            for (int x = 0; x < NetItem.InventorySlots - 4; x++) {
-                if (this.TPlayer.inventory[x].ammo == useAmmo)
-                    return PvPUtils.ConvertToPvPItem(this.TPlayer.inventory[x]);
-            }
-
-            return new PvPItem();
         }
 
         /// <summary>
@@ -231,7 +204,6 @@ namespace PvPModifier.Variables {
         /// <summary>
         /// Determines whether a person can be hit based off the config iframes.
         /// </summary>
-        /// <returns></returns>
         public bool CanBeHit() {
             if ((DateTime.Now - _lastHit).TotalMilliseconds >= PvPModifier.Config.IframeTime) {
                 _lastHit = DateTime.Now;
@@ -241,6 +213,9 @@ namespace PvPModifier.Variables {
             return false;
         }
 
+        /// <summary>
+        /// Sets a cooldown for when a player can have their inventory modded.
+        /// </summary>
         public bool CanModInventory() {
             if ((DateTime.Now - _lastInventoryModified).TotalMilliseconds >= Constants.SpawnItemDelay) {
                 _lastInventoryModified = DateTime.Now;
@@ -288,24 +263,24 @@ namespace PvPModifier.Variables {
         }
 
         public void InsertProjectile(int index, int projectileType, int ownerIndex, PvPItem item) {
-            Projectiles[projectileType] = new PvPProjectile(projectileType) {
-                identity = index,
-                ItemOriginated = item,
-                owner = ownerIndex,
-                OwnerProjectile = PvPModifier.PvPers[ownerIndex]
-            };
+            var projectile = new PvPProjectile(projectileType, index, ownerIndex, item);
+            Projectiles[projectileType] = projectile;
         }
     }
 
+    /// <summary>
+    /// Helper class that handles inventory modifications.
+    /// </summary>
     public class InventoryTracker {
         private readonly PvPPlayer _player;
         private readonly List<CustomWeapon> _inv = new List<CustomWeapon>();
 
-        private Timer _timer;
+        private readonly Timer _timer;
+        private int _counter;
         
         public bool LockModifications;
-        public bool FinishedModifications;
         public bool OnPvPInventoryChecked;
+        public bool StartForcePvPInventoryCheck;
         public bool StartPvPInventoryCheck;
 
         public InventoryTracker(PvPPlayer player) {
@@ -315,8 +290,8 @@ namespace PvPModifier.Variables {
         }
 
         public void AddItem(CustomWeapon wep) {
-            LockModifications = false;
-            FinishedModifications = false;
+            LockModifications = true;
+            StartPvPInventoryCheck = true;
             _inv.Add(wep);
         }
 
@@ -328,26 +303,28 @@ namespace PvPModifier.Variables {
         private void DropModifiedItems(object sender = null, ElapsedEventArgs e = null) {
             foreach (var wep in _inv)
                 CustomWeaponDropper.DropItem(_player, wep);
-        }
 
-        public bool ContainsItem(short id) {
-            return _inv.Contains(new CustomWeapon { ItemNetId = id });
-        }
-
-        public void CheckItem(short id) {
-            _inv.Remove(new CustomWeapon {ItemNetId = id});
-
-            if (_inv.Count == 0 && !LockModifications) {
-                LockModifications = true;
-                FinishedModifications = true;
+            _counter++;
+            if (_counter >= 10) {
+                Clear();
+                CheckFinishedModifications(0);
             }
         }
 
+        public bool CheckItem(short id) {
+            _inv.Remove(new CustomWeapon {ItemNetId = id});
+
+            if (_inv.Count == 0 && LockModifications) {
+                LockModifications = false;
+            }
+
+            return !LockModifications;
+        }
+
         public bool CheckFinishedModifications(short id) {
-            CheckItem(id);
-            if (LockModifications && FinishedModifications || _player == null) {
-                SSCUtils.FillInventory(_player, Constants.JunkItem, 0);
-                FinishedModifications = false;
+            if (CheckItem(id) || _player == null) {
+                SSCUtils.FillInventory(_player, Constants.JunkItem, Constants.EmptyItem);
+                LockModifications = false;
                 OnPvPInventoryChecked = true;
                 Clear();
                 return true;
@@ -359,6 +336,7 @@ namespace PvPModifier.Variables {
         public void Clear() {
             _inv.Clear();
             _timer.Enabled = false;
+            _counter = 0;
         }
     }
 }

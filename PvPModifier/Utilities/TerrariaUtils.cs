@@ -1,10 +1,8 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
-using PvPModifier.DataStorage;
 using PvPModifier.Variables;
 using Terraria;
 using Terraria.DataStructures;
-using Terraria.ID;
 
 namespace PvPModifier.Utilities {
     /// <summary>
@@ -71,33 +69,6 @@ namespace PvPModifier.Utilities {
                             dmg = (int)(dmg * 0.75);
                     }
                 }
-            }
-            return dmg;
-        }
-
-        /// <summary>
-        /// Gets the damage of a weapon with all the player's buffs and stat boosts.
-        /// </summary>
-        public static int GetWeaponDamage(PvPPlayer attacker, PvPItem weapon, int damage = -1) {
-            int dmg = (int)((damage != -1 ? weapon.ConfigDamage : damage) * GetPrefixMultiplier(weapon.prefix));
-
-            if (dmg > 0) {
-                if (weapon.melee)
-                    dmg = (int)(dmg * (double)attacker.TPlayer.meleeDamage);
-                else if (weapon.ranged) {
-                    dmg = (int)(dmg * (double)attacker.TPlayer.rangedDamage);
-                    if (weapon.useAmmo == AmmoID.Arrow || weapon.useAmmo == AmmoID.Stake)
-                        dmg = (int)(dmg * (double)attacker.TPlayer.arrowDamage);
-                    if (weapon.useAmmo == AmmoID.Bullet || weapon.useAmmo == AmmoID.CandyCorn)
-                        dmg = (int)(dmg * (double)attacker.TPlayer.bulletDamage);
-                    if (weapon.useAmmo == AmmoID.Rocket || weapon.useAmmo == AmmoID.StyngerBolt || (weapon.useAmmo == AmmoID.JackOLantern || weapon.useAmmo == AmmoID.NailFriendly))
-                        dmg = (int)(dmg * (double)attacker.TPlayer.rocketDamage);
-                } else if (weapon.thrown)
-                    dmg = (int)(dmg * (double)attacker.TPlayer.thrownDamage);
-                else if (weapon.magic)
-                    dmg = (int)(dmg * (double)attacker.TPlayer.magicDamage);
-                else if (weapon.summon)
-                    dmg = (int)(dmg * (double)attacker.TPlayer.minionDamage);
             }
             return dmg;
         }
@@ -193,7 +164,7 @@ namespace PvPModifier.Utilities {
         /// This normally does not work in vanilla servers, so this must be emulated on a 
         /// server for accessories such as Yoyo Bag to work.
         /// </summary>
-        public static void ActivateYoyo(PvPPlayer attacker, PvPPlayer target, int dmg, float kb) {
+        public static void ActivateYoyoBag(PvPPlayer attacker, PvPPlayer target, int dmg, float kb) {
             if (!attacker.TPlayer.yoyoGlove && attacker.TPlayer.counterWeight <= 0)
                 return;
             int index1 = -1;
@@ -215,8 +186,7 @@ namespace PvPModifier.Utilities {
                 Vector2 vector21 = Vector2.Subtract(target.LastNetPosition, attacker.TPlayer.Center);
                 vector21.Normalize();
                 Vector2 vector22 = Vector2.Multiply(vector21, 16f);
-                int index = Projectile.NewProjectile(attacker.TPlayer.Center.X, attacker.TPlayer.Center.Y, vector22.X, vector22.Y, Main.projectile[index1].type, Main.projectile[index1].damage, Main.projectile[index1].knockBack, attacker.TPlayer.whoAmI, 1f);
-                NetMessage.SendData(27, -1, -1, null, index);
+                ProjectileUtils.SpawnProjectile(attacker, attacker.TPlayer.Center.X, attacker.TPlayer.Center.Y, vector22.X, vector22.Y, Main.projectile[index1].type, Main.projectile[index1].damage, Main.projectile[index1].knockBack, attacker.TPlayer.whoAmI, 1f);
             } else {
                 if (num2 >= num1)
                     return;
@@ -225,9 +195,33 @@ namespace PvPModifier.Utilities {
                 vector21.Normalize();
                 Vector2 vector22 = Vector2.Multiply(vector21, 16f);
                 float knockBack = (float)((kb + 6.0) / 2.0);
-                index = num2 > 0 ? Projectile.NewProjectile(attacker.TPlayer.Center.X, attacker.TPlayer.Center.Y, vector22.X, vector22.Y, attacker.TPlayer.counterWeight, (int)(dmg * 0.8), knockBack, attacker.TPlayer.whoAmI, 1f) : Projectile.NewProjectile(attacker.TPlayer.Center.X, attacker.TPlayer.Center.Y, vector22.X, vector22.Y, attacker.TPlayer.counterWeight, (int)(dmg * 0.8), knockBack, attacker.TPlayer.whoAmI);
-                NetMessage.SendData(27, -1, -1, null, index);
+                ProjectileUtils.SpawnProjectile(attacker, attacker.TPlayer.Center.X, attacker.TPlayer.Center.Y,
+                    vector22.X, vector22.Y, attacker.TPlayer.counterWeight, (int) (dmg * 0.8), knockBack,
+                    attacker.TPlayer.whoAmI, (num2 > 0).ToInt());
             }
+        }
+
+        public static void ActivateSpectreBolt(PvPPlayer attacker, PvPPlayer target, PvPItem weapon, int dmg) {
+            if (!weapon.magic)
+                return;
+            int Damage = dmg / 2;
+            if (dmg / 2 <= 1)
+                return;
+            int? attackingIndex = null;
+            if (Collision.CanHit(attacker.TPlayer.position, attacker.TPlayer.width, attacker.TPlayer.height, target.TPlayer.position, target.TPlayer.width, target.TPlayer.height)) {
+                attackingIndex = target.Index;
+            }
+            if (attackingIndex == null)
+                return;
+            int num3 = (int)attackingIndex;
+            double num4 = 4.0;
+            float num5 = (float)Main.rand.Next(-100, 101);
+            float num6 = (float)Main.rand.Next(-100, 101);
+            double num7 = Math.Sqrt((double)num5 * (double)num5 + (double)num6 * (double)num6);
+            float num8 = (float)(num4 / num7);
+            float SpeedX = num5 * num8;
+            float SpeedY = num6 * num8;
+            ProjectileUtils.SpawnProjectile(attacker, attacker.X, attacker.Y, SpeedX, SpeedY, 356, Damage, 0.0f, attacker.Index, (float)num3, 0.0f);
         }
     }
 }

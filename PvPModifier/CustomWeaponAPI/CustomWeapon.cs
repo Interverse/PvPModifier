@@ -1,7 +1,9 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 
 namespace PvPModifier.CustomWeaponAPI {
+    /// <summary>
+    /// Made by Rofle(popstarfreas) from DarkGaming
+    /// </summary>
     public class CustomWeapon {
         public byte? Prefix;
         public short ItemNetId;

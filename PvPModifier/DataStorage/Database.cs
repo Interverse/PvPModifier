@@ -4,10 +4,10 @@ using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using Mono.Data.Sqlite;
 using MySql.Data.MySqlClient;
 using PvPModifier.Utilities;
+using PvPModifier.Utilities.PvPConstants;
 using PvPModifier.Variables;
 using Terraria;
 using TShockAPI;
@@ -49,7 +49,7 @@ namespace PvPModifier.DataStorage {
                     ? (IQueryBuilder)new MysqlQueryCreator()
                     : new SqliteQueryCreator());
 
-            sqlCreator.EnsureTableStructure(new SqlTable(DbConsts.ItemTable,
+            sqlCreator.EnsureTableStructure(new SqlTable(DbTables.ItemTable,
                 new SqlColumn(DbConsts.ID, MySqlDbType.Int32) {Primary = true},
                 new SqlColumn(DbConsts.Damage, MySqlDbType.Int32),
                 new SqlColumn(DbConsts.Knockback, MySqlDbType.Float),
@@ -65,32 +65,37 @@ namespace PvPModifier.DataStorage {
                 new SqlColumn(DbConsts.ReceiveBuffID, MySqlDbType.Int32),
                 new SqlColumn(DbConsts.ReceiveBuffDuration, MySqlDbType.Int32)));
 
-            sqlCreator.EnsureTableStructure(new SqlTable(DbConsts.ProjectileTable,
+            sqlCreator.EnsureTableStructure(new SqlTable(DbTables.ProjectileTable,
                 new SqlColumn(DbConsts.ID, MySqlDbType.Int32) {Primary = true},
                 new SqlColumn(DbConsts.Shoot, MySqlDbType.Int32),
                 new SqlColumn(DbConsts.VelocityMultiplier, MySqlDbType.Float),
                 new SqlColumn(DbConsts.Damage, MySqlDbType.Int32),
+                new SqlColumn(DbConsts.HomingRadius, MySqlDbType.Float),
+                new SqlColumn(DbConsts.AngularVelocity, MySqlDbType.Float),
                 new SqlColumn(DbConsts.InflictBuffID, MySqlDbType.Int32),
                 new SqlColumn(DbConsts.InflictBuffDuration, MySqlDbType.Int32),
                 new SqlColumn(DbConsts.ReceiveBuffID, MySqlDbType.Int32),
                 new SqlColumn(DbConsts.ReceiveBuffDuration, MySqlDbType.Int32)));
 
-           sqlCreator.EnsureTableStructure(new SqlTable(DbConsts.BuffTable,
+           sqlCreator.EnsureTableStructure(new SqlTable(DbTables.BuffTable,
                 new SqlColumn(DbConsts.ID, MySqlDbType.Int32) { Primary = true },
                 new SqlColumn(DbConsts.InflictBuffID, MySqlDbType.Int32),
                 new SqlColumn(DbConsts.InflictBuffDuration, MySqlDbType.Int32),
                 new SqlColumn(DbConsts.ReceiveBuffID, MySqlDbType.Int32),
                 new SqlColumn(DbConsts.ReceiveBuffDuration, MySqlDbType.Int32)));
         }
-
-        public static QueryResult QueryReader(string query, params object[] args) {
-            return db.QueryReader(query, args);
+        
+        /// <summary>
+        /// Returns data from the SQL database from a given SQL query.
+        /// </summary>
+        public static QueryResult QueryReader(string query) {
+            return db.QueryReader(query);
         }
 
         /// <summary>
         /// Performs an SQL query
         /// </summary>
-        /// <param Name="query">The SQL statement</param>
+        /// <param name="query">The SQL statement to be ran.</param>
         /// <returns>
         /// Returns true if the statement was successful.
         /// Returns false if the statement failed.
@@ -122,9 +127,9 @@ namespace PvPModifier.DataStorage {
         }
 
         /// <summary>
-        /// Performs a series of sql statements in a transaction.
-        /// This allows for fast mass querying as opposed to querying
-        /// one statement at a time.
+        /// Performs a series of SQL statements in a transaction.
+        /// This allows for fast mass querying which is faster than
+        /// querying one statement at a time.
         /// </summary>
         /// <param name="queries"></param>
         public static void PerformTransaction(string[] queries) {
@@ -159,45 +164,6 @@ namespace PvPModifier.DataStorage {
             string sourceId = !selectAll ? " WHERE ID = {0}".SFormat(index) : "";
             return Query(string.Format("UPDATE {0} SET {1} = {2}{3}", table, column, value, sourceId));
         }
-        
-        /// <summary>
-        /// Gets the value of an item, projectile, or buff based off id.
-        /// </summary>
-        public static T GetData<T> (string table, int id, string column) {
-            using (var reader = QueryReader(string.Format("SELECT {0} FROM {1} WHERE ID = {2}", column, table, id.ToString()))) {
-                while (reader.Read()) {
-                    return reader.Get<T>(column);
-                }
-            }
-
-            return default(T);
-        }
-
-        /// <summary>
-        /// Gets the value of an item, projectile, or buff based off id.
-        /// </summary>
-        public static object GetDataWithType(string table, int id, string column, Type type) {
-            MethodInfo getDataMethod = typeof(Database).GetMethod("GetData")?.MakeGenericMethod(type);
-
-            return getDataMethod?.Invoke(null, new object[] { table, id, column } );
-        }
-
-        /// <summary>
-        /// Gets the type of the sql column.
-        /// </summary>
-        public static Type GetType(string table, string column) {
-            try {
-                using (var reader = QueryReader(string.Format("SELECT {0} FROM {1}", column, table))) {
-                    while (reader.Read()) {
-                        return reader.Reader.GetFieldType(0);
-                    }
-                }
-            } catch (Exception e) {
-                TShock.Log.Write(e.ToString(), TraceLevel.Error);
-            }
-
-            return default(Type);
-        }
 
         /// <summary>
         /// Creates all the default stats of items, projectiles, and buffs and puts it into
@@ -206,21 +172,21 @@ namespace PvPModifier.DataStorage {
         public static void InitDefaultTables() {
             List<string> queries = new List<string>();
 
-            var tableList = new[] { DbConsts.ItemTable, DbConsts.ProjectileTable, DbConsts.BuffTable };
+            var tableList = new[] { DbTables.ItemTable, DbTables.ProjectileTable, DbTables.BuffTable };
             foreach (string table in tableList) {
                 queries.Add("DELETE FROM {0}".SFormat(table));
             }
 
             for (int x = 0; x < Main.maxItemTypes; x++) {
-                queries.Add(GetDefaultValueSqlString(DbConsts.ItemTable, x));
+                queries.Add(GetDefaultValueSqlString(DbTables.ItemTable, x));
             }
 
             for (int x = 0; x < Main.maxProjectileTypes; x++) {
-                queries.Add(GetDefaultValueSqlString(DbConsts.ProjectileTable, x));
+                queries.Add(GetDefaultValueSqlString(DbTables.ProjectileTable, x));
             }
 
             for (int x = 0; x < Main.maxBuffTypes; x++) {
-                queries.Add(GetDefaultValueSqlString(DbConsts.BuffTable, x));
+                queries.Add(GetDefaultValueSqlString(DbTables.BuffTable, x));
             }
 
             PerformTransaction(queries.ToArray());
@@ -240,13 +206,13 @@ namespace PvPModifier.DataStorage {
                     Item item = new Item();
                     item.SetDefaults(id);
                     
-                    int damage = item.damage;
                     float knockback = item.knockBack;
+                    bool notAmmo = item.notAmmo;
 
                     return "INSERT INTO {0} ({1}) VALUES ({2})"
-                        .SFormat(DbConsts.ItemTable,
+                        .SFormat(DbTables.ItemTable,
                             string.Join(", ", DbConsts.ID, DbConsts.Damage, DbConsts.Knockback, DbConsts.UseAnimation, DbConsts.UseTime, DbConsts.Shoot, DbConsts.ShootSpeed, DbConsts.AmmoIdentifier, DbConsts.UseAmmoIdentifier, DbConsts.NotAmmo, DbConsts.InflictBuffID, DbConsts.InflictBuffDuration, DbConsts.ReceiveBuffID, DbConsts.ReceiveBuffDuration),
-                            string.Join(", ", id, damage, knockback, -1, -1, -1, -1, -1, -1, -1, inflictBuff.BuffId, inflictBuff.BuffDuration, receiveBuff.BuffId, receiveBuff.BuffDuration));
+                            string.Join(", ", id, -1, knockback, -1, -1, -1, -1, -1, -1, notAmmo.ToInt(), inflictBuff.BuffId, inflictBuff.BuffDuration, receiveBuff.BuffId, receiveBuff.BuffDuration));
 
                 case "Projectiles":
                     inflictBuff = PresetData.ProjectileDebuffs.ContainsKey(id)
@@ -254,9 +220,9 @@ namespace PvPModifier.DataStorage {
                         : new BuffInfo();
 
                     return "INSERT INTO {0} ({1}) VALUES ({2})"
-                        .SFormat(DbConsts.ProjectileTable,
-                            string.Join(", ", DbConsts.ID, DbConsts.Shoot, DbConsts.VelocityMultiplier, DbConsts.Damage, DbConsts.InflictBuffID, DbConsts.InflictBuffDuration, DbConsts.ReceiveBuffID, DbConsts.ReceiveBuffDuration),
-                            string.Join(", ", id, id, 1, -1, inflictBuff.BuffId, inflictBuff.BuffDuration, receiveBuff.BuffId, receiveBuff.BuffDuration));
+                        .SFormat(DbTables.ProjectileTable,
+                            string.Join(", ", DbConsts.ID, DbConsts.Shoot, DbConsts.VelocityMultiplier, DbConsts.Damage, DbConsts.HomingRadius, DbConsts.AngularVelocity, DbConsts.InflictBuffID, DbConsts.InflictBuffDuration, DbConsts.ReceiveBuffID, DbConsts.ReceiveBuffDuration),
+                            string.Join(", ", id, id, 1, -1, -1, 0, inflictBuff.BuffId, inflictBuff.BuffDuration, receiveBuff.BuffId, receiveBuff.BuffDuration));
 
                 case "Buffs":
                     inflictBuff = PresetData.FlaskDebuffs.ContainsKey(id)
@@ -264,7 +230,7 @@ namespace PvPModifier.DataStorage {
                         : new BuffInfo();
 
                     return "INSERT INTO {0} ({1}) VALUES ({2})"
-                        .SFormat(DbConsts.BuffTable,
+                        .SFormat(DbTables.BuffTable,
                             string.Join(", ", DbConsts.ID, DbConsts.InflictBuffID, DbConsts.InflictBuffDuration, DbConsts.ReceiveBuffID, DbConsts.ReceiveBuffDuration),
                             string.Join(", ", id, inflictBuff.BuffId, inflictBuff.BuffDuration, receiveBuff.BuffId, receiveBuff.BuffDuration));
 
@@ -274,7 +240,7 @@ namespace PvPModifier.DataStorage {
         }
 
         public static void LoadDatabase() {
-            using (var reader = QueryReader($"SELECT * FROM {DbConsts.ItemTable}")) {
+            using (var reader = QueryReader($"SELECT * FROM {DbTables.ItemTable}")) {
                 while (reader.Read()) {
                     int id = reader.Get<int>(DbConsts.ID);
                     Cache.Items[id] = new DbItem {
@@ -287,14 +253,16 @@ namespace PvPModifier.DataStorage {
                         ShootSpeed = reader.Get<float>(DbConsts.ShootSpeed),
                         AmmoIdentifier = reader.Get<int>(DbConsts.AmmoIdentifier),
                         UseAmmoIdentifier = reader.Get<int>(DbConsts.UseAmmoIdentifier),
-                        NotAmmo = reader.Get<int>(DbConsts.NotAmmo) == 1,
-                        InflictBuff = new BuffInfo(reader.Get<int>(DbConsts.InflictBuffID), reader.Get<int>(DbConsts.InflictBuffDuration)),
-                        ReceiveBuff = new BuffInfo(reader.Get<int>(DbConsts.ReceiveBuffDuration), reader.Get<int>(DbConsts.ReceiveBuffDuration))
+                        NotAmmo = reader.Get<int>(DbConsts.NotAmmo),
+                        InflictBuffID = reader.Get<int>(DbConsts.InflictBuffID),
+                        InflictBuffDuration = reader.Get<int>(DbConsts.InflictBuffDuration),
+                        ReceiveBuffID = reader.Get<int>(DbConsts.ReceiveBuffDuration),
+                        ReceiveBuffDuration = reader.Get<int>(DbConsts.ReceiveBuffDuration)
                     };
                 }
             }
 
-            using (var reader = QueryReader($"SELECT * FROM {DbConsts.ProjectileTable}")) {
+            using (var reader = QueryReader($"SELECT * FROM {DbTables.ProjectileTable}")) {
                 while (reader.Read()) {
                     int id = reader.Get<int>(DbConsts.ID);
                     Cache.Projectiles[id] = new DbProjectile {
@@ -302,19 +270,25 @@ namespace PvPModifier.DataStorage {
                         Shoot = reader.Get<int>(DbConsts.Shoot),
                         VelocityMultiplier = reader.Get<float>(DbConsts.VelocityMultiplier),
                         Damage = reader.Get<int>(DbConsts.Damage),
-                        InflictBuff = new BuffInfo(reader.Get<int>(DbConsts.InflictBuffID), reader.Get<int>(DbConsts.InflictBuffDuration)),
-                        ReceiveBuff = new BuffInfo(reader.Get<int>(DbConsts.ReceiveBuffDuration), reader.Get<int>(DbConsts.ReceiveBuffDuration))
+                        HomingRadius = reader.Get<float>(DbConsts.HomingRadius),
+                        AngularVelocity = reader.Get<float>(DbConsts.AngularVelocity),
+                        InflictBuffID = reader.Get<int>(DbConsts.InflictBuffID),
+                        InflictBuffDuration = reader.Get<int>(DbConsts.InflictBuffDuration),
+                        ReceiveBuffID = reader.Get<int>(DbConsts.ReceiveBuffDuration),
+                        ReceiveBuffDuration = reader.Get<int>(DbConsts.ReceiveBuffDuration)
                     };
                 }
             }
 
-            using (var reader = QueryReader($"SELECT * FROM {DbConsts.BuffTable}")) {
+            using (var reader = QueryReader($"SELECT * FROM {DbTables.BuffTable}")) {
                 while (reader.Read()) {
                     var id = reader.Get<int>(DbConsts.ID);
                     Cache.Buffs[id] = new DbBuff {
                         ID = id,
-                        InflictBuff = new BuffInfo(reader.Get<int>(DbConsts.InflictBuffID), reader.Get<int>(DbConsts.InflictBuffDuration)),
-                        ReceiveBuff = new BuffInfo(reader.Get<int>(DbConsts.ReceiveBuffDuration), reader.Get<int>(DbConsts.ReceiveBuffDuration))
+                        InflictBuffID = reader.Get<int>(DbConsts.InflictBuffID),
+                        InflictBuffDuration = reader.Get<int>(DbConsts.InflictBuffDuration),
+                        ReceiveBuffID = reader.Get<int>(DbConsts.ReceiveBuffDuration),
+                        ReceiveBuffDuration = reader.Get<int>(DbConsts.ReceiveBuffDuration)
                     };
                 }
             }
