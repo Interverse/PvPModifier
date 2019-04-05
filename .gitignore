@@ -23,5 +23,6 @@ $RECYCLE.BIN/
 # =========================
 *.suo
 *.gitignore
+.vs/
 PvPModifier/obj/Debug/
 packages/

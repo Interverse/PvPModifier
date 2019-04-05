@@ -37,9 +37,9 @@ namespace PvPModifier {
             Commands.ChatCommands.Add(new Command("pvpmodifier.resetpvp", ResetPvP, "resetpvp", "rpvp") { HelpText = "Allows you to reset pvp values" });
             Commands.ChatCommands.Add(new Command(CheckStat, "checkstat", "cs") { HelpText = "Checks the stat of an item" });
 
-            Commands.ChatCommands.Add(new Command("pvpcontroller.dpsify", DPSify, "dpsify") { HelpText = "Tries to change all weapon's damage to be around the same dps." });
+            Commands.ChatCommands.Add(new Command("pvpmodifier.dpsify", DPSify, "dpsify") { HelpText = "Tries to change all weapon's damage to be around the same dps." });
 
-            Commands.ChatCommands.Add(new Command("pvpmodifier.dev", SqlInject, "sqlinject") { HelpText = "Allows you to run a SQL command" });
+            //Commands.ChatCommands.Add(new Command("pvpmodifier.dev", SqlInject, "sqlinject") { HelpText = "Allows you to run a SQL command" });
         }
 
         private static void ResetPvP(CommandArgs args) {
