@@ -25,3 +25,4 @@ $RECYCLE.BIN/
 *.gitignore
 PvPModifier/obj/Debug/
 packages/
+.vs/

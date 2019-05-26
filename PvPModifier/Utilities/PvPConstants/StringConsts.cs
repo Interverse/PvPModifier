@@ -173,6 +173,11 @@
                     attribute = ConfigConsts.EnableKnockback;
                     return true;
 
+                case "forcecustomknockback":
+                case "fck":
+                    attribute = ConfigConsts.ForceCustomKnockback;
+                    return true;
+
                 case "enablehoming":
                 case "homing":
                 case "eh":

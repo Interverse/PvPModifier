@@ -75,8 +75,6 @@ namespace PvPModifier.Variables {
         /// velocity.
         /// </summary>
         public void KnockBack(double knockback, double angle, double hitDirection = 1) {
-            if (TPlayer.noKnockback) return;
-
             new SSCAction(this, () => {
                 if (TPlayer.velocity.Length() <= Math.Abs(knockback)) {
                     if (TPlayer.velocity.Length() <= Math.Abs(knockback)) {

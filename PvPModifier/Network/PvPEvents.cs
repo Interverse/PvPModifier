@@ -137,7 +137,8 @@ namespace PvPModifier.Network {
                 return;
             }
 
-            e.Player.InvTracker.CheckFinishedModifications(e.NetID);
+            if (e.Player.TPlayer.inventory[e.SlotId].netID == 0)
+                e.Player.InvTracker.CheckFinishedModifications(e.NetID);
         }
 
         /// <summary>
@@ -216,9 +217,11 @@ namespace PvPModifier.Network {
 
             if (PvPModifier.Config.EnableKnockback) {
                 int direction = e.HitDirection - 1;
-                e.Target.KnockBack(e.Weapon.GetKnockback(e.Attacker),
-                    e.Attacker.AngleFrom(e.Target.TPlayer.position),
-                    e.Target.IsLeftFrom(e.Attacker.TPlayer.position) ? -direction : direction);
+                if (!e.Target.TPlayer.noKnockback || PvPModifier.Config.ForceCustomKnockback) {
+                    e.Target.KnockBack(e.Weapon.GetKnockback(e.Attacker),
+                        e.Attacker.AngleFrom(e.Target.TPlayer.position),
+                        e.Target.IsLeftFrom(e.Attacker.TPlayer.position) ? -direction : direction);
+                }
                 e.HitDirection = 0;
             }
             

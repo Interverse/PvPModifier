@@ -11,6 +11,7 @@ namespace PvPModifier {
 
         public double IframeTime { get; set; }
         public bool EnableKnockback { get; set; }
+        public bool ForceCustomKnockback { get; set; }
 
         public bool EnableHoming { get; set; }
         
@@ -56,6 +57,7 @@ namespace PvPModifier {
 
                 IframeTime = 0.0;
                 EnableKnockback = false;
+                ForceCustomKnockback = false;
 
                 EnableHoming = true;
 

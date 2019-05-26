@@ -7,7 +7,8 @@
 
         public const string IframeTime = "IframeTime";
         public const string EnableKnockback = "EnableKnockback";
-        
+        public const string ForceCustomKnockback = "ForceCustomKnockback";
+
         public const string EnableHoming = "EnableHoming";
 
         public const string EnableSpectreMask = "EnableSpectreMask";
