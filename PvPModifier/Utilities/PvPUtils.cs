@@ -13,7 +13,7 @@ namespace PvPModifier.Utilities {
         /// Generates a death message for a person based off the weapon and type of death.
         /// </summary>
         /// <param name="type">1 for normal hits, 2 for reflection hits such as thorns and turtle.</param>
-        public static string GetPvPDeathMessage(string deathMessage, PvPItem weapon, PvPProjectile proj = null, int type = 1) {
+        public static string GetPvPDeathMessage(string deathMessage, PvPItem weapon, ProjectileExtension proj = null, int type = 1) {
             string tag = "";
             if (type == 1) tag = weapon?.netID != 0 || proj?.ItemOriginated?.netID != 0 ? 
                 "[i/p{0}:{1}] ".SFormat(proj?.ItemOriginated?.prefix ?? weapon?.prefix, 

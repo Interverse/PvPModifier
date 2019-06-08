@@ -13,7 +13,7 @@ namespace PvPModifier.Network.Packets {
         public PvPPlayer Target { get; set; }
 
         public PvPItem Weapon { get; set; }
-        public PvPProjectile Projectile { get; set; }
+        public ProjectileExtension Projectile { get; set; }
 
         public PlayerDeathReason PlayerHitReason { get; set; }
 

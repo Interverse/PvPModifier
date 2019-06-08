@@ -2,31 +2,32 @@
 using PvPModifier.Utilities;
 using PvPModifier.Utilities.PvPConstants;
 using Terraria;
+using TShockAPI;
 
 namespace PvPModifier.Variables {
     /// <summary>
     /// The class used to store projectile data. Includes additional methods and variables to
     /// perform pvp based calculations and actions.
     /// </summary>
-    public class PvPProjectile : Projectile {
+    public static class ProjectileExtension {
 
-        public PvPItem ItemOriginated;
-        public PvPPlayer OwnerProjectile;
+        public Item ItemOriginated;
+        public TSPlayer OwnerProjectile;
 
         public Projectile MainProjectile;
 
-        public PvPProjectile(int type) {
+        public ProjectileExtension(int type) {
             SetDefaults(type);
             this.identity = -1;
         }
 
-        public PvPProjectile(int type, int identity) {
+        public ProjectileExtension(int type, int identity) {
             SetDefaults(type);
             this.identity = identity;
             MainProjectile = Main.projectile[identity];
         }
 
-        public PvPProjectile(int type, int index, int ownerIndex, PvPItem item) {
+        public ProjectileExtension(int type, int index, int ownerIndex, PvPItem item) {
             SetDefaults(type);
             identity = index;
             ItemOriginated = item;

@@ -13,7 +13,7 @@ namespace PvPModifier.Network.Packets {
         public GetDataEventArgs Args;
         public PvPPlayer Attacker;
         public PvPItem Weapon;
-        public PvPProjectile Proj;
+        public ProjectileExtension Proj;
 
         public int Identity;
         public Vector2 Position;
@@ -48,7 +48,7 @@ namespace PvPModifier.Network.Packets {
 
                 Ai = new float[Projectile.maxAI],
 
-                Proj = new PvPProjectile(Type, Identity),
+                Proj = new ProjectileExtension(Type, Identity),
                 Weapon = ProjectileUtils.GetProjectileWeapon(attacker, Type)
             };
 
