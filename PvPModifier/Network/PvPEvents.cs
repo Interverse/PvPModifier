@@ -14,8 +14,8 @@ namespace PvPModifier.Network {
         public PvPEvents() {
             DataHandler.PlayerHurt += OnPlayerHurt;
             DataHandler.ProjectileNew += OnNewProjectile;
-            DataHandler.PvPToggled += OnPvPToggled;
-            DataHandler.PlayerUpdate += OnPlayerUpdate;
+            DataHandler.PvPToggled += OnPvPToggledAsync;
+            DataHandler.PlayerUpdate += OnPlayerUpdateAsync;
             DataHandler.SlotUpdate += CheckIncomingItems;
             DataHandler.SlotUpdate += CheckDrops;
         }
@@ -23,8 +23,8 @@ namespace PvPModifier.Network {
         public void Unsubscribe() {
             DataHandler.PlayerHurt -= OnPlayerHurt;
             DataHandler.ProjectileNew -= OnNewProjectile;
-            DataHandler.PvPToggled -= OnPvPToggled;
-            DataHandler.PlayerUpdate -= OnPlayerUpdate;
+            DataHandler.PvPToggled -= OnPvPToggledAsync;
+            DataHandler.PlayerUpdate -= OnPlayerUpdateAsync;
             DataHandler.SlotUpdate -= CheckIncomingItems;
             DataHandler.SlotUpdate -= CheckDrops;
         }
@@ -79,12 +79,12 @@ namespace PvPModifier.Network {
         /// Mods the player's inventory when their pvp is turned on.
         /// Resets their inventory to Terraria's defaults when their pvp is turned off.
         /// </summary>
-        private void OnPvPToggled(object sender, TogglePvPArgs e) {
+        private async void OnPvPToggledAsync(object sender, TogglePvPArgs e) {
             if (!PvPModifier.Config.EnablePlugin) return;
 
             if (e.Hostile) {
                 e.Player.GetInvTracker().StartForcePvPInventoryCheck = true;
-                PvPUtils.SendCustomItems(e.Player);
+                await PvPUtils.SendCustomItemsAsync(e.Player);
             }
 
             if (!e.Hostile) {
@@ -116,7 +116,7 @@ namespace PvPModifier.Network {
                     SSCUtils.FillInventoryToIndex(e.Player, Constants.EmptyItem, Constants.JunkItem, e.SlotId);
                     SSCUtils.SetItem(e.Player, e.SlotId, Constants.EmptyItem);
                     e.Player.GetInvTracker().AddItem(PvPUtils.GetCustomWeapon(e.Player, e.NetID, e.Prefix, e.Stack));
-                    e.Player.GetInvTracker().StartDroppingItems();
+                    e.Player.GetInvTracker().DropModifiedItems();
                 }
             }
         }
@@ -146,7 +146,7 @@ namespace PvPModifier.Network {
         /// <summary>
         /// Handles player updates.
         /// </summary>
-        private void OnPlayerUpdate(object sender, PlayerUpdateArgs e) {
+        private async void OnPlayerUpdateAsync(object sender, PlayerUpdateArgs e) {
             if (!PvPModifier.Config.EnablePlugin) return;
             if (e.Player.TPlayer.dead) return;
 
@@ -154,7 +154,7 @@ namespace PvPModifier.Network {
             //The plugin will detect it here and send the modified items.
             if (e.Player.TPlayer.hostile && !e.Player.GetInvTracker().StartForcePvPInventoryCheck) {
                 e.Player.GetInvTracker().StartForcePvPInventoryCheck = true;
-                PvPUtils.SendCustomItems(e.Player);
+                await PvPUtils.SendCustomItemsAsync(e.Player);
             }
 
             if (!e.Player.TPlayer.hostile && e.Player.GetInvTracker().StartForcePvPInventoryCheck) {

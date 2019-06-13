@@ -13,5 +13,7 @@ namespace PvPModifier.Utilities.PvPConstants {
         public const int MedusaHeadRange = 12 * PixelToWorld;
         public const int ProjectileCheckDistance = 3 * PixelToWorld;
         public const int PixelToWorld = 16;
+
+        public const float SecondPerFrame = 1000f / 60f;
     }
 }

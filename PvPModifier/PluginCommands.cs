@@ -266,7 +266,7 @@ namespace PvPModifier {
                                 SSCUtils.SetItem(pvper, (byte)itemindex, 0);
                                 pvper.GetInvTracker().AddItem(PvPUtils.GetCustomWeapon(pvper, id, item.prefix, (short)item.stack));
                             }
-                            pvper.GetInvTracker().StartDroppingItems();
+                            pvper.GetInvTracker().DropModifiedItems();
                         }
                     }
 
@@ -328,7 +328,7 @@ namespace PvPModifier {
 
             foreach (var player in PvPUtils.ActivePlayers) {
                 if (player.TPlayer.hostile)
-                    PvPUtils.SendCustomItems(player);
+                    PvPUtils.SendCustomItemsAsync(player);
             }
         }
     }

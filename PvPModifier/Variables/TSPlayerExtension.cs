@@ -294,9 +294,6 @@ namespace PvPModifier.Variables {
         private readonly TSPlayer _player;
         private readonly List<CustomWeapon> _inv = new List<CustomWeapon>();
 
-        private readonly Timer _timer;
-        private int _counter;
-        
         public bool LockModifications;
         public bool OnPvPInventoryChecked;
         public bool StartForcePvPInventoryCheck;
@@ -304,8 +301,6 @@ namespace PvPModifier.Variables {
 
         public InventoryTracker(TSPlayer player) {
             _player = player;
-            _timer = new Timer(Constants.RetryInventoryTime);
-            _timer.Elapsed += DropModifiedItems;
         }
 
         public void AddItem(CustomWeapon wep) {
@@ -314,20 +309,9 @@ namespace PvPModifier.Variables {
             _inv.Add(wep);
         }
 
-        public void StartDroppingItems() {
-            DropModifiedItems();
-            _timer.Enabled = true;
-        }
-
-        private void DropModifiedItems(object sender = null, ElapsedEventArgs e = null) {
+        public void DropModifiedItems() {
             foreach (var wep in _inv)
                 CustomWeaponDropper.DropItem(_player, wep);
-
-            _counter++;
-            if (_counter >= 10) {
-                Clear();
-                CheckFinishedModifications(0);
-            }
         }
 
         public bool CheckItem(short id) {
@@ -354,8 +338,6 @@ namespace PvPModifier.Variables {
 
         public void Clear() {
             _inv.Clear();
-            _timer.Enabled = false;
-            _counter = 0;
         }
     }
 }

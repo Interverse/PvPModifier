@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using PvPModifier.CustomWeaponAPI;
 using PvPModifier.DataStorage;
@@ -36,7 +38,7 @@ namespace PvPModifier.Utilities {
         /// Removes every item that was modified serverside with the list of indexes.
         /// Starts to drop the modified items.
         /// </summary>
-        public static void SendCustomItems(TSPlayer player) {
+        public static async Task SendCustomItemsAsync(TSPlayer player) {
             RefreshInventory(player);
             List<int> itemIndex = new List<int>();
             InventoryIndexer indexer = new InventoryIndexer();
@@ -53,12 +55,21 @@ namespace PvPModifier.Utilities {
                     player.GetInvTracker().AddItem(custwep);
                 }
             }
-            
+
             if (itemIndex.Count != 0) {
                 SSCUtils.FillInventoryToIndex(player, Constants.EmptyItem, Constants.JunkItem, indexer.MaxIndex);
                 foreach (int num in itemIndex)
                     SSCUtils.SetItem(player, (byte)num, Constants.EmptyItem);
-                player.GetInvTracker().StartDroppingItems();
+
+                await Task.Run(() => {
+                    while (player.ConnectionAlive && ContainsModifiedItem(player) && !player.TPlayer.releaseUseItem) {
+                        Task.Delay((int)Constants.SecondPerFrame);
+                    }
+                });
+
+                await Task.Delay((int)(Constants.SecondPerFrame * 5));
+
+                player.GetInvTracker().DropModifiedItems();
             } else {
                 player.GetInvTracker().CheckFinishedModifications(0);
             }
@@ -83,6 +94,23 @@ namespace PvPModifier.Utilities {
                 if (player.TPlayer.inventory[index].netID == itemID)
                     SSCUtils.SetItem(player, index, player.TPlayer.inventory[index]);
             }
+        }
+
+        public static bool ContainsModifiedItem(TSPlayer player) {
+            InventoryIndexer indexer = new InventoryIndexer();
+
+            for (byte loop = 0; loop < indexer.MaxInventoryCycle; loop++) {
+                int index = indexer.NextIndex();
+
+                Item item = player.TPlayer.inventory[index];
+
+                var custwep = GetCustomWeapon(player, item.type, item.prefix, (short)item.stack);
+                if (IsModifiedItem(custwep.ItemNetId)) {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>
