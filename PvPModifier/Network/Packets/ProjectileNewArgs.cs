@@ -6,14 +6,15 @@ using PvPModifier.Utilities;
 using PvPModifier.Variables;
 using Terraria;
 using TerrariaApi.Server;
+using TShockAPI;
 
 namespace PvPModifier.Network.Packets {
     public class ProjectileNewArgs : EventArgs {
         
         public GetDataEventArgs Args;
-        public PvPPlayer Attacker;
-        public PvPItem Weapon;
-        public PvPProjectile Proj;
+        public TSPlayer Attacker;
+        public Item Weapon;
+        public Projectile Proj;
 
         public int Identity;
         public Vector2 Position;
@@ -27,7 +28,7 @@ namespace PvPModifier.Network.Packets {
         public float Ai1;
         public float[] Ai;
 
-        public bool ExtractData(GetDataEventArgs args, MemoryStream data, PvPPlayer attacker, out ProjectileNewArgs arg) {
+        public bool ExtractData(GetDataEventArgs args, MemoryStream data, TSPlayer attacker, out ProjectileNewArgs arg) {
             arg = null;
             if (PresetData.ProjectileDummy.Contains(Type)) return false;
 
@@ -48,7 +49,7 @@ namespace PvPModifier.Network.Packets {
 
                 Ai = new float[Projectile.maxAI],
 
-                Proj = new PvPProjectile(Type, Identity),
+                Proj = new Projectile().SetType(Type).SetIdentity(Identity),
                 Weapon = ProjectileUtils.GetProjectileWeapon(attacker, Type)
             };
 

@@ -162,17 +162,16 @@ namespace PvPModifier.Utilities {
         /// Rotates a vector.
         /// </summary>
         public static Vector2 Rotate(Vector2 v, float degrees) {
-            double radians = degrees * Math.PI / 180f;
+            float radians = (float)(degrees * Math.PI / 180f);
             //Formulas for sin and cos are from the Taylor Polynomial series
-            double sin = radians - radians * radians * radians / 6;
-            double cos = 1 - radians * radians / 2;
+            float sin = radians - radians * radians * radians / 6;
+            float cos = 1 - radians * radians / 2;
 
-            float tx = v.X;
-            float ty = v.Y;
-
-            v.X = (float)(cos * tx - sin * ty);
-            v.Y = (float)(sin * tx + cos * ty);
-            return v;
+            float _x = v.X * cos - v.Y * sin;
+            float _y = v.X * sin + v.Y * cos;
+            return new Vector2(_x, _y);
         }
+
+        public static T SelectRandom<T>(this IEnumerable<T> obj) => obj.ElementAt(Main.rand.Next(obj.Count()));
     }
 }

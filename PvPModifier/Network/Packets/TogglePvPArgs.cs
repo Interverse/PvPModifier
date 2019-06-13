@@ -1,12 +1,13 @@
 ﻿using System;
 using PvPModifier.Variables;
+using TShockAPI;
 
 namespace PvPModifier.Network.Packets {
     public class TogglePvPArgs : EventArgs {
-        public PvPPlayer Player;
+        public TSPlayer Player;
         public bool Hostile;
 
-        public bool ExtractData(PvPPlayer player, out TogglePvPArgs arg) {
+        public bool ExtractData(TSPlayer player, out TogglePvPArgs arg) {
             arg = new TogglePvPArgs {
                 Player = player,
                 Hostile = !player.TPlayer.hostile

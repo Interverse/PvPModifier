@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 using PvPModifier.DataStorage;
 using PvPModifier.Utilities;
 using PvPModifier.Utilities.PvPConstants;
+using PvPModifier.Variables;
 using Terraria;
 using TShockAPI;
 
@@ -55,7 +56,7 @@ namespace PvPModifier {
                 case StringConsts.Database:
                     Database.InitDefaultTables();
                     Database.LoadDatabase();
-                    foreach (var pvper in PvPModifier.ActivePlayers)
+                    foreach (var pvper in PvPUtils.ActivePlayers)
                         PvPUtils.RefreshInventory(pvper);
                     player.SendSuccessMessage("Reset database to default.");
                     return;
@@ -92,7 +93,7 @@ namespace PvPModifier {
 
                     string log = "Reset the values of {0}".SFormat(MiscUtils.GetNameFromInput(section, id));
                     if (section == DbTables.ItemTable)
-                        foreach (var pvper in PvPModifier.ActivePlayers)
+                        foreach (var pvper in PvPUtils.ActivePlayers)
                             PvPUtils.RefreshItem(pvper, id);
                     player.SendSuccessMessage(log);
                     Database.LoadDatabase();
@@ -255,7 +256,7 @@ namespace PvPModifier {
                     }
 
                     if (dbObject is DbItem) {
-                        foreach (var pvper in PvPModifier.ActivePlayers) {
+                        foreach (var pvper in PvPUtils.ActivePlayers) {
                             if (!pvper.TPlayer.hostile) continue;
 
                             int itemindex = pvper.TPlayer.FindItem(id);
@@ -263,9 +264,9 @@ namespace PvPModifier {
                                 SSCUtils.FillInventoryToIndex(pvper, 0, Constants.JunkItem, itemindex);
                                 var item = pvper.TPlayer.inventory[itemindex];
                                 SSCUtils.SetItem(pvper, (byte)itemindex, 0);
-                                pvper.InvTracker.AddItem(PvPUtils.GetCustomWeapon(pvper, id, item.prefix, (short)item.stack));
+                                pvper.GetInvTracker().AddItem(PvPUtils.GetCustomWeapon(pvper, id, item.prefix, (short)item.stack));
                             }
-                            pvper.InvTracker.StartDroppingItems();
+                            pvper.GetInvTracker().StartDroppingItems();
                         }
                     }
 
@@ -325,7 +326,7 @@ namespace PvPModifier {
             args.Player.SendSuccessMessage(log);
             PvPModifier.Config.LogChange($"({DateTime.Now}) {log}");
 
-            foreach (var player in PvPModifier.ActivePlayers) {
+            foreach (var player in PvPUtils.ActivePlayers) {
                 if (player.TPlayer.hostile)
                     PvPUtils.SendCustomItems(player);
             }

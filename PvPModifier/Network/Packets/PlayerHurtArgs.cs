@@ -2,18 +2,20 @@
 using System.IO;
 using System.IO.Streams;
 using PvPModifier.Variables;
+using Terraria;
 using Terraria.DataStructures;
 using TerrariaApi.Server;
+using TShockAPI;
 
 namespace PvPModifier.Network.Packets {
     public class PlayerHurtArgs : EventArgs {
         public GetDataEventArgs Args { get; set; }
 
-        public PvPPlayer Attacker { get; set; }
-        public PvPPlayer Target { get; set; }
+        public TSPlayer Attacker { get; set; }
+        public TSPlayer Target { get; set; }
 
-        public PvPItem Weapon { get; set; }
-        public PvPProjectile Projectile { get; set; }
+        public Item Weapon { get; set; }
+        public Projectile Projectile { get; set; }
 
         public PlayerDeathReason PlayerHitReason { get; set; }
 
@@ -22,14 +24,14 @@ namespace PvPModifier.Network.Packets {
         public int HitDirection { get; set; }
         public int Flag { get; set; }
 
-        public bool ExtractData(GetDataEventArgs args, MemoryStream data, PvPPlayer attacker, out PlayerHurtArgs arg) {
+        public bool ExtractData(GetDataEventArgs args, MemoryStream data, TSPlayer attacker, out PlayerHurtArgs arg) {
             arg = null;
             int targetId = data.ReadByte();
             var playerHitReason = PlayerDeathReason.FromReader(new BinaryReader(data));
-            PvPPlayer target;
+            TSPlayer target;
             
             if (targetId > -1) {
-                target = PvPModifier.PvPers[targetId];
+                target = TShock.Players[targetId];
                 if (target == null || !target.ConnectionAlive || !target.Active) {
                     return false;
                 }
@@ -43,11 +45,8 @@ namespace PvPModifier.Network.Packets {
             
             var projectile = playerHitReason.SourceProjectileIndex == -1
                 ? null
-                : attacker.ProjTracker.Projectiles[playerHitReason.SourceProjectileType];
-            var weapon = projectile?.ItemOriginated ?? attacker.HeldItem;
-            target.LastHitBy = attacker;
-            target.LastHitWeapon = Weapon;
-            target.LastHitProjectile = Projectile;
+                : attacker.GetProjectileTracker().Projectiles[playerHitReason.SourceProjectileType];
+            var weapon = projectile?.GetItemOriginated() ?? attacker.TPlayer.HeldItem;
             
             arg = new PlayerHurtArgs {
                 Args = args,
@@ -57,8 +56,8 @@ namespace PvPModifier.Network.Packets {
                 PlayerHitReason = playerHitReason,
                 Weapon = weapon,
                 InflictedDamage = data.ReadInt16(),
-                DamageReceived = target.DamageReceived(InflictedDamage),
-                HitDirection = data.ReadByte(),
+                DamageReceived = target.GetDamageReceived(InflictedDamage),
+                HitDirection = data.ReadByte() - 1,
                 Flag = data.ReadByte()
             };
 

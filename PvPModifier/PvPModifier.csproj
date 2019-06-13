@@ -89,9 +89,9 @@
     <Compile Include="Utilities\PvPConstants\Constants.cs" />
     <Compile Include="Utilities\TerrariaUtils.cs" />
     <Compile Include="Variables\BuffInfo.cs" />
-    <Compile Include="Variables\PvPItem.cs" />
-    <Compile Include="Variables\PvPPlayer.cs" />
-    <Compile Include="Variables\PvPProjectile.cs" />
+    <Compile Include="Variables\ItemExtension.cs" />
+    <Compile Include="Variables\TSPlayerExtension.cs" />
+    <Compile Include="Variables\ProjectileExtension.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -3,6 +3,7 @@ using System.IO;
 using PvPModifier.Network.Packets;
 using PvPModifier.Variables;
 using TerrariaApi.Server;
+using TShockAPI;
 
 namespace PvPModifier.Network {
     /// <summary>
@@ -17,7 +18,7 @@ namespace PvPModifier.Network {
         public static event EventHandler<TogglePvPArgs> PvPToggled;
         public static event EventHandler<PlayerSlotArgs> SlotUpdate;
 
-        public static void HandleData(GetDataEventArgs args, MemoryStream data, PvPPlayer player) {
+        public static void HandleData(GetDataEventArgs args, MemoryStream data, TSPlayer player) {
             switch (args.MsgID) {
                 case PacketTypes.PlayerHurtV2:
                     if (new PlayerHurtArgs().ExtractData(args, data, player, out var playerhurt))
