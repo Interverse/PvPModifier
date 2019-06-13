@@ -52,11 +52,11 @@ namespace PvPModifier.Network {
 
             float angularVelocity = Cache.Projectiles[projectile.type].AngularVelocity;
             
-            PvPPlayer target = PvPUtils.FindClosestPlayer(projectile.position, projectile.owner, homingRadius * Constants.PixelToWorld);
+            TSPlayer target = PvPUtils.FindClosestPlayer(projectile.position, projectile.owner, homingRadius * Constants.PixelToWorld);
             
             if (target != null) {
                 projectile.velocity = MiscUtils.TurnTowards(projectile.velocity, projectile.position, target.TPlayer.Center, angularVelocity);
-                foreach (var pvper in PvPModifier.ActivePlayers) {
+                foreach (var pvper in PvPUtils.ActivePlayers) {
                     pvper.SendRawData(new PacketWriter()
                         .SetType((short)PacketTypes.ProjectileNew)
                         .PackInt16((short)projectile.identity)
@@ -83,14 +83,14 @@ namespace PvPModifier.Network {
             if (!PvPModifier.Config.EnablePlugin) return;
 
             if (e.Hostile) {
-                e.Player.InvTracker.StartForcePvPInventoryCheck = true;
+                e.Player.GetInvTracker().StartForcePvPInventoryCheck = true;
                 PvPUtils.SendCustomItems(e.Player);
             }
 
             if (!e.Hostile) {
                 PvPUtils.RefreshInventory(e.Player);
-                e.Player.InvTracker.Clear();
-                e.Player.InvTracker.StartForcePvPInventoryCheck = false;
+                e.Player.GetInvTracker().Clear();
+                e.Player.GetInvTracker().StartForcePvPInventoryCheck = false;
             }
         }
 
@@ -104,8 +104,8 @@ namespace PvPModifier.Network {
             if (e.SlotId >= 58) return;
 
             //Only runs after initial pvp check
-            if (e.Player.InvTracker.OnPvPInventoryChecked) {
-                if (e.Player.InvTracker.LockModifications) return;
+            if (e.Player.GetInvTracker().OnPvPInventoryChecked) {
+                if (e.Player.GetInvTracker().LockModifications) return;
 
                 //If the item is being consumed, don't modify the item
                 if (Math.Abs(e.Player.TPlayer.inventory[e.SlotId].stack - e.Stack) <= 1
@@ -115,8 +115,8 @@ namespace PvPModifier.Network {
                 if (PvPUtils.IsModifiedItem(e.NetID)) {
                     SSCUtils.FillInventoryToIndex(e.Player, Constants.EmptyItem, Constants.JunkItem, e.SlotId);
                     SSCUtils.SetItem(e.Player, e.SlotId, Constants.EmptyItem);
-                    e.Player.InvTracker.AddItem(PvPUtils.GetCustomWeapon(e.Player, e.NetID, e.Prefix, e.Stack));
-                    e.Player.InvTracker.StartDroppingItems();
+                    e.Player.GetInvTracker().AddItem(PvPUtils.GetCustomWeapon(e.Player, e.NetID, e.Prefix, e.Stack));
+                    e.Player.GetInvTracker().StartDroppingItems();
                 }
             }
         }
@@ -130,15 +130,17 @@ namespace PvPModifier.Network {
             if (e.Player.TPlayer.dead) return;
             if (!e.Player.TPlayer.hostile) return;
 
+            if (e.SlotId > 58) return;
+
             //This method runs right after the replacement method, and since the PlayerSlotArgs will be the same,
             //we add this check so the item doesn't instantly get checked off as being modified
-            if (e.Player.InvTracker.StartPvPInventoryCheck) {
-                e.Player.InvTracker.StartPvPInventoryCheck = false;
+            if (e.Player.GetInvTracker().StartPvPInventoryCheck) {
+                e.Player.GetInvTracker().StartPvPInventoryCheck = false;
                 return;
             }
 
-            if (e.Player.TPlayer.inventory[e.SlotId].netID == 0)
-                e.Player.InvTracker.CheckFinishedModifications(e.NetID);
+            if (e.Player.TPlayer.inventory[e.SlotId].netID == Constants.EmptyItem)
+                e.Player.GetInvTracker().CheckFinishedModifications(e.NetID);
         }
 
         /// <summary>
@@ -150,15 +152,15 @@ namespace PvPModifier.Network {
 
             //If the player has their pvp turned on without sending a TogglePvP packet (ex. through a /pvp command),
             //The plugin will detect it here and send the modified items.
-            if (e.Player.TPlayer.hostile && !e.Player.InvTracker.StartForcePvPInventoryCheck) {
-                e.Player.InvTracker.StartForcePvPInventoryCheck = true;
+            if (e.Player.TPlayer.hostile && !e.Player.GetInvTracker().StartForcePvPInventoryCheck) {
+                e.Player.GetInvTracker().StartForcePvPInventoryCheck = true;
                 PvPUtils.SendCustomItems(e.Player);
             }
 
-            if (!e.Player.TPlayer.hostile && e.Player.InvTracker.StartForcePvPInventoryCheck) {
+            if (!e.Player.TPlayer.hostile && e.Player.GetInvTracker().StartForcePvPInventoryCheck) {
                 PvPUtils.RefreshInventory(e.Player);
-                e.Player.InvTracker.Clear();
-                e.Player.InvTracker.StartForcePvPInventoryCheck = false;
+                e.Player.GetInvTracker().Clear();
+                e.Player.GetInvTracker().StartForcePvPInventoryCheck = false;
             }
             
             //If the player tries to use a modified item in their hand, it will be dumped back into their inventory
@@ -167,7 +169,7 @@ namespace PvPModifier.Network {
                     Item item = e.Player.TPlayer.inventory[58];
 
                     if (item.netID != 0 && PvPUtils.IsModifiedItem(item.netID) && e.Player.CanModInventory()) {
-                        SSCUtils.SetItem(e.Player, 58, 0);
+                        SSCUtils.SetItem(e.Player, 58, Constants.EmptyItem);
                         CustomWeaponDropper.DropItem(e.Player, new CustomWeapon {
                             ItemNetId = (short)item.netID, Prefix = item.prefix, Stack = (short)item.stack,
                             DropAreaWidth = short.MaxValue, DropAreaHeight = short.MaxValue
@@ -184,6 +186,7 @@ namespace PvPModifier.Network {
         private void OnNewProjectile(object sender, ProjectileNewArgs e) {
             if (!PvPModifier.Config.EnablePlugin) return;
             var projectile = Main.projectile[e.Identity];
+            projectile.Initialize();
             if (projectile.active && projectile.type == e.Type) return;
             
             if ((TShock.Players[e.Owner]?.TPlayer?.hostile ?? false) && PvPUtils.IsModifiedProjectile(e.Type)) {
@@ -200,9 +203,9 @@ namespace PvPModifier.Network {
 
                 NetMessage.SendData(27, -1, -1, null, e.Identity);
             }
-            
-            e.Attacker.ProjTracker.InsertProjectile(e.Identity, e.Type, e.Owner, e.Weapon);
-            e.Attacker.ProjTracker.Projectiles[e.Type].PerformProjectileAction();
+
+            e.Attacker.GetProjectileTracker().InsertProjectile(e.Identity, e.Type, e.Owner, e.Weapon.netID);
+            e.Attacker.GetProjectileTracker().Projectiles[e.Type].PerformProjectileAction();
         }
 
         /// <summary>
@@ -216,7 +219,7 @@ namespace PvPModifier.Network {
             if (e.Attacker.TPlayer.immune || !e.Target.CanBeHit()) return;
 
             if (PvPModifier.Config.EnableKnockback) {
-                int direction = e.HitDirection - 1;
+                int direction = e.HitDirection;
                 if (!e.Target.TPlayer.noKnockback || PvPModifier.Config.ForceCustomKnockback) {
                     e.Target.KnockBack(e.Weapon.GetKnockback(e.Attacker),
                         e.Attacker.AngleFrom(e.Target.TPlayer.position),
@@ -233,8 +236,8 @@ namespace PvPModifier.Network {
             if (PvPModifier.Config.EnableBuffs) {
                 e.Target.SetBuff(Cache.Projectiles[e.PlayerHitReason.SourceProjectileType].InflictBuff);
                 e.Attacker.SetBuff(Cache.Projectiles[e.PlayerHitReason.SourceProjectileType].ReceiveBuff);
-                e.Target.SetBuff(Cache.Items[e.Attacker.HeldItem.netID].InflictBuff);
-                e.Attacker.SetBuff(Cache.Items[e.Attacker.HeldItem.netID].ReceiveBuff);
+                e.Target.SetBuff(Cache.Items[e.Attacker.TPlayer.HeldItem.netID].InflictBuff);
+                e.Attacker.SetBuff(Cache.Items[e.Attacker.TPlayer.HeldItem.netID].ReceiveBuff);
                 e.Target.ApplyBuffDebuffs(e.Attacker, e.Weapon);
                 e.Attacker.ApplyReceiveBuff();
             }

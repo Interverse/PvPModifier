@@ -1,6 +1,8 @@
 ﻿using PvPModifier.DataStorage;
 using PvPModifier.Utilities;
 using PvPModifier.Utilities.PvPConstants;
+using System;
+using System.Collections.Generic;
 using Terraria;
 using TShockAPI;
 
@@ -10,59 +12,72 @@ namespace PvPModifier.Variables {
     /// perform pvp based calculations and actions.
     /// </summary>
     public static class ProjectileExtension {
+        public static int MaxAI = 10;
 
-        public Item ItemOriginated;
-        public TSPlayer OwnerProjectile;
+        public static void Initialize(this Projectile proj) {
+            Queue<float> aiCollection = new Queue<float>();
 
-        public Projectile MainProjectile;
+            foreach (float ai in proj.ai) {
+                aiCollection.Enqueue(ai);
+            }
 
-        public ProjectileExtension(int type) {
-            SetDefaults(type);
-            this.identity = -1;
+            proj.ai = new float[MaxAI];
+
+            int aiIndex = 0;
+            while (aiCollection.Count > 0) {
+                proj.ai[aiIndex++] = aiCollection.Dequeue();
+            }
+        } 
+
+        public static void SetItemOriginated(this Projectile proj, int itemType) {
+            proj.ai[(int)AI.ItemOriginated] = itemType;
         }
 
-        public ProjectileExtension(int type, int identity) {
-            SetDefaults(type);
-            this.identity = identity;
-            MainProjectile = Main.projectile[identity];
+        public static Projectile SetIdentity(this Projectile proj, int identity) {
+            proj.identity = identity;
+            return proj;
         }
 
-        public ProjectileExtension(int type, int index, int ownerIndex, PvPItem item) {
-            SetDefaults(type);
-            identity = index;
-            ItemOriginated = item;
-            owner = ownerIndex;
-            OwnerProjectile = PvPModifier.PvPers[ownerIndex];
+        public static Projectile SetType(this Projectile proj, int type) {
+            proj.SetDefaults(type);
+            return proj;
+        }
+
+        public enum AI {
+            ItemOriginated = 2
+        }
+
+        public static TSPlayer GetOwner(this Projectile proj) => TShock.Players[proj.owner];
+        public static Item GetItemOriginated(this Projectile proj) {
+            return proj.GetOwner().FindPlayerItem((int)proj.ai[(int)AI.ItemOriginated]);
         }
 
         /// <summary>
         /// Performs additional actions for projectiles.
         /// </summary>
-        public void PerformProjectileAction() {
-            if (CheckNull() || !OwnerProjectile.TPlayer.hostile) return;
-            switch (type) {
+        public static void PerformProjectileAction(this Projectile proj) {
+            var owner = proj.GetOwner();
+            var ItemOriginated = proj.GetItemOriginated();
+
+            if (!owner.TPlayer.hostile) return;
+            switch (proj.type) {
                 //Medusa Ray projectile
                 case 536:
-                    var target = PvPUtils.FindClosestPlayer(OwnerProjectile.TPlayer.position, OwnerProjectile.Index,
-                        Constants.MedusaHeadRange);
+                    var target = PvPUtils.FindClosestPlayer(owner.TPlayer.position, owner.Index, Constants.MedusaHeadRange);
 
                     if (target != null) {
-                        if (Collision.CanHit(OwnerProjectile.TPlayer.position, OwnerProjectile.TPlayer.width, OwnerProjectile.TPlayer.height,
+                        if (Collision.CanHit(owner.TPlayer.position, owner.TPlayer.width, owner.TPlayer.height,
                             target.TPlayer.position, target.TPlayer.width, target.TPlayer.height)) {
                             if (target.CheckMedusa()) {
                                 string deathmessage = target.Name + " was petrified by " + target.Name + "'s Medusa Head.";
                                 target.DamagePlayer(PvPUtils.GetPvPDeathMessage(deathmessage, ItemOriginated),
-                                    ItemOriginated, ItemOriginated.ConfigDamage, 0, false);
+                                    ItemOriginated, ItemOriginated.GetConfigDamage(), 0, false);
                                 target.SetBuff(Cache.Projectiles[535].InflictBuff);
                             }
                         }
                     }
                     break;
             }
-        }
-
-        public bool CheckNull() {
-            return OwnerProjectile == null || ItemOriginated == null;
         }
     }
 }

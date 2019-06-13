@@ -1,4 +1,5 @@
-﻿using Terraria;
+﻿using System;
+using Terraria;
 using TShockAPI;
 
 namespace PvPModifier.Utilities {
@@ -6,8 +7,6 @@ namespace PvPModifier.Utilities {
     /// Allows a piece of code to be ran while temporarily turning on Server Side Characters.
     /// </summary>
     class SSCAction {
-        public delegate void Action();
-
         public SSCAction(TSPlayer player, Action action) {
             bool isSSC = Main.ServerSideCharacter;
             if (player == null || !player.ConnectionAlive) return;

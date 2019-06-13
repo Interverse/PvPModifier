@@ -29,31 +29,6 @@ namespace PvPModifier.Variables {
             return player.GetData<DateTime>("_lastInventoryModified");
         }
 
-        public static void SetLastHitBy(this TSPlayer player, TSPlayer attacker) {
-            player.SetData("LastHitBy", attacker);
-        }
-
-        public static TSPlayer GetLastHitBy(this TSPlayer player) {
-            return player.GetData<TSPlayer>("LastHitBy");
-        }
-
-        public static void SetLastHitWeapon(this TSPlayer player, Item item) {
-            player.SetData("LastHitWeapon", item);
-        }
-
-        public static Item GetLastHitWeapon(this TSPlayer player) {
-            return player.GetData<Item>("LastHitWeapon");
-        }
-
-        public static void SetLastHitProjectile(this TSPlayer player, Projectile proj) {
-            player.SetData("LastHitProjectile", proj);
-        }
-
-        public static Projectile GetLastHitProjectile(this TSPlayer player) {
-            return player.GetData<Projectile>("LastHitProjectile");
-        }
-
-
         private static void SetMedusaHitCount(this TSPlayer player, int count) {
             player.SetData("_medusaHitCount", count);
         }
@@ -73,10 +48,8 @@ namespace PvPModifier.Variables {
         public static void Initialize(this TSPlayer player) {
             player.SetLastHit(DateTime.Now);
             player.SetLastInventoryModified(DateTime.Now);
+            player.SetData<ProjectileTracker>("ProjectileTracker", new ProjectileTracker());
             player.SetData<InventoryTracker>("InventoryTracker", new InventoryTracker(player));
-            player.SetLastHitBy(null);
-            player.SetLastHitWeapon(null);
-            player.SetLastHitProjectile(null);
         }
 
         /// <summary>
@@ -144,7 +117,7 @@ namespace PvPModifier.Variables {
         /// Applies effects that normally won't work in vanilla pvp.
         /// Effects include nebula/frost armor, yoyo-bag projectiles, and thorns/turtle damage.
         /// </summary>
-        public static void ApplyPvPEffects(this TSPlayer player, TSPlayer attacker, Item weapon, ProjectileExtension projectile, int damage) {
+        public static void ApplyPvPEffects(this TSPlayer player, TSPlayer attacker, Item weapon, Projectile projectile, int damage) {
             player.ApplyReflectDamage(attacker, damage, weapon);
             player.ApplyArmorEffects(attacker, weapon, projectile);
             TerrariaUtils.ActivateYoyoBag(player, attacker, damage, weapon.knockBack);
@@ -206,7 +179,7 @@ namespace PvPModifier.Variables {
                     .PackByte((byte)player.Index)
                     .GetByteData();
 
-                foreach (var pvper in PvPModifier.ActivePlayers) {
+                foreach (var pvper in PvPUtils.ActivePlayers) {
                     pvper.SendRawData(itemDrop);
                     pvper.SendRawData(itemOwner);
                 }
@@ -306,8 +279,10 @@ namespace PvPModifier.Variables {
             }
         }
 
-        public void InsertProjectile(int index, int projectileType, int ownerIndex, Item item) {
-            var projectile = new Projectile(projectileType, index, ownerIndex, item);
+        public void InsertProjectile(int index, int projectileType, int ownerIndex, int itemID) {
+            var projectile = Main.projectile[index];
+            projectile.owner = ownerIndex;
+            projectile.SetItemOriginated(itemID);
             Projectiles[projectileType] = projectile;
         }
     }

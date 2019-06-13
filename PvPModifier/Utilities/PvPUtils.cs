@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using PvPModifier.CustomWeaponAPI;
 using PvPModifier.DataStorage;
@@ -8,16 +9,18 @@ using Terraria;
 using TShockAPI;
 
 namespace PvPModifier.Utilities {
-    public class PvPUtils {
+    public static class PvPUtils {
+        public static TSPlayer[] ActivePlayers => TShock.Players.Where(c => c != null && c.ConnectionAlive && c.Active).ToArray();
+
         /// <summary>
         /// Generates a death message for a person based off the weapon and type of death.
         /// </summary>
         /// <param name="type">1 for normal hits, 2 for reflection hits such as thorns and turtle.</param>
-        public static string GetPvPDeathMessage(string deathMessage, PvPItem weapon, ProjectileExtension proj = null, int type = 1) {
+        public static string GetPvPDeathMessage(string deathMessage, Item weapon, Projectile proj = null, int type = 1) {
             string tag = "";
-            if (type == 1) tag = weapon?.netID != 0 || proj?.ItemOriginated?.netID != 0 ? 
-                "[i/p{0}:{1}] ".SFormat(proj?.ItemOriginated?.prefix ?? weapon?.prefix, 
-                                        proj?.ItemOriginated?.netID ?? weapon?.netID) 
+            if (type == 1) tag = weapon?.netID != 0 || proj?.GetItemOriginated()?.netID != 0 ? 
+                "[i/p{0}:{1}] ".SFormat(proj?.GetItemOriginated()?.prefix ?? weapon?.prefix, 
+                                        proj?.GetItemOriginated()?.netID ?? weapon?.netID) 
                 : "";
             else if (type == 2) tag = "[i:1150] ";
 
@@ -33,7 +36,7 @@ namespace PvPModifier.Utilities {
         /// Removes every item that was modified serverside with the list of indexes.
         /// Starts to drop the modified items.
         /// </summary>
-        public static void SendCustomItems(PvPPlayer player) {
+        public static void SendCustomItems(TSPlayer player) {
             RefreshInventory(player);
             List<int> itemIndex = new List<int>();
             InventoryIndexer indexer = new InventoryIndexer();
@@ -47,7 +50,7 @@ namespace PvPModifier.Utilities {
                 if (IsModifiedItem(custwep.ItemNetId)) {
                     indexer.StoreMaxIndex(index);
                     itemIndex.Add(index);
-                    player.InvTracker.AddItem(custwep);
+                    player.GetInvTracker().AddItem(custwep);
                 }
             }
             
@@ -55,17 +58,17 @@ namespace PvPModifier.Utilities {
                 SSCUtils.FillInventoryToIndex(player, Constants.EmptyItem, Constants.JunkItem, indexer.MaxIndex);
                 foreach (int num in itemIndex)
                     SSCUtils.SetItem(player, (byte)num, Constants.EmptyItem);
-                player.InvTracker.StartDroppingItems();
+                player.GetInvTracker().StartDroppingItems();
             } else {
-                player.InvTracker.CheckFinishedModifications(0);
+                player.GetInvTracker().CheckFinishedModifications(0);
             }
         }
 
         /// <summary>
         /// Changes every item in a player's inventory to be the default values.
         /// </summary>
-        public static void RefreshInventory(PvPPlayer player) {
-            player.InvTracker.OnPvPInventoryChecked = false;
+        public static void RefreshInventory(TSPlayer player) {
+            player.GetInvTracker().OnPvPInventoryChecked = false;
             for (byte index = 0; index < 58; index++) {
                 SSCUtils.SetItem(player, index, player.TPlayer.inventory[index]);
             }
@@ -75,7 +78,7 @@ namespace PvPModifier.Utilities {
         /// Changes every item in a player's inventory that matches the item ID to the default values.
         /// </summary>
         /// <param name="itemID">Numerical ID of item to be reset.</param>
-        public static void RefreshItem(PvPPlayer player, int itemID) {
+        public static void RefreshItem(TSPlayer player, int itemID) {
             for (byte index = 0; index <= 58; index++) {
                 if (player.TPlayer.inventory[index].netID == itemID)
                     SSCUtils.SetItem(player, index, player.TPlayer.inventory[index]);
@@ -86,7 +89,7 @@ namespace PvPModifier.Utilities {
         /// Gets a <see cref="CustomWeapon"/> from the <see cref="Cache"/>
         /// </summary>
         /// <returns></returns>
-        public static CustomWeapon GetCustomWeapon(PvPPlayer player, int type, byte prefix = 0, short stack = 1) {
+        public static CustomWeapon GetCustomWeapon(TSPlayer player, int type, byte prefix = 0, short stack = 1) {
             Item wep = new Item();
             wep.SetDefaults(type);
             CustomWeapon custwep = new CustomWeapon {
@@ -141,22 +144,16 @@ namespace PvPModifier.Utilities {
         }
 
         /// <summary>
-        /// Converts a regular Terraria <see cref="Item"/> into a <see cref="PvPItem"/>.
-        /// </summary>
-        public static PvPItem ConvertToPvPItem(Item item) => new PvPItem(item);
-
-        /// <summary>
         /// Finds the closest pvper from a position.
         /// </summary>
         /// <param name="position">The position to find players from</param>
         /// <param name="selfIndex">The user to ignore</param>
         /// <param name="radius">The radius in which to find players (in pixels)</param>
-        public static PvPPlayer FindClosestPlayer(Vector2 position, int selfIndex, float radius = -1) {
+        public static TSPlayer FindClosestPlayer(Vector2 position, int selfIndex, float radius = -1) {
             float closestPersonDistance = -1;
-            PvPPlayer target = null;
-            for (int pvperIndex = 0; pvperIndex < Main.maxPlayers; pvperIndex++) {
-                var pvper = PvPModifier.PvPers[pvperIndex];
-                if (pvper == null || !pvper.TPlayer.hostile || pvper.TPlayer.dead) continue;
+            TSPlayer target = null;
+            foreach (var pvper in PvPUtils.ActivePlayers) {
+                if (!pvper.TPlayer.hostile || pvper.TPlayer.dead) continue;
 
                 var distance = Vector2.Distance(position, pvper.TPlayer.Center);
 

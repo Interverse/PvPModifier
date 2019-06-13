@@ -7,6 +7,7 @@ using PvPModifier.Network;
 using PvPModifier.Variables;
 using Terraria;
 using TerrariaApi.Server;
+using TShockAPI;
 using TShockAPI.Hooks;
 
 namespace PvPModifier {
@@ -14,15 +15,12 @@ namespace PvPModifier {
     public class PvPModifier : TerrariaPlugin {
 
         public static Config Config;
-        public static PvPPlayer[] PvPers = new PvPPlayer[Main.maxPlayers];
         private readonly PvPEvents _pvpevents = new PvPEvents();
 
         public override string Name => "PvP Modifier";
         public override string Author => "Johuan";
         public override string Description => "Adds customizability to pvp";
         public override Version Version => Assembly.GetExecutingAssembly().GetName().Version;
-
-        public static PvPPlayer[] ActivePlayers => PvPers.Where(c => c != null).ToArray();
 
         public PvPModifier(Main game) : base(game) { }
 
@@ -39,7 +37,6 @@ namespace PvPModifier {
             ServerApi.Hooks.ServerJoin.Register(this, OnJoin);
             ServerApi.Hooks.ProjectileAIUpdate.Register(this, PvPEvents.UpdateProjectileHoming);
             ServerApi.Hooks.GameUpdate.Register(this, PvPEvents.CleanupInactiveProjectiles);
-            ServerApi.Hooks.ServerLeave.Register(this, OnLeave);
 
             GeneralHooks.ReloadEvent += OnReload;
 
@@ -55,7 +52,6 @@ namespace PvPModifier {
                 ServerApi.Hooks.ServerJoin.Deregister(this, OnJoin);
                 ServerApi.Hooks.ProjectileAIUpdate.Deregister(this, PvPEvents.UpdateProjectileHoming);
                 ServerApi.Hooks.GameUpdate.Deregister(this, PvPEvents.CleanupInactiveProjectiles);
-                ServerApi.Hooks.ServerLeave.Deregister(this, OnLeave);
 
                 GeneralHooks.ReloadEvent -= OnReload;
 
@@ -75,25 +71,17 @@ namespace PvPModifier {
         }
 
         /// <summary>
-        /// Removes a player from the plugin-stored collection of players when they leave.
-        /// </summary>
-        /// <param name="args"></param>
-        private void OnLeave(LeaveEventArgs args) {
-            PvPers[args.Who] = null;
-        }
-
-        /// <summary>
         /// Adds a player who just logged in to the plugin-stored collection of players.
         /// </summary>
         private void OnPlayerPostLogin(PlayerPostLoginEventArgs e) {
-            PvPers[e.Player.Index] = new PvPPlayer(e.Player.Index);
+            TShock.Players[e.Player.Index].Initialize();
         }
 
         /// <summary>
         /// Adds the player to the plugin-stored collection of players.
         /// </summary>
         private void OnJoin(JoinEventArgs args) {
-            PvPers[args.Who] = new PvPPlayer(args.Who);
+            TShock.Players[args.Who].Initialize();
         }
 
         /// <summary>
@@ -115,7 +103,7 @@ namespace PvPModifier {
         /// <param name="args">The data needed to be processed.</param> 
         private void GetData(GetDataEventArgs args) {
             MemoryStream data = new MemoryStream(args.Msg.readBuffer, args.Index, args.Length);
-            PvPPlayer attacker = PvPers[args.Msg.whoAmI];
+            TSPlayer attacker = TShock.Players[args.Msg.whoAmI];
 
             if (attacker == null || !attacker.TPlayer.active || !attacker.ConnectionAlive) return;
 

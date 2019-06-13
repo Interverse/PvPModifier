@@ -1,11 +1,12 @@
 ﻿using System;
 using PvPModifier.Variables;
+using TShockAPI;
 
 namespace PvPModifier.Network.Packets {
     public class PlayerDeathArgs : EventArgs {
-        public PvPPlayer Dead;
+        public TSPlayer Dead;
 
-        public bool ExtractData(PvPPlayer dead, out PlayerDeathArgs arg) {
+        public bool ExtractData(TSPlayer dead, out PlayerDeathArgs arg) {
             arg = new PlayerDeathArgs {
                 Dead = dead
             };

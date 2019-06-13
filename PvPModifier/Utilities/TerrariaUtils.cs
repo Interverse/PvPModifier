@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using PvPModifier.Variables;
 using Terraria;
 using Terraria.DataStructures;
+using TShockAPI;
 
 namespace PvPModifier.Utilities {
     /// <summary>
@@ -13,7 +14,7 @@ namespace PvPModifier.Utilities {
         /// <summary>
         /// Calculates the amount of damage dealt to a player after factoring in their defense stats.
         /// </summary>
-        public static double GetHurtDamage(PvPPlayer damagedPlayer, int damage) {
+        public static double GetHurtDamage(TSPlayer damagedPlayer, int damage) {
             damagedPlayer.TPlayer.stealth = 1f;
             int damage1 = damage;
             double dmg = Main.CalculatePlayerDamage(damage1, damagedPlayer.TPlayer.statDefense);
@@ -164,7 +165,7 @@ namespace PvPModifier.Utilities {
         /// This normally does not work in vanilla servers, so this must be emulated on a 
         /// server for accessories such as Yoyo Bag to work.
         /// </summary>
-        public static void ActivateYoyoBag(PvPPlayer attacker, PvPPlayer target, int dmg, float kb) {
+        public static void ActivateYoyoBag(TSPlayer attacker, TSPlayer target, int dmg, float kb) {
             if (!attacker.TPlayer.yoyoGlove && attacker.TPlayer.counterWeight <= 0)
                 return;
             int index1 = -1;
@@ -186,7 +187,7 @@ namespace PvPModifier.Utilities {
                 Vector2 vector21 = Vector2.Subtract(target.LastNetPosition, attacker.TPlayer.Center);
                 vector21.Normalize();
                 Vector2 vector22 = Vector2.Multiply(vector21, 16f);
-                ProjectileUtils.SpawnProjectile(attacker, attacker.TPlayer.Center.X, attacker.TPlayer.Center.Y, vector22.X, vector22.Y, Main.projectile[index1].type, Main.projectile[index1].damage, Main.projectile[index1].knockBack, attacker.TPlayer.whoAmI, 1f);
+                ProjectileUtils.SpawnProjectile(attacker, attacker.TPlayer.Center.X, attacker.TPlayer.Center.Y, vector22.X, vector22.Y, Main.projectile[index1].type, Main.projectile[index1].damage, Main.projectile[index1].knockBack, attacker.TPlayer.whoAmI, 1f, itemType: attacker.TPlayer.HeldItem.netID);
             } else {
                 if (num2 >= num1)
                     return;
@@ -197,11 +198,11 @@ namespace PvPModifier.Utilities {
                 float knockBack = (float)((kb + 6.0) / 2.0);
                 ProjectileUtils.SpawnProjectile(attacker, attacker.TPlayer.Center.X, attacker.TPlayer.Center.Y,
                     vector22.X, vector22.Y, attacker.TPlayer.counterWeight, (int) (dmg * 0.8), knockBack,
-                    attacker.TPlayer.whoAmI, (num2 > 0).ToInt());
+                    attacker.TPlayer.whoAmI, (num2 > 0).ToInt(), itemType: attacker.TPlayer.HeldItem.netID);
             }
         }
 
-        public static void ActivateSpectreBolt(PvPPlayer attacker, PvPPlayer target, PvPItem weapon, int dmg) {
+        public static void ActivateSpectreBolt(TSPlayer attacker, TSPlayer target, Item weapon, int dmg) {
             if (!weapon.magic)
                 return;
             int Damage = dmg / 2;
