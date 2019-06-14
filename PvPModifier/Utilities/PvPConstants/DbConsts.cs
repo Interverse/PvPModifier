@@ -20,6 +20,7 @@
         public const string InflictBuffDuration = "InflictBuffDuration";
         public const string ReceiveBuffID = "ReceiveBuffID";
         public const string ReceiveBuffDuration = "ReceiveBuffDuration";
+        public const string Mirror = "Mirror";
     }
 
     /// <summary>

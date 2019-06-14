@@ -141,6 +141,11 @@
                     attribute = DbConsts.ReceiveBuffDuration;
                     return true;
 
+                case "mirror":
+                case "m":
+                    attribute = DbConsts.Mirror;
+                    return true;
+
                 default:
                     attribute = input;
                     return false;

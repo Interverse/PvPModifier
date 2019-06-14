@@ -34,6 +34,9 @@ namespace PvPModifier.Variables {
         }
 
         public static void SetItemOriginated(this Projectile proj, int itemType) {
+            if (!HasInitializedExtraAISlots(proj)) {
+                proj.InitializeExtraAISlots();
+            }
             proj.ai[(int)AI.ItemOriginated] = itemType;
         }
 

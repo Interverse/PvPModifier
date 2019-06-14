@@ -65,7 +65,8 @@ namespace PvPModifier.DataStorage {
                 new SqlColumn(DbConsts.ReceiveBuffID, MySqlDbType.Int32),
                 new SqlColumn(DbConsts.ReceiveBuffDuration, MySqlDbType.Int32),
                 new SqlColumn(DbConsts.HomingRadius, MySqlDbType.Float),
-                new SqlColumn(DbConsts.AngularVelocity, MySqlDbType.Float)));
+                new SqlColumn(DbConsts.AngularVelocity, MySqlDbType.Float),
+                new SqlColumn(DbConsts.Mirror, MySqlDbType.Int32)));
 
             sqlCreator.EnsureTableStructure(new SqlTable(DbTables.ProjectileTable,
                 new SqlColumn(DbConsts.ID, MySqlDbType.Int32) {Primary = true},
@@ -216,13 +217,13 @@ namespace PvPModifier.DataStorage {
                                               DbConsts.ShootSpeed, DbConsts.AmmoIdentifier, DbConsts.UseAmmoIdentifier, 
                                               DbConsts.NotAmmo, DbConsts.InflictBuffID, DbConsts.InflictBuffDuration, 
                                               DbConsts.ReceiveBuffID, DbConsts.ReceiveBuffDuration, DbConsts.HomingRadius, 
-                                              DbConsts.AngularVelocity),
+                                              DbConsts.AngularVelocity, DbConsts.Mirror),
                             string.Join(", ", id, -1, knockback, 
                                               -1, -1, -1, 
                                               -1, -1, -1, 
                                               notAmmo.ToInt(), inflictBuff.BuffId, inflictBuff.BuffDuration, 
                                               receiveBuff.BuffId, receiveBuff.BuffDuration, -1, 
-                                              -1));
+                                              -1, -1));
 
                 case "Projectiles":
                     inflictBuff = PresetData.ProjectileDebuffs.ContainsKey(id)

@@ -1,10 +1,12 @@
-﻿using PvPModifier.CustomWeaponAPI;
+﻿using Microsoft.Xna.Framework;
+using PvPModifier.CustomWeaponAPI;
 using PvPModifier.DataStorage;
 using PvPModifier.Network.Packets;
 using PvPModifier.Utilities;
 using PvPModifier.Utilities.PvPConstants;
 using PvPModifier.Variables;
 using System;
+using System.Collections.Generic;
 using Terraria;
 using TerrariaApi.Server;
 using TShockAPI;
@@ -16,9 +18,25 @@ namespace PvPModifier.Network.Events {
         /// </summary>
         public static void OnNewProjectile(object sender, ProjectileNewArgs e) {
             if (!PvPModifier.Config.EnablePlugin) return;
+
             var projectile = Main.projectile[e.Identity];
             projectile.InitializeExtraAISlots();
+
             if (projectile.active && projectile.type == e.Type) return;
+
+            List<Projectile> projectiles = new List<Projectile>();
+            DbItem weapon = Cache.Items[e.Weapon.netID];
+
+            projectile.SetDefaults(e.Type);
+            projectile.identity = e.Identity;
+            projectile.damage = e.Damage;
+            projectile.knockBack = e.Knockback;
+            projectile.owner = e.Owner;
+            projectile.position = e.Position;
+            projectile.velocity = e.Velocity;
+            projectile.ai = e.Ai;
+
+            projectiles.Add(projectile);
 
             if ((TShock.Players[e.Owner]?.TPlayer?.hostile ?? false) && PvPUtils.IsModifiedProjectile(e.Type)) {
                 e.Args.Handled = true;
@@ -35,6 +53,12 @@ namespace PvPModifier.Network.Events {
                 NetMessage.SendData(27, -1, -1, null, e.Identity);
             }
 
+            if (weapon.IsMirror) {
+                foreach (var proj in projectiles) {
+                    ProjectileUtils.SpawnProjectile(e.Attacker, proj.position + new Vector2(proj.width, proj.height) / 2, proj.velocity * -1, proj.type, proj.damage, proj.knockBack, proj.owner, proj.ai[0], proj.ai[1], e.Weapon.netID);
+                }
+            }
+
             e.Attacker.GetProjectileTracker().InsertProjectile(e.Identity, e.Type, e.Owner, e.Weapon.netID);
             e.Attacker.GetProjectileTracker().Projectiles[e.Type].PerformProjectileAction();
         }
@@ -44,8 +68,9 @@ namespace PvPModifier.Network.Events {
         /// </summary>
         public static void CleanupInactiveProjectiles(EventArgs args) {
             for (int x = 0; x < Main.maxProjectiles; x++) {
-                if (!Main.projectile[x].active)
+                if (!Main.projectile[x].active) {
                     Main.projectile[x] = new Projectile();
+                }
             }
         }
 
