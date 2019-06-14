@@ -1,4 +1,5 @@
-﻿using PvPModifier.Variables;
+﻿using Microsoft.Xna.Framework;
+using PvPModifier.Variables;
 using Terraria;
 using TShockAPI;
 
@@ -27,6 +28,10 @@ namespace PvPModifier.Utilities {
                 weapon = owner.TPlayer.HeldItem;
             }
             return weapon;
+        }
+
+        public static void SpawnProjectile(TSPlayer player, Vector2 position, Vector2 velocity, int type, int damage, float knockBack, int owner = 255, float ai0 = 0.0f, float ai1 = 0.0f, int itemType = 0) {
+            SpawnProjectile(player, position.X, position.Y, velocity.X, velocity.Y, type, damage, knockBack, owner, ai0, ai0, itemType);
         }
 
         public static void SpawnProjectile(TSPlayer player, float x, float y, float speedX, float speedY, int type, int damage, float knockBack, int owner = 255, float ai0 = 0.0f, float ai1 = 0.0f, int itemType = 0) {

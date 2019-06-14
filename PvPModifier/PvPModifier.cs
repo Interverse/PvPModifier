@@ -15,7 +15,7 @@ namespace PvPModifier {
     public class PvPModifier : TerrariaPlugin {
 
         public static Config Config;
-        private readonly PvPEvents _pvpevents = new PvPEvents();
+        private PvPEvents _pvpevents;
 
         public override string Name => "PvP Modifier";
         public override string Author => "Johuan";
@@ -35,13 +35,12 @@ namespace PvPModifier {
             ServerApi.Hooks.GamePostInitialize.Register(this, OnGamePostInitialize);
             ServerApi.Hooks.NetGetData.Register(this, GetData);
             ServerApi.Hooks.ServerJoin.Register(this, OnJoin);
-            ServerApi.Hooks.ProjectileAIUpdate.Register(this, PvPEvents.UpdateProjectileHoming);
-            ServerApi.Hooks.GameUpdate.Register(this, PvPEvents.CleanupInactiveProjectiles);
 
             GeneralHooks.ReloadEvent += OnReload;
 
             PlayerHooks.PlayerPostLogin += OnPlayerPostLogin;
 
+            _pvpevents = new PvPEvents(this);
             PluginCommands.RegisterCommands();
         }
 
@@ -50,8 +49,6 @@ namespace PvPModifier {
                 ServerApi.Hooks.GamePostInitialize.Deregister(this, OnGamePostInitialize);
                 ServerApi.Hooks.NetGetData.Deregister(this, GetData);
                 ServerApi.Hooks.ServerJoin.Deregister(this, OnJoin);
-                ServerApi.Hooks.ProjectileAIUpdate.Deregister(this, PvPEvents.UpdateProjectileHoming);
-                ServerApi.Hooks.GameUpdate.Deregister(this, PvPEvents.CleanupInactiveProjectiles);
 
                 GeneralHooks.ReloadEvent -= OnReload;
 

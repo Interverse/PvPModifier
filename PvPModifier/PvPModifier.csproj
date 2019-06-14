@@ -65,6 +65,9 @@
     <Compile Include="DataStorage\DbObject.cs" />
     <Compile Include="DataStorage\DbProjectile.cs" />
     <Compile Include="Network\DataHandler.cs" />
+    <Compile Include="Network\Events\ItemEvents.cs" />
+    <Compile Include="Network\Events\PlayerEvents.cs" />
+    <Compile Include="Network\Events\ProjectileEvents.cs" />
     <Compile Include="Network\Packets\PlayerDeathArgs.cs" />
     <Compile Include="Network\Packets\PlayerHurtArgs.cs" />
     <Compile Include="Network\Packets\PlayerSlotArgs.cs" />
