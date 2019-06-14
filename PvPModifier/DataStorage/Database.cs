@@ -63,15 +63,15 @@ namespace PvPModifier.DataStorage {
                 new SqlColumn(DbConsts.InflictBuffID, MySqlDbType.Int32),
                 new SqlColumn(DbConsts.InflictBuffDuration, MySqlDbType.Int32),
                 new SqlColumn(DbConsts.ReceiveBuffID, MySqlDbType.Int32),
-                new SqlColumn(DbConsts.ReceiveBuffDuration, MySqlDbType.Int32)));
+                new SqlColumn(DbConsts.ReceiveBuffDuration, MySqlDbType.Int32),
+                new SqlColumn(DbConsts.HomingRadius, MySqlDbType.Float),
+                new SqlColumn(DbConsts.AngularVelocity, MySqlDbType.Float)));
 
             sqlCreator.EnsureTableStructure(new SqlTable(DbTables.ProjectileTable,
                 new SqlColumn(DbConsts.ID, MySqlDbType.Int32) {Primary = true},
                 new SqlColumn(DbConsts.Shoot, MySqlDbType.Int32),
                 new SqlColumn(DbConsts.VelocityMultiplier, MySqlDbType.Float),
                 new SqlColumn(DbConsts.Damage, MySqlDbType.Int32),
-                new SqlColumn(DbConsts.HomingRadius, MySqlDbType.Float),
-                new SqlColumn(DbConsts.AngularVelocity, MySqlDbType.Float),
                 new SqlColumn(DbConsts.InflictBuffID, MySqlDbType.Int32),
                 new SqlColumn(DbConsts.InflictBuffDuration, MySqlDbType.Int32),
                 new SqlColumn(DbConsts.ReceiveBuffID, MySqlDbType.Int32),
@@ -211,8 +211,18 @@ namespace PvPModifier.DataStorage {
 
                     return "INSERT INTO {0} ({1}) VALUES ({2})"
                         .SFormat(DbTables.ItemTable,
-                            string.Join(", ", DbConsts.ID, DbConsts.Damage, DbConsts.Knockback, DbConsts.UseAnimation, DbConsts.UseTime, DbConsts.Shoot, DbConsts.ShootSpeed, DbConsts.AmmoIdentifier, DbConsts.UseAmmoIdentifier, DbConsts.NotAmmo, DbConsts.InflictBuffID, DbConsts.InflictBuffDuration, DbConsts.ReceiveBuffID, DbConsts.ReceiveBuffDuration),
-                            string.Join(", ", id, -1, knockback, -1, -1, -1, -1, -1, -1, notAmmo.ToInt(), inflictBuff.BuffId, inflictBuff.BuffDuration, receiveBuff.BuffId, receiveBuff.BuffDuration));
+                            string.Join(", ", DbConsts.ID, DbConsts.Damage, DbConsts.Knockback, 
+                                              DbConsts.UseAnimation, DbConsts.UseTime, DbConsts.Shoot, 
+                                              DbConsts.ShootSpeed, DbConsts.AmmoIdentifier, DbConsts.UseAmmoIdentifier, 
+                                              DbConsts.NotAmmo, DbConsts.InflictBuffID, DbConsts.InflictBuffDuration, 
+                                              DbConsts.ReceiveBuffID, DbConsts.ReceiveBuffDuration, DbConsts.HomingRadius, 
+                                              DbConsts.AngularVelocity),
+                            string.Join(", ", id, -1, knockback, 
+                                              -1, -1, -1, 
+                                              -1, -1, -1, 
+                                              notAmmo.ToInt(), inflictBuff.BuffId, inflictBuff.BuffDuration, 
+                                              receiveBuff.BuffId, receiveBuff.BuffDuration, -1, 
+                                              -1));
 
                 case "Projectiles":
                     inflictBuff = PresetData.ProjectileDebuffs.ContainsKey(id)
@@ -221,8 +231,12 @@ namespace PvPModifier.DataStorage {
 
                     return "INSERT INTO {0} ({1}) VALUES ({2})"
                         .SFormat(DbTables.ProjectileTable,
-                            string.Join(", ", DbConsts.ID, DbConsts.Shoot, DbConsts.VelocityMultiplier, DbConsts.Damage, DbConsts.HomingRadius, DbConsts.AngularVelocity, DbConsts.InflictBuffID, DbConsts.InflictBuffDuration, DbConsts.ReceiveBuffID, DbConsts.ReceiveBuffDuration),
-                            string.Join(", ", id, id, 1, -1, -1, 0, inflictBuff.BuffId, inflictBuff.BuffDuration, receiveBuff.BuffId, receiveBuff.BuffDuration));
+                            string.Join(", ", DbConsts.ID, DbConsts.Shoot, DbConsts.VelocityMultiplier, 
+                                              DbConsts.Damage, DbConsts.InflictBuffID, DbConsts.InflictBuffDuration, 
+                                              DbConsts.ReceiveBuffID, DbConsts.ReceiveBuffDuration),
+                            string.Join(", ", id, id, 1, 
+                                              -1, inflictBuff.BuffId, inflictBuff.BuffDuration, 
+                                              receiveBuff.BuffId, receiveBuff.BuffDuration));
 
                 case "Buffs":
                     inflictBuff = PresetData.FlaskDebuffs.ContainsKey(id)
@@ -231,8 +245,10 @@ namespace PvPModifier.DataStorage {
 
                     return "INSERT INTO {0} ({1}) VALUES ({2})"
                         .SFormat(DbTables.BuffTable,
-                            string.Join(", ", DbConsts.ID, DbConsts.InflictBuffID, DbConsts.InflictBuffDuration, DbConsts.ReceiveBuffID, DbConsts.ReceiveBuffDuration),
-                            string.Join(", ", id, inflictBuff.BuffId, inflictBuff.BuffDuration, receiveBuff.BuffId, receiveBuff.BuffDuration));
+                            string.Join(", ", DbConsts.ID, DbConsts.InflictBuffID, DbConsts.InflictBuffDuration, 
+                                              DbConsts.ReceiveBuffID, DbConsts.ReceiveBuffDuration),
+                            string.Join(", ", id, inflictBuff.BuffId, inflictBuff.BuffDuration, 
+                                              receiveBuff.BuffId, receiveBuff.BuffDuration));
 
                 default:
                     return "";
@@ -257,7 +273,9 @@ namespace PvPModifier.DataStorage {
                         InflictBuffID = reader.Get<int>(DbConsts.InflictBuffID),
                         InflictBuffDuration = reader.Get<int>(DbConsts.InflictBuffDuration),
                         ReceiveBuffID = reader.Get<int>(DbConsts.ReceiveBuffDuration),
-                        ReceiveBuffDuration = reader.Get<int>(DbConsts.ReceiveBuffDuration)
+                        ReceiveBuffDuration = reader.Get<int>(DbConsts.ReceiveBuffDuration),
+                        HomingRadius = reader.Get<float>(DbConsts.HomingRadius),
+                        AngularVelocity = reader.Get<float>(DbConsts.AngularVelocity)
                     };
                 }
             }
@@ -270,8 +288,6 @@ namespace PvPModifier.DataStorage {
                         Shoot = reader.Get<int>(DbConsts.Shoot),
                         VelocityMultiplier = reader.Get<float>(DbConsts.VelocityMultiplier),
                         Damage = reader.Get<int>(DbConsts.Damage),
-                        HomingRadius = reader.Get<float>(DbConsts.HomingRadius),
-                        AngularVelocity = reader.Get<float>(DbConsts.AngularVelocity),
                         InflictBuffID = reader.Get<int>(DbConsts.InflictBuffID),
                         InflictBuffDuration = reader.Get<int>(DbConsts.InflictBuffDuration),
                         ReceiveBuffID = reader.Get<int>(DbConsts.ReceiveBuffDuration),

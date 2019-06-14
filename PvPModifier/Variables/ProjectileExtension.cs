@@ -14,7 +14,7 @@ namespace PvPModifier.Variables {
     public static class ProjectileExtension {
         public static int MaxAI = 10;
 
-        public static void Initialize(this Projectile proj) {
+        public static void InitializeExtraAISlots(this Projectile proj) {
             Queue<float> aiCollection = new Queue<float>();
 
             foreach (float ai in proj.ai) {
@@ -28,6 +28,10 @@ namespace PvPModifier.Variables {
                 proj.ai[aiIndex++] = aiCollection.Dequeue();
             }
         } 
+
+        public static bool HasInitializedExtraAISlots(this Projectile proj) {
+            return proj.ai.Length == MaxAI;
+        }
 
         public static void SetItemOriginated(this Projectile proj, int itemType) {
             proj.ai[(int)AI.ItemOriginated] = itemType;

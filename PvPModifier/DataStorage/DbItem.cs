@@ -18,6 +18,8 @@ namespace PvPModifier.DataStorage {
         public int InflictBuffDuration { get; set; }
         public int ReceiveBuffID { get; set; }
         public int ReceiveBuffDuration { get; set; }
+        public float HomingRadius { get; set; }
+        public float AngularVelocity { get; set; }
 
         public BuffInfo InflictBuff => new BuffInfo(InflictBuffID, InflictBuffDuration);
         public BuffInfo ReceiveBuff => new BuffInfo(ReceiveBuffID, ReceiveBuffDuration);
@@ -35,7 +37,9 @@ namespace PvPModifier.DataStorage {
                    $"UseAmmoIdentifier: {UseAmmoIdentifier}\n" +
                    $"NotAmmo: {IsNotAmmo}\n" +
                    $"Inflict Buff: {Terraria.Lang.GetBuffName(InflictBuffID)} for {InflictBuffDuration / Constants.TicksPerSecond}s\n" +
-                   $"Receive Buff: {Terraria.Lang.GetBuffName(ReceiveBuffID)} for {ReceiveBuffDuration / Constants.TicksPerSecond}s";
+                   $"Receive Buff: {Terraria.Lang.GetBuffName(ReceiveBuffID)} for {ReceiveBuffDuration / Constants.TicksPerSecond}s" +
+                   $"HomingRadius: {HomingRadius}\n" +
+                   $"AngularVelocity: {AngularVelocity}\n";
         }
     }
 }

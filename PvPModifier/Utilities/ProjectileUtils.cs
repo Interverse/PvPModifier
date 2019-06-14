@@ -36,7 +36,7 @@ namespace PvPModifier.Utilities {
 
         public static void SpawnProjectile(TSPlayer player, float x, float y, float speedX, float speedY, int type, int damage, float knockBack, int owner = 255, float ai0 = 0.0f, float ai1 = 0.0f, int itemType = 0) {
             int projIndex = Projectile.NewProjectile(x, y, speedX, speedY, type, damage, knockBack, owner, ai0, ai1);
-            Main.projectile[projIndex].Initialize();
+            Main.projectile[projIndex].InitializeExtraAISlots();
             NetMessage.SendData(27, -1, -1, null, projIndex);
 
             player.GetProjectileTracker().InsertProjectile(projIndex, type, player.Index, itemType);

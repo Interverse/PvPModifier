@@ -17,7 +17,7 @@ namespace PvPModifier.Network.Events {
         public static void OnNewProjectile(object sender, ProjectileNewArgs e) {
             if (!PvPModifier.Config.EnablePlugin) return;
             var projectile = Main.projectile[e.Identity];
-            projectile.Initialize();
+            projectile.InitializeExtraAISlots();
             if (projectile.active && projectile.type == e.Type) return;
 
             if ((TShock.Players[e.Owner]?.TPlayer?.hostile ?? false) && PvPUtils.IsModifiedProjectile(e.Type)) {
@@ -57,10 +57,12 @@ namespace PvPModifier.Network.Events {
 
             var projectile = args.Projectile;
 
-            float homingRadius = Cache.Projectiles[projectile.type].HomingRadius;
+            if (!projectile.HasInitializedExtraAISlots()) return;
+
+            float homingRadius = Cache.Items[projectile.GetItemOriginated().type].HomingRadius;
             if (homingRadius < 0) return;
 
-            float angularVelocity = Cache.Projectiles[projectile.type].AngularVelocity;
+            float angularVelocity = Cache.Items[projectile.GetItemOriginated().type].AngularVelocity;
 
             TSPlayer target = PvPUtils.FindClosestPlayer(projectile.position, projectile.owner, homingRadius * Constants.PixelToWorld);
 
