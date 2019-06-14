@@ -13,8 +13,7 @@ namespace PvPModifier.Network.Events {
         /// Resets their inventory to Terraria's defaults when their pvp is turned off.
         /// </summary>
         public static async void OnPvPToggledAsync(object sender, TogglePvPArgs e) {
-            if (!PvPModifier.Config.EnablePlugin)
-                return;
+            if (!PvPModifier.Config.EnablePlugin) return;
 
             if (e.Hostile) {
                 e.Player.GetInvTracker().StartForcePvPInventoryCheck = true;
@@ -32,10 +31,8 @@ namespace PvPModifier.Network.Events {
         /// Handles player updates.
         /// </summary>
         public static async void OnPlayerUpdateAsync(object sender, PlayerUpdateArgs e) {
-            if (!PvPModifier.Config.EnablePlugin)
-                return;
-            if (e.Player.TPlayer.dead)
-                return;
+            if (!PvPModifier.Config.EnablePlugin) return;
+            if (e.Player.TPlayer.dead) return;
 
             //If the player has their pvp turned on without sending a TogglePvP packet (ex. through a /pvp command),
             //The plugin will detect it here and send the modified items.
@@ -76,13 +73,11 @@ namespace PvPModifier.Network.Events {
         /// Handles pvp attacks.
         /// </summary>
         public static void OnPlayerHurt(object sender, PlayerHurtArgs e) {
-            if (!PvPModifier.Config.EnablePlugin)
-                return;
+            if (!PvPModifier.Config.EnablePlugin) return;
 
             e.Args.Handled = true;
 
-            if (e.Attacker.TPlayer.immune || !e.Target.CanBeHit())
-                return;
+            if (e.Attacker.TPlayer.immune || !e.Target.CanBeHit()) return;
 
             if (PvPModifier.Config.EnableKnockback) {
                 int direction = e.HitDirection;

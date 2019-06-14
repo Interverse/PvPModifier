@@ -10,23 +10,17 @@ namespace PvPModifier.Network.Events {
         /// Replaces items placed into the inventory into the pvp versions.
         /// </summary>
         public static void CheckIncomingItems(object sender, PlayerSlotArgs e) {
-            if (!PvPModifier.Config.EnablePlugin)
-                return;
+            if (!PvPModifier.Config.EnablePlugin) return;
 
-            if (!e.Player.TPlayer.hostile)
-                return;
-            if (e.SlotId >= 58)
-                return;
+            if (!e.Player.TPlayer.hostile) return;
+            if (e.SlotId >= 58) return;
 
             //Only runs after initial pvp check
             if (e.Player.GetInvTracker().OnPvPInventoryChecked) {
-                if (e.Player.GetInvTracker().LockModifications)
-                    return;
+                if (e.Player.GetInvTracker().LockModifications) return;
 
                 //If the item is being consumed, don't modify the item
-                if (Math.Abs(e.Player.TPlayer.inventory[e.SlotId].stack - e.Stack) <= 1
-                    && e.Player.TPlayer.inventory[e.SlotId].netID == e.NetID)
-                    return;
+                if (Math.Abs(e.Player.TPlayer.inventory[e.SlotId].stack - e.Stack) <= 1 && e.Player.TPlayer.inventory[e.SlotId].netID == e.NetID) return;
 
                 //If the item is modified, fill empty spaces and add it to queue
                 if (PvPUtils.IsModifiedItem(e.NetID)) {

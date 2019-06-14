@@ -50,7 +50,6 @@ namespace PvPModifier.Network.Packets {
                 Ai = new float[Projectile.maxAI]
             };
 
-
             arg.Proj = new Projectile().SetType(arg.Type).SetIdentity(arg.Identity);
             arg.Weapon = ProjectileUtils.GetProjectileWeapon(arg.Attacker, arg.Type);
 
