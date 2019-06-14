@@ -47,11 +47,12 @@ namespace PvPModifier.Network.Packets {
                 Ai0 = AiFlags[0] ? Ai0 = data.ReadSingle() : 0,
                 Ai1 = AiFlags[1] ? data.ReadSingle() : 0,
 
-                Ai = new float[Projectile.maxAI],
-
-                Proj = new Projectile().SetType(Type).SetIdentity(Identity),
-                Weapon = ProjectileUtils.GetProjectileWeapon(attacker, Type)
+                Ai = new float[Projectile.maxAI]
             };
+
+
+            arg.Proj = new Projectile().SetType(arg.Type).SetIdentity(arg.Identity);
+            arg.Weapon = ProjectileUtils.GetProjectileWeapon(arg.Attacker, arg.Type);
 
             return true;
         }
