@@ -57,6 +57,7 @@ namespace PvPModifier.Variables {
         /// </summary>
         public static Item FindPlayerItem(this TSPlayer player, int type) {
             var item = new Item();
+
             if (player.TPlayer.FindItem(type) != -1) {
                 return player.TPlayer.inventory[player.TPlayer.FindItem(type)];
             }

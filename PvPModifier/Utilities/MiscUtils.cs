@@ -145,7 +145,7 @@ namespace PvPModifier.Utilities {
         /// <summary>
         /// Returns a vector that is turned towards a target.
         /// </summary>
-        public static Vector2 TurnTowards(Vector2 vel, Vector2 pos, Vector2 target, double angularVelocity) {
+        public static Vector2 TurnTowards(this Vector2 vel, Vector2 pos, Vector2 target, double angularVelocity) {
             float speed = vel.Length();
             Vector2 direction = target - pos;
             direction.Normalize();
@@ -161,15 +161,20 @@ namespace PvPModifier.Utilities {
         /// <summary>
         /// Rotates a vector.
         /// </summary>
-        public static Vector2 Rotate(Vector2 v, float degrees) {
+        public static Vector2 Rotate(this Vector2 v, float degrees) {
             float radians = (float)(degrees * Math.PI / 180f);
-            //Formulas for sin and cos are from the Taylor Polynomial series
-            float sin = radians - radians * radians * radians / 6;
-            float cos = 1 - radians * radians / 2;
 
-            float _x = v.X * cos - v.Y * sin;
-            float _y = v.X * sin + v.Y * cos;
-            return new Vector2(_x, _y);
+            return v.RotatedBy(radians);
+        }
+
+        /// <summary>
+        /// Rotates a vector.
+        /// </summary>
+        public static Vector2 RotateRandom(this Vector2 v, float minDegrees, float maxDegrees) {
+            float degrees = Main.rand.NextFloat() * (maxDegrees - minDegrees) - (maxDegrees - minDegrees) / 2f;
+            float radians = (float)(degrees * Math.PI / 180f);
+
+            return v.RotatedBy(radians);
         }
 
         public static T SelectRandom<T>(this IEnumerable<T> obj) => obj.ElementAt(Main.rand.Next(obj.Count()));

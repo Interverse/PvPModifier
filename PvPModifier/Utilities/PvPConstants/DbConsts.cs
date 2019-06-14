@@ -21,6 +21,9 @@
         public const string ReceiveBuffID = "ReceiveBuffID";
         public const string ReceiveBuffDuration = "ReceiveBuffDuration";
         public const string Mirror = "Mirror";
+        public const string Spread = "Spread";
+        public const string RandomSpread = "RandomSpread";
+        public const string NumShots = "NumShots";
     }
 
     /// <summary>

@@ -21,7 +21,8 @@ namespace PvPModifier.Network.Events {
 
             var projectile = Main.projectile[e.Identity];
             projectile.InitializeExtraAISlots();
-
+            
+            if (!e.Attacker.TPlayer.hostile) return;
             if (projectile.active && projectile.type == e.Type) return;
 
             List<Projectile> projectiles = new List<Projectile>();
@@ -51,6 +52,37 @@ namespace PvPModifier.Network.Events {
                 projectile.position = e.Position;
 
                 NetMessage.SendData(27, -1, -1, null, e.Identity);
+            }
+
+            if (weapon.Spread > 0) {
+                float spreadAmount = weapon.Spread / 2f;
+                for (int x = 0; x < weapon.NumShots; x++) {
+                    if (x == 0) {
+                        e.Args.Handled = true;
+                        projectile.SetDefaults(0);
+                        NetMessage.SendData(27, -1, -1, null, e.Identity);
+                        projectiles.Clear();
+                    }
+
+                    Projectile newProj = new Projectile();
+
+                    newProj.SetDefaults(e.Type);
+                    newProj.identity = e.Identity;
+                    newProj.damage = e.Damage;
+                    newProj.knockBack = e.Knockback;
+                    newProj.owner = e.Owner;
+                    newProj.position = e.Position + new Vector2(newProj.width, newProj.height) / 2;
+                    if (weapon.IsRandomSpread) {
+                        newProj.velocity = e.Velocity.RotateRandom(-spreadAmount, spreadAmount);
+                    } else {
+                        newProj.velocity = e.Velocity.Rotate(-spreadAmount).Rotate(x * weapon.Spread / weapon.NumShots);
+                    }
+                    newProj.ai = e.Ai;
+
+                    ProjectileUtils.SpawnProjectile(e.Attacker, newProj, e.Weapon.netID);
+
+                    projectiles.Add(newProj);
+                }
             }
 
             if (weapon.IsMirror) {
@@ -83,6 +115,7 @@ namespace PvPModifier.Network.Events {
             var projectile = args.Projectile;
 
             if (!projectile.HasInitializedExtraAISlots()) return;
+            if (projectile.GetOwner() == null) return;
 
             float homingRadius = Cache.Items[projectile.GetItemOriginated().type].HomingRadius;
             if (homingRadius < 0) return;

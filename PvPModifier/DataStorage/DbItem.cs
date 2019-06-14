@@ -21,11 +21,15 @@ namespace PvPModifier.DataStorage {
         public float HomingRadius { get; set; }
         public float AngularVelocity { get; set; }
         public float Mirror { get; set; }
+        public float Spread { get; set; }
+        public int RandomSpread { get; set; }
+        public int NumShots { get; set; }
 
         public BuffInfo InflictBuff => new BuffInfo(InflictBuffID, InflictBuffDuration);
         public BuffInfo ReceiveBuff => new BuffInfo(ReceiveBuffID, ReceiveBuffDuration);
-        public bool IsNotAmmo => NotAmmo == 1;
+        public bool IsNotAmmo => NotAmmo > 0;
         public bool IsMirror => Mirror > 0;
+        public bool IsRandomSpread => RandomSpread > 0;
 
         public override string ToString() {
             return $"ID: {ID}\n" +
@@ -42,7 +46,10 @@ namespace PvPModifier.DataStorage {
                    $"Receive Buff: {Terraria.Lang.GetBuffName(ReceiveBuffID)} for {ReceiveBuffDuration / Constants.TicksPerSecond}s" +
                    $"HomingRadius: {HomingRadius}\n" +
                    $"AngularVelocity: {AngularVelocity}\n" +
-                   $"Mirror: {Mirror}\n";
+                   $"Mirror: {Mirror}\n" +
+                   $"Spread: {Spread}\n" +
+                   $"RandomSpread: {IsRandomSpread}\n" +
+                   $"NumShots: {NumShots}\n";
         }
     }
 }

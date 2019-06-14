@@ -66,7 +66,10 @@ namespace PvPModifier.DataStorage {
                 new SqlColumn(DbConsts.ReceiveBuffDuration, MySqlDbType.Int32),
                 new SqlColumn(DbConsts.HomingRadius, MySqlDbType.Float),
                 new SqlColumn(DbConsts.AngularVelocity, MySqlDbType.Float),
-                new SqlColumn(DbConsts.Mirror, MySqlDbType.Int32)));
+                new SqlColumn(DbConsts.Mirror, MySqlDbType.Int32),
+                new SqlColumn(DbConsts.Spread, MySqlDbType.Float),
+                new SqlColumn(DbConsts.RandomSpread, MySqlDbType.Int32),
+                new SqlColumn(DbConsts.NumShots, MySqlDbType.Int32)));
 
             sqlCreator.EnsureTableStructure(new SqlTable(DbTables.ProjectileTable,
                 new SqlColumn(DbConsts.ID, MySqlDbType.Int32) {Primary = true},
@@ -217,12 +220,14 @@ namespace PvPModifier.DataStorage {
                                               DbConsts.ShootSpeed, DbConsts.AmmoIdentifier, DbConsts.UseAmmoIdentifier, 
                                               DbConsts.NotAmmo, DbConsts.InflictBuffID, DbConsts.InflictBuffDuration, 
                                               DbConsts.ReceiveBuffID, DbConsts.ReceiveBuffDuration, DbConsts.HomingRadius, 
-                                              DbConsts.AngularVelocity, DbConsts.Mirror),
+                                              DbConsts.AngularVelocity, DbConsts.Mirror, DbConsts.Spread,
+                                              DbConsts.RandomSpread, DbConsts.NumShots),
                             string.Join(", ", id, -1, knockback, 
                                               -1, -1, -1, 
                                               -1, -1, -1, 
                                               notAmmo.ToInt(), inflictBuff.BuffId, inflictBuff.BuffDuration, 
                                               receiveBuff.BuffId, receiveBuff.BuffDuration, -1, 
+                                              -1, -1, -1,
                                               -1, -1));
 
                 case "Projectiles":
@@ -276,7 +281,11 @@ namespace PvPModifier.DataStorage {
                         ReceiveBuffID = reader.Get<int>(DbConsts.ReceiveBuffDuration),
                         ReceiveBuffDuration = reader.Get<int>(DbConsts.ReceiveBuffDuration),
                         HomingRadius = reader.Get<float>(DbConsts.HomingRadius),
-                        AngularVelocity = reader.Get<float>(DbConsts.AngularVelocity)
+                        AngularVelocity = reader.Get<float>(DbConsts.AngularVelocity),
+                        Mirror = reader.Get<int>(DbConsts.Mirror),
+                        Spread = reader.Get<float>(DbConsts.Spread),
+                        RandomSpread = reader.Get<int>(DbConsts.RandomSpread),
+                        NumShots = reader.Get<int>(DbConsts.NumShots)
                     };
                 }
             }

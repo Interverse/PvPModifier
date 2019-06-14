@@ -146,6 +146,22 @@
                     attribute = DbConsts.Mirror;
                     return true;
 
+                case "spread":
+                case "sp":
+                    attribute = DbConsts.Spread;
+                    return true;
+
+                case "randomspread":
+                case "rsp":
+                case "rs":
+                    attribute = DbConsts.RandomSpread;
+                    return true;
+
+                case "numshots":
+                case "ns":
+                    attribute = DbConsts.NumShots;
+                    return true;
+
                 default:
                     attribute = input;
                     return false;
