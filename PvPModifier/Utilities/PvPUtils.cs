@@ -125,7 +125,7 @@ namespace PvPModifier.Utilities {
             };
             DbItem dbitem = Cache.Items[type];
 
-            if (dbitem.Damage != -1) custwep.Damage = (ushort)dbitem.Damage;
+            if (dbitem.Damage != -1) custwep.Damage = (ushort)(TerrariaUtils.GetPrefixMultiplier(prefix) * dbitem.Damage);
             if (wep.knockBack != dbitem.Knockback) custwep.Knockback = dbitem.Knockback;
             if (dbitem.UseAnimation != -1) custwep.UseAnimation = (ushort)dbitem.UseAnimation;
             if (dbitem.UseTime != -1) custwep.UseTime = (ushort)dbitem.UseTime;
