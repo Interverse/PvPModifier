@@ -177,6 +177,11 @@ namespace PvPModifier.Utilities {
             return v.RotatedBy(radians);
         }
 
+        public static Vector2 Normalized(this Vector2 v) {
+            v.Normalize();
+            return v;
+        }
+
         public static T SelectRandom<T>(this IEnumerable<T> obj) => obj.ElementAt(Main.rand.Next(obj.Count()));
     }
 }

@@ -87,6 +87,7 @@
     <Compile Include="Utilities\ProjectileUtils.cs" />
     <Compile Include="Utilities\PvPConstants\StringConsts.cs" />
     <Compile Include="Utilities\PvPUtils.cs" />
+    <Compile Include="Utilities\RandomPool.cs" />
     <Compile Include="Utilities\SSCAction.cs" />
     <Compile Include="Utilities\SSCUtils.cs" />
     <Compile Include="Utilities\PvPConstants\Constants.cs" />

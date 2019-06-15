@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Timers;
 using PvPModifier.CustomWeaponAPI;
 using PvPModifier.DataStorage;
 using PvPModifier.Network.Events;
@@ -25,6 +26,7 @@ namespace PvPModifier.Network {
             _plugin = plugin;
 
             ServerApi.Hooks.ProjectileAIUpdate.Register(_plugin, ProjectileEvents.UpdateProjectileHoming);
+            ServerApi.Hooks.ProjectileAIUpdate.Register(_plugin, ProjectileEvents.UpdateActiveProjectileAI);
             ServerApi.Hooks.GameUpdate.Register(_plugin, ProjectileEvents.CleanupInactiveProjectiles);
         }
 
@@ -37,6 +39,7 @@ namespace PvPModifier.Network {
             DataHandler.SlotUpdate -= ItemEvents.CheckDrops;
 
             ServerApi.Hooks.ProjectileAIUpdate.Deregister(_plugin, ProjectileEvents.UpdateProjectileHoming);
+            ServerApi.Hooks.ProjectileAIUpdate.Deregister(_plugin, ProjectileEvents.UpdateActiveProjectileAI);
             ServerApi.Hooks.GameUpdate.Deregister(_plugin, ProjectileEvents.CleanupInactiveProjectiles);
         }
     }

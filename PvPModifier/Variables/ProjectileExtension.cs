@@ -14,6 +14,11 @@ namespace PvPModifier.Variables {
     public static class ProjectileExtension {
         public static int MaxAI = 10;
 
+        public enum AI {
+            ItemOriginated = 2,
+            Cooldown = 3
+        }
+
         public static void InitializeExtraAISlots(this Projectile proj) {
             Queue<float> aiCollection = new Queue<float>();
 
@@ -27,7 +32,11 @@ namespace PvPModifier.Variables {
             while (aiCollection.Count > 0) {
                 proj.ai[aiIndex++] = aiCollection.Dequeue();
             }
-        } 
+        }
+
+        public static bool CooldownFinished(this Projectile proj) {
+            return proj.ai[(int)AI.Cooldown] == 0;
+        }
 
         public static bool HasInitializedExtraAISlots(this Projectile proj) {
             return proj.ai.Length == MaxAI;
@@ -40,6 +49,23 @@ namespace PvPModifier.Variables {
             proj.ai[(int)AI.ItemOriginated] = itemType;
         }
 
+        public static Projectile SetCooldown(this Projectile proj, int cooldown) {
+            if (!HasInitializedExtraAISlots(proj)) {
+                proj.InitializeExtraAISlots();
+            }
+            proj.ai[(int)AI.Cooldown] = cooldown;
+            return proj;
+        }
+
+        public static void DecreaseCooldown(this Projectile proj) {
+            if (!HasInitializedExtraAISlots(proj)) {
+                proj.InitializeExtraAISlots();
+            }
+            if (proj.ai[(int)AI.Cooldown] > 0) {
+                proj.ai[(int)AI.Cooldown]--;
+            }
+        }
+
         public static Projectile SetIdentity(this Projectile proj, int identity) {
             proj.identity = identity;
             return proj;
@@ -50,13 +76,14 @@ namespace PvPModifier.Variables {
             return proj;
         }
 
-        public enum AI {
-            ItemOriginated = 2
-        }
-
         public static TSPlayer GetOwner(this Projectile proj) => TShock.Players[proj.owner];
         public static Item GetItemOriginated(this Projectile proj) {
             return proj.GetOwner().FindPlayerItem((int)proj.ai[(int)AI.ItemOriginated]);
+        }
+
+        public static Projectile RotateVelocity(this Projectile proj, float degrees) {
+            proj.velocity = proj.velocity.Rotate(degrees);
+            return proj;
         }
 
         /// <summary>
@@ -86,5 +113,12 @@ namespace PvPModifier.Variables {
                     break;
             }
         }
+    }
+
+    public enum ActiveAIType {
+        None = 0,
+        Minion = 1,
+        RandomScatter = 2,
+        V_Split = 3
     }
 }

@@ -16,14 +16,22 @@
         public const string AmmoIdentifier = "AmmoIdentifier";
         public const string UseAmmoIdentifier = "UseAmmoIdentifier";
         public const string NotAmmo = "NotAmmo";
+
         public const string InflictBuffID = "InflictBuffID";
         public const string InflictBuffDuration = "InflictBuffDuration";
         public const string ReceiveBuffID = "ReceiveBuffID";
         public const string ReceiveBuffDuration = "ReceiveBuffDuration";
+
         public const string Mirror = "Mirror";
         public const string Spread = "Spread";
         public const string RandomSpread = "RandomSpread";
         public const string NumShots = "NumShots";
+        public const string ProjectilePool = "ProjectilePool";
+
+        public const string ActiveProjectileAI = "ActiveProjectileAI";
+        public const string ActiveProjectilePool = "ActiveProjectilePool";
+        public const string ActiveRange = "ActiveRange";
+        public const string ActiveFireRate = "ActiveFireRate";
     }
 
     /// <summary>

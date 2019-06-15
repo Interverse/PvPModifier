@@ -162,6 +162,32 @@
                     attribute = DbConsts.NumShots;
                     return true;
 
+                case "projectilepool":
+                case "pp":
+                    attribute = DbConsts.ProjectilePool;
+                    return true;
+
+                case "activeprojectileai":
+                case "apai":
+                case "apa":
+                    attribute = DbConsts.ActiveProjectileAI;
+                    return true;
+
+                case "activeprojectilepool":
+                case "app":
+                    attribute = DbConsts.ActiveProjectilePool;
+                    return true;
+
+                case "activerange":
+                case "ar":
+                    attribute = DbConsts.ActiveRange;
+                    return true;
+
+                case "activefirerate":
+                case "afr":
+                    attribute = DbConsts.ActiveFireRate;
+                    return true;
+
                 default:
                     attribute = input;
                     return false;

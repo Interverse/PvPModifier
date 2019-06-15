@@ -7,12 +7,14 @@ using PvPModifier.Utilities.PvPConstants;
 using PvPModifier.Variables;
 using System;
 using System.Collections.Generic;
+using System.Timers;
 using Terraria;
 using TerrariaApi.Server;
 using TShockAPI;
 
 namespace PvPModifier.Network.Events {
     public class ProjectileEvents {
+
         /// <summary>
         /// Handles projectile creation.
         /// </summary>
@@ -27,6 +29,11 @@ namespace PvPModifier.Network.Events {
 
             List<Projectile> projectiles = new List<Projectile>();
             DbItem weapon = Cache.Items[e.Weapon.netID];
+            RandomPool<int> projectilePool = weapon.ProjectilePoolList;
+
+            if (!projectilePool.IsEmpty()) {
+                e.Type = projectilePool.GetRandomItem();
+            }
 
             projectile.SetDefaults(e.Type);
             projectile.identity = e.Identity;
@@ -66,6 +73,10 @@ namespace PvPModifier.Network.Events {
 
                     Projectile newProj = new Projectile();
 
+                    if (!projectilePool.IsEmpty()) {
+                        e.Type = projectilePool.GetRandomItem();
+                    }
+
                     newProj.SetDefaults(e.Type);
                     newProj.identity = e.Identity;
                     newProj.damage = e.Damage;
@@ -91,8 +102,8 @@ namespace PvPModifier.Network.Events {
                 }
             }
 
-            e.Attacker.GetProjectileTracker().InsertProjectile(e.Identity, e.Type, e.Owner, e.Weapon.netID);
-            e.Attacker.GetProjectileTracker().Projectiles[e.Type].PerformProjectileAction();
+            e.Attacker.GetProjectileTracker().InsertProjectile(projectile.identity, projectile.type, e.Owner, e.Weapon.netID);
+            e.Attacker.GetProjectileTracker().Projectiles[projectile.type].PerformProjectileAction();
         }
 
         /// <summary>
@@ -142,6 +153,84 @@ namespace PvPModifier.Network.Events {
                         .PackSingle(projectile.ai[0])
                         .GetByteData());
                 }
+            }
+        }
+
+        public static void UpdateActiveProjectileAI(ProjectileAiUpdateEventArgs args) {
+            if (!PvPModifier.Config.EnableHoming) return;
+
+            var projectile = args.Projectile;
+
+            if (!projectile.HasInitializedExtraAISlots()) return;
+            if (projectile.GetOwner() == null) return;
+
+            DbItem dbItem = Cache.Items[projectile.GetItemOriginated().type];
+            RandomPool<int> projectilePool = dbItem.ActiveProjectilePoolList;
+            Item item = new Item();
+            item.SetDefaults(projectile.GetItemOriginated().type);
+
+            projectile.DecreaseCooldown();
+
+            if (projectile.CooldownFinished()) {
+                switch ((ActiveAIType)dbItem.ActiveProjectileAI) {
+                    case ActiveAIType.Minion:
+                        TSPlayer target = PvPUtils.FindClosestPlayer(projectile.position, projectile.owner, dbItem.ActiveRange * Constants.PixelToWorld);
+                        if (target != null) {
+                            ProjectileUtils.SpawnProjectile(projectile.GetOwner(),
+                                projectile.Center,
+                                (target.TPlayer.Center - projectile.Center).Normalized() * dbItem.ShootSpeed.Replace(-1, item.shootSpeed),
+                                projectilePool.GetRandomItem(),
+                                projectile.damage,
+                                projectile.knockBack,
+                                projectile.owner,
+                                projectile.ai[0],
+                                projectile.ai[1],
+                                projectile.GetItemOriginated().netID,
+                                cooldown: 9999);
+                        }
+                        break;
+
+                    case ActiveAIType.RandomScatter:
+                        ProjectileUtils.SpawnProjectile(projectile.GetOwner(),
+                                projectile.Center,
+                                projectile.velocity.RotateRandom(0, 360).Normalized() * dbItem.ShootSpeed.Replace(-1, item.shootSpeed),
+                                projectilePool.GetRandomItem(),
+                                projectile.damage,
+                                projectile.knockBack,
+                                projectile.owner,
+                                projectile.ai[0],
+                                projectile.ai[1],
+                                projectile.GetItemOriginated().netID,
+                                cooldown: 9999);
+                        break;
+
+                    case ActiveAIType.V_Split:
+                        ProjectileUtils.SpawnProjectile(projectile.GetOwner(),
+                                projectile.Center,
+                                projectile.velocity.Rotate(-30),
+                                projectilePool.GetRandomItem(),
+                                projectile.damage,
+                                projectile.knockBack,
+                                projectile.owner,
+                                projectile.ai[0],
+                                projectile.ai[1],
+                                projectile.GetItemOriginated().netID,
+                                cooldown: 9999);
+                        ProjectileUtils.SpawnProjectile(projectile.GetOwner(),
+                                projectile.Center,
+                                projectile.velocity.Rotate(30),
+                                projectilePool.GetRandomItem(),
+                                projectile.damage,
+                                projectile.knockBack,
+                                projectile.owner,
+                                projectile.ai[0],
+                                projectile.ai[1],
+                                projectile.GetItemOriginated().netID,
+                                cooldown: 9999);
+                        break;
+                }
+
+                projectile.SetCooldown(dbItem.ActiveFireRate);
             }
         }
     }
