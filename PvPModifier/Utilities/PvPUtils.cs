@@ -121,19 +121,36 @@ namespace PvPModifier.Utilities {
                 Prefix = prefix,
                 Stack = stack,
                 DropAreaWidth = short.MaxValue,
-                DropAreaHeight = short.MaxValue
+                DropAreaHeight = short.MaxValue,
             };
             DbItem dbitem = Cache.Items[type];
 
-            if (dbitem.Damage != -1) custwep.Damage = (ushort)(TerrariaUtils.GetPrefixMultiplier(prefix) * dbitem.Damage);
-            if (wep.knockBack != dbitem.Knockback) custwep.Knockback = dbitem.Knockback;
-            if (dbitem.UseAnimation != -1) custwep.UseAnimation = (ushort)dbitem.UseAnimation;
-            if (dbitem.UseTime != -1) custwep.UseTime = (ushort)dbitem.UseTime;
-            if (dbitem.Shoot != -1) custwep.ShootProjectileId = (short)dbitem.Shoot;
-            if (dbitem.ShootSpeed != -1) custwep.ShootSpeed = dbitem.ShootSpeed;
-            if (dbitem.AmmoIdentifier != -1) custwep.AmmoIdentifier = (short)dbitem.AmmoIdentifier;
-            if (dbitem.UseAmmoIdentifier != -1) custwep.UseAmmoIdentifier = (short)dbitem.AmmoIdentifier;
-            if (wep.notAmmo != dbitem.IsNotAmmo) custwep.NotAmmo = dbitem.NotAmmo == 1;
+            if (dbitem.Damage != -1)
+                custwep.Damage = (ushort)(TerrariaUtils.GetPrefixMultiplier(prefix, TerrariaUtils.Stat.Damage) * dbitem.Damage);
+
+            if (wep.knockBack != dbitem.Knockback)
+                custwep.Knockback = TerrariaUtils.GetPrefixMultiplier(prefix, TerrariaUtils.Stat.Knockback) * dbitem.Knockback;
+
+            if (dbitem.UseAnimation != -1)
+                custwep.UseAnimation = (ushort)(TerrariaUtils.GetPrefixMultiplier(prefix, TerrariaUtils.Stat.Usetime) * dbitem.UseAnimation);
+
+            if (dbitem.UseTime != -1)
+                custwep.UseTime = (ushort)(TerrariaUtils.GetPrefixMultiplier(prefix, TerrariaUtils.Stat.Usetime) * dbitem.UseTime);
+
+            if (dbitem.Shoot != -1)
+                custwep.ShootProjectileId = (short)dbitem.Shoot;
+
+            if (dbitem.ShootSpeed != -1)
+                custwep.ShootSpeed = TerrariaUtils.GetPrefixMultiplier(prefix, TerrariaUtils.Stat.Velocity) * dbitem.ShootSpeed;
+
+            if (dbitem.AmmoIdentifier != -1)
+                custwep.AmmoIdentifier = (short)dbitem.AmmoIdentifier;
+
+            if (dbitem.UseAmmoIdentifier != -1)
+                custwep.UseAmmoIdentifier = (short)dbitem.AmmoIdentifier;
+
+            if (wep.notAmmo != dbitem.IsNotAmmo)
+                custwep.NotAmmo = dbitem.NotAmmo == 1;
 
             return custwep;
         }

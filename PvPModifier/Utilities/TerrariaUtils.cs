@@ -77,87 +77,237 @@ namespace PvPModifier.Utilities {
         /// <summary>
         /// Gets the damage of a weapon based off its prefix.
         /// </summary>
-        public static double GetPrefixMultiplier(int prefix) {
-            double damage = 1f;
-
-            if (prefix == 3)
+        public static float GetPrefixMultiplier(int prefix, Stat stat) {
+            float damage = 1f;
+            float knockback = 1f;
+            float usetime = 1f;
+            float scale = 1f;
+            float velocity = 1f;
+            float manacost = 1f;
+            int crit = 0;
+            if (prefix == 1)
+                scale = 1.12f;
+            else if (prefix == 2)
+                scale = 1.18f;
+            else if (prefix == 3) {
                 damage = 1.05f;
-            else if (prefix == 4)
+                crit = 2;
+                scale = 1.05f;
+            } else if (prefix == 4) {
                 damage = 1.1f;
-            else if (prefix == 5)
+                scale = 1.1f;
+                knockback = 1.1f;
+            } else if (prefix == 5)
                 damage = 1.15f;
             else if (prefix == 6)
                 damage = 1.1f;
-            else if (prefix == 81)
+            else if (prefix == 81) {
+                knockback = 1.15f;
                 damage = 1.15f;
-            else if (prefix == 8)
+                crit = 5;
+                usetime = 0.9f;
+                scale = 1.1f;
+            } else if (prefix == 7)
+                scale = 0.82f;
+            else if (prefix == 8) {
+                knockback = 0.85f;
                 damage = 0.85f;
+                scale = 0.87f;
+            } else if (prefix == 9)
+                scale = 0.9f;
             else if (prefix == 10)
                 damage = 0.85f;
-            else if (prefix == 12)
+            else if (prefix == 11) {
+                usetime = 1.1f;
+                knockback = 0.9f;
+                scale = 0.9f;
+            } else if (prefix == 12) {
+                knockback = 1.1f;
                 damage = 1.05f;
-            else if (prefix == 13)
+                scale = 1.1f;
+                usetime = 1.15f;
+            } else if (prefix == 13) {
+                knockback = 0.8f;
                 damage = 0.9f;
-            else if (prefix == 16)
+                scale = 1.1f;
+            } else if (prefix == 14) {
+                knockback = 1.15f;
+                usetime = 1.1f;
+            } else if (prefix == 15) {
+                knockback = 0.9f;
+                usetime = 0.85f;
+            } else if (prefix == 16) {
                 damage = 1.1f;
-            else if (prefix == 20)
+                crit = 3;
+            } else if (prefix == 17) {
+                usetime = 0.85f;
+                velocity = 1.1f;
+            } else if (prefix == 18) {
+                usetime = 0.9f;
+                velocity = 1.15f;
+            } else if (prefix == 19) {
+                knockback = 1.15f;
+                velocity = 1.05f;
+            } else if (prefix == 20) {
+                knockback = 1.05f;
+                velocity = 1.05f;
                 damage = 1.1f;
-            else if (prefix == 21)
+                usetime = 0.95f;
+                crit = 2;
+            } else if (prefix == 21) {
+                knockback = 1.15f;
                 damage = 1.1f;
-            else if (prefix == 82)
+            } else if (prefix == 82) {
+                knockback = 1.15f;
                 damage = 1.15f;
-            else if (prefix == 22)
+                crit = 5;
+                usetime = 0.9f;
+                velocity = 1.1f;
+            } else if (prefix == 22) {
+                knockback = 0.9f;
+                velocity = 0.9f;
                 damage = 0.85f;
-            else if (prefix == 25)
+            } else if (prefix == 23) {
+                usetime = 1.15f;
+                velocity = 0.9f;
+            } else if (prefix == 24) {
+                usetime = 1.1f;
+                knockback = 0.8f;
+            } else if (prefix == 25) {
+                usetime = 1.1f;
                 damage = 1.15f;
-            else if (prefix == 58)
+                crit = 1;
+            } else if (prefix == 58) {
+                usetime = 0.85f;
                 damage = 0.85f;
-            else if (prefix == 26)
+            } else if (prefix == 26) {
+                manacost = 0.85f;
                 damage = 1.1f;
-            else if (prefix == 28)
+            } else if (prefix == 27)
+                manacost = 0.85f;
+            else if (prefix == 28) {
+                manacost = 0.85f;
                 damage = 1.15f;
-            else if (prefix == 83)
+                knockback = 1.05f;
+            } else if (prefix == 83) {
+                knockback = 1.15f;
                 damage = 1.15f;
-            else if (prefix == 30)
+                crit = 5;
+                usetime = 0.9f;
+                manacost = 0.9f;
+            } else if (prefix == 29)
+                manacost = 1.1f;
+            else if (prefix == 30) {
+                manacost = 1.2f;
                 damage = 0.9f;
-            else if (prefix == 31)
+            } else if (prefix == 31) {
+                knockback = 0.9f;
                 damage = 0.9f;
-            else if (prefix == 32)
+            } else if (prefix == 32) {
+                manacost = 1.15f;
                 damage = 1.1f;
-            else if (prefix == 34)
+            } else if (prefix == 33) {
+                manacost = 1.1f;
+                knockback = 1.1f;
+                usetime = 0.9f;
+            } else if (prefix == 34) {
+                manacost = 0.9f;
+                knockback = 1.1f;
+                usetime = 1.1f;
                 damage = 1.1f;
-            else if (prefix == 35)
+            } else if (prefix == 35) {
+                manacost = 1.2f;
                 damage = 1.15f;
-            else if (prefix == 52)
+                knockback = 1.15f;
+            } else if (prefix == 52) {
+                manacost = 0.9f;
                 damage = 0.9f;
-            else if (prefix == 37)
+                usetime = 0.9f;
+            } else if (prefix == 36)
+                crit = 3;
+            else if (prefix == 37) {
                 damage = 1.1f;
+                crit = 3;
+                knockback = 1.1f;
+            } else if (prefix == 38)
+                knockback = 1.15f;
             else if (prefix == 53)
                 damage = 1.1f;
-            else if (prefix == 55)
+            else if (prefix == 54)
+                knockback = 1.15f;
+            else if (prefix == 55) {
+                knockback = 1.15f;
                 damage = 1.05f;
-            else if (prefix == 59)
+            } else if (prefix == 59) {
+                knockback = 1.15f;
                 damage = 1.15f;
-            else if (prefix == 60)
+                crit = 5;
+            } else if (prefix == 60) {
                 damage = 1.15f;
-            else if (prefix == 39)
+                crit = 5;
+            } else if (prefix == 61)
+                crit = 5;
+            else if (prefix == 39) {
                 damage = 0.7f;
-            else if (prefix == 40)
+                knockback = 0.8f;
+            } else if (prefix == 40)
                 damage = 0.85f;
-            else if (prefix == 41)
+            else if (prefix == 56)
+                knockback = 0.8f;
+            else if (prefix == 41) {
+                knockback = 0.85f;
                 damage = 0.9f;
-            else if (prefix == 57)
+            } else if (prefix == 57) {
+                knockback = 0.9f;
                 damage = 1.18f;
-            else if (prefix == 43)
+            } else if (prefix == 42)
+                usetime = 0.9f;
+            else if (prefix == 43) {
                 damage = 1.1f;
-            else if (prefix == 46)
+                usetime = 0.9f;
+            } else if (prefix == 44) {
+                usetime = 0.9f;
+                crit = 3;
+            } else if (prefix == 45)
+                usetime = 0.95f;
+            else if (prefix == 46) {
+                crit = 3;
+                usetime = 0.94f;
                 damage = 1.07f;
-            else if (prefix == 50)
+            } else if (prefix == 47)
+                usetime = 1.15f;
+            else if (prefix == 48)
+                usetime = 1.2f;
+            else if (prefix == 49)
+                usetime = 1.08f;
+            else if (prefix == 50) {
                 damage = 0.8f;
-            else if (prefix == 51)
+                usetime = 1.15f;
+            } else if (prefix == 51) {
+                knockback = 0.9f;
+                usetime = 0.9f;
                 damage = 1.05f;
-            
-            return damage;
+                crit = 2;
+            }
+
+            switch (stat) {
+                case Stat.Damage:
+                    return damage;
+                case Stat.Critical:
+                    return crit;
+                case Stat.Knockback:
+                    return knockback;
+                case Stat.ManaCost:
+                    return manacost;
+                case Stat.Scale:
+                    return scale;
+                case Stat.Usetime:
+                    return usetime;
+                case Stat.Velocity:
+                    return velocity;
+                default:
+                    return 1f;
+            }
         }
 
         /// <summary>
@@ -223,6 +373,16 @@ namespace PvPModifier.Utilities {
             float SpeedX = num5 * num8;
             float SpeedY = num6 * num8;
             ProjectileUtils.SpawnProjectile(attacker, attacker.X, attacker.Y, SpeedX, SpeedY, 356, Damage, 0.0f, attacker.Index, (float)num3, 0.0f);
+        }
+
+        public enum Stat {
+            Damage,
+            Knockback,
+            Usetime,
+            Scale,
+            Velocity,
+            ManaCost,
+            Critical
         }
     }
 }
