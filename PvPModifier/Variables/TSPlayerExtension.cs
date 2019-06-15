@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using PvPModifier.CustomWeaponAPI;
 using PvPModifier.DataStorage;
 using PvPModifier.Utilities;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.Localization;
 using TShockAPI;
-using System.Timers;
 using PvPModifier.Utilities.PvPConstants;
+using System.Threading.Tasks;
+using CustomWeaponAPI;
 
 namespace PvPModifier.Variables {
     public static class TSPlayerExtension {
@@ -243,6 +243,30 @@ namespace PvPModifier.Variables {
             }
 
             return false;
+        }
+
+        public static async Task WaitUntilNoUnmoddedItems(this TSPlayer player) {
+            await Task.Run(() => {
+                while (player.ConnectionAlive && PvPUtils.ContainsModifiedItem(player)) {
+                    Task.Delay((int)Constants.SecondPerFrame);
+                }
+            });
+        }
+
+        public static async Task WaitUntilItemChanged(this TSPlayer player, int slotId, int itemID) {
+            await Task.Run(() => {
+                while (player.ConnectionAlive && player.TPlayer.inventory[slotId].netID != itemID) {
+                    Task.Delay((int)Constants.SecondPerFrame);
+                }
+            });
+        }
+
+        public static async Task WaitUntilReleaseItem(this TSPlayer player) {
+            await Task.Run(() => {
+                while (player.ConnectionAlive && !player.TPlayer.releaseUseItem) {
+                    Task.Delay((int)Constants.SecondPerFrame);
+                }
+            });
         }
 
         /// <summary>

@@ -1,4 +1,4 @@
-﻿using PvPModifier.CustomWeaponAPI;
+﻿using CustomWeaponAPI;
 using Terraria;
 using TShockAPI;
 

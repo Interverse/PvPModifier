@@ -30,6 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CustomWeaponAPI">
+      <HintPath>references\CustomWeaponAPI.dll</HintPath>
+    </Reference>
     <Reference Include="Mono.Data.Sqlite">
       <HintPath>references\Mono.Data.Sqlite.dll</HintPath>
     </Reference>
@@ -55,9 +58,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config.cs" />
-    <Compile Include="CustomWeaponAPI\CustomWeapon.cs" />
-    <Compile Include="CustomWeaponAPI\CustomWeaponDropper.cs" />
-    <Compile Include="CustomWeaponAPI\PacketWriter.cs" />
     <Compile Include="DataStorage\Cache.cs" />
     <Compile Include="DataStorage\Database.cs" />
     <Compile Include="DataStorage\DbBuff.cs" />
