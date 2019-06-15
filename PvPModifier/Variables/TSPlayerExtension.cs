@@ -13,6 +13,14 @@ using System.Threading.Tasks;
 
 namespace PvPModifier.Variables {
     public static class TSPlayerExtension {
+        public static void SetPingCheck(this TSPlayer player, bool check) {
+            player.SetData("PingCheck", check);
+        }
+
+        public static bool GetPingCheck(this TSPlayer player) {
+            return player.GetData<bool>("PingCheck");
+        }
+
         private static void SetLastHit(this TSPlayer player, DateTime time) {
             player.SetData("_lastHit", time);
         }
@@ -50,6 +58,7 @@ namespace PvPModifier.Variables {
             player.SetLastInventoryModified(DateTime.Now);
             player.SetData<ProjectileTracker>("ProjectileTracker", new ProjectileTracker());
             player.SetData<InventoryTracker>("InventoryTracker", new InventoryTracker(player));
+            player.SetData<bool>("PingCheck", true);
         }
 
         /// <summary>
@@ -264,6 +273,14 @@ namespace PvPModifier.Variables {
             }
 
             return true;
+        }
+
+        public static async Task WaitUntilPingReceived(this TSPlayer player) {
+            player.SendData(PacketTypes.RemoveItemOwner);
+            player.SetPingCheck(false);
+            while (player.ConnectionAlive && !player.GetPingCheck()) {
+                await Task.Delay((int)Constants.SecondPerFrame);
+            }
         }
 
         public static async Task WaitUntilReleaseItem(this TSPlayer player) {

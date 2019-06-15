@@ -64,6 +64,7 @@ namespace PvPModifier.Utilities {
                 await player.WaitUntilModdedItemsRemoved();
                 await player.WaitUntilReleaseItem();
                 await Task.Delay((int)(Constants.SecondPerFrame * 5));
+                await player.WaitUntilPingReceived();
 
                 player.GetInvTracker().DropModifiedItems();
             } else {

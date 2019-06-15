@@ -59,6 +59,7 @@ namespace PvPModifier.Network.Events {
                         await e.Player.WaitUntilItemChange(58, Constants.EmptyItem);
                         await e.Player.WaitUntilReleaseItem();
                         await Task.Delay((int)(Constants.SecondPerFrame * 5));
+                        await e.Player.WaitUntilPingReceived();
 
                         CustomWeaponDropper.DropItem(e.Player, new CustomWeapon {
                             ItemNetId = (short)item.netID,

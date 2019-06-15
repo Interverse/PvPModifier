@@ -17,6 +17,7 @@ namespace PvPModifier.Network {
         public static event EventHandler<PlayerDeathArgs> PlayerDeath;
         public static event EventHandler<TogglePvPArgs> PvPToggled;
         public static event EventHandler<PlayerSlotArgs> SlotUpdate;
+        public static event EventHandler<ItemOwnerArgs> ItemOwner;
 
         public static void HandleData(GetDataEventArgs args, MemoryStream data, TSPlayer player) {
             switch (args.MsgID) {
@@ -53,6 +54,11 @@ namespace PvPModifier.Network {
                 case PacketTypes.PlayerUpdate:
                     if (new PlayerUpdateArgs().ExtractData(data, player, out var playerupdate))
                         PlayerUpdate?.Invoke(typeof(DataHandler), playerupdate);
+                    return;
+
+                case PacketTypes.ItemOwner:
+                    if (new ItemOwnerArgs().ExtractData(player, out var itemowner))
+                        ItemOwner?.Invoke(typeof(DataHandler), itemowner);
                     return;
             }
         }
