@@ -33,6 +33,7 @@ namespace PvPModifier.DataStorage {
         public string ActiveProjectilePool { get; set; }
         public float ActiveRange { get; set; }
         public int ActiveFireRate { get; set; }
+        public float ActiveSpread { get; set; }
 
         public BuffInfo InflictBuff => new BuffInfo(InflictBuffID, InflictBuffDuration);
         public BuffInfo ReceiveBuff => new BuffInfo(ReceiveBuffID, ReceiveBuffDuration);
@@ -113,7 +114,8 @@ namespace PvPModifier.DataStorage {
                    $"ActiveProjectileAI: {ActiveProjectileAI}\n" +
                    $"ActiveProjectilePool: {ActiveProjectilePool}\n" +
                    $"ActiveRange: {ActiveRange}\n" +
-                   $"ActiveFireRate: {ActiveFireRate}\n";
+                   $"ActiveFireRate: {ActiveFireRate}\n" +
+                   $"ActiveSpread: {ActiveSpread}\n";
         }
     }
 }

@@ -7,7 +7,6 @@ using PvPModifier.Utilities.PvPConstants;
 using PvPModifier.Variables;
 using System;
 using System.Collections.Generic;
-using System.Timers;
 using Terraria;
 using TerrariaApi.Server;
 using TShockAPI;
@@ -166,6 +165,7 @@ namespace PvPModifier.Network.Events {
 
             DbItem dbItem = Cache.Items[projectile.GetItemOriginated().type];
             RandomPool<int> projectilePool = dbItem.ActiveProjectilePoolList;
+            float spread = dbItem.ActiveSpread;
             Item item = new Item();
             item.SetDefaults(projectile.GetItemOriginated().type);
 
@@ -174,11 +174,12 @@ namespace PvPModifier.Network.Events {
             if (projectile.CooldownFinished()) {
                 switch ((ActiveAIType)dbItem.ActiveProjectileAI) {
                     case ActiveAIType.Minion:
+                        spread = spread.Replace(-1, 0);
                         TSPlayer target = PvPUtils.FindClosestPlayer(projectile.position, projectile.owner, dbItem.ActiveRange * Constants.PixelToWorld);
                         if (target != null) {
                             ProjectileUtils.SpawnProjectile(projectile.GetOwner(),
                                 projectile.Center,
-                                (target.TPlayer.Center - projectile.Center).Normalized() * dbItem.ShootSpeed.Replace(-1, item.shootSpeed),
+                                (target.TPlayer.Center - projectile.Center).Normalized().RotateRandom(-spread / 2, spread / 2) * dbItem.ShootSpeed.Replace(-1, item.shootSpeed),
                                 projectilePool.GetRandomItem(),
                                 projectile.damage,
                                 projectile.knockBack,
@@ -191,23 +192,26 @@ namespace PvPModifier.Network.Events {
                         break;
 
                     case ActiveAIType.RandomScatter:
+                        spread = spread.Replace(-1, 180);
                         ProjectileUtils.SpawnProjectile(projectile.GetOwner(),
-                                projectile.Center,
-                                projectile.velocity.RotateRandom(0, 360).Normalized() * dbItem.ShootSpeed.Replace(-1, item.shootSpeed),
-                                projectilePool.GetRandomItem(),
-                                projectile.damage,
-                                projectile.knockBack,
-                                projectile.owner,
-                                projectile.ai[0],
-                                projectile.ai[1],
-                                projectile.GetItemOriginated().netID,
-                                cooldown: 9999);
+                            projectile.Center,
+                            projectile.velocity.RotateRandom(-spread, spread).Normalized() * dbItem.ShootSpeed.Replace(-1, item.shootSpeed),
+                            projectilePool.GetRandomItem(),
+                            projectile.damage,
+                            projectile.knockBack,
+                            projectile.owner,
+                            projectile.ai[0],
+                            projectile.ai[1],
+                            projectile.GetItemOriginated().netID,
+                            cooldown: 9999);
                         break;
 
                     case ActiveAIType.V_Split:
-                        ProjectileUtils.SpawnProjectile(projectile.GetOwner(),
+                        spread = spread.Replace(-1, 30);
+                        for(float degrees = -spread / 2; degrees <= spread / 2; degrees += spread) {
+                            ProjectileUtils.SpawnProjectile(projectile.GetOwner(),
                                 projectile.Center,
-                                projectile.velocity.Rotate(-30),
+                                projectile.velocity.Rotate(degrees),
                                 projectilePool.GetRandomItem(),
                                 projectile.damage,
                                 projectile.knockBack,
@@ -216,17 +220,7 @@ namespace PvPModifier.Network.Events {
                                 projectile.ai[1],
                                 projectile.GetItemOriginated().netID,
                                 cooldown: 9999);
-                        ProjectileUtils.SpawnProjectile(projectile.GetOwner(),
-                                projectile.Center,
-                                projectile.velocity.Rotate(30),
-                                projectilePool.GetRandomItem(),
-                                projectile.damage,
-                                projectile.knockBack,
-                                projectile.owner,
-                                projectile.ai[0],
-                                projectile.ai[1],
-                                projectile.GetItemOriginated().netID,
-                                cooldown: 9999);
+                        }
                         break;
                 }
 

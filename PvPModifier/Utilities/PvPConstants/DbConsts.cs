@@ -32,6 +32,7 @@
         public const string ActiveProjectilePool = "ActiveProjectilePool";
         public const string ActiveRange = "ActiveRange";
         public const string ActiveFireRate = "ActiveFireRate";
+        public const string ActiveSpread = "ActiveSpread";
     }
 
     /// <summary>

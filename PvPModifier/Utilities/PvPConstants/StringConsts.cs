@@ -188,6 +188,12 @@
                     attribute = DbConsts.ActiveFireRate;
                     return true;
 
+                case "activespread":
+                case "asp":
+                case "as":
+                    attribute = DbConsts.ActiveSpread;
+                    return true;
+
                 default:
                     attribute = input;
                     return false;
