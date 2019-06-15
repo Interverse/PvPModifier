@@ -78,7 +78,7 @@ namespace PvPModifier.Variables {
 
         public static TSPlayer GetOwner(this Projectile proj) => TShock.Players[proj.owner];
         public static Item GetItemOriginated(this Projectile proj) {
-            return proj.GetOwner().FindPlayerItem((int)proj.ai[(int)AI.ItemOriginated]);
+            return proj.GetOwner()?.FindPlayerItem((int)proj.ai[(int)AI.ItemOriginated]);
         }
 
         public static Projectile RotateVelocity(this Projectile proj, float degrees) {

@@ -24,6 +24,8 @@ namespace PvPModifier.Utilities {
                 weapon = owner.FindPlayerItem(PresetData.FromWhatItem[type]);
             } else if (PresetData.MinionItem.ContainsKey(type)) {
                 weapon = owner.FindPlayerItem(PresetData.MinionItem[type]);
+            } else if (PresetData.PetItem.ContainsKey(type)) {
+                weapon = owner.FindPlayerItem(PresetData.PetItem[type]);
             } else {
                 weapon = owner.TPlayer.HeldItem;
             }

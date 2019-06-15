@@ -211,7 +211,7 @@ namespace PvPModifier.Network.Events {
                         for(float degrees = -spread / 2; degrees <= spread / 2; degrees += spread) {
                             ProjectileUtils.SpawnProjectile(projectile.GetOwner(),
                                 projectile.Center,
-                                projectile.velocity.Rotate(degrees),
+                                projectile.velocity.Rotate(degrees).Normalized() * dbItem.ShootSpeed.Replace(-1, item.shootSpeed),
                                 projectilePool.GetRandomItem(),
                                 projectile.damage,
                                 projectile.knockBack,

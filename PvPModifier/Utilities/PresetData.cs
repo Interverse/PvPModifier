@@ -92,6 +92,45 @@ namespace PvPModifier.Utilities {
             { 696, 3825 }, //Explosive Trap Staff
         };
 
+        //Pet IDs (Projectile ID, Item ID)
+        public static Dictionary<int, int> PetItem = new Dictionary<int, int> {
+            { 111, 603 }, //Bunny
+            { 236, 1242 }, //Baby Dino
+            { 112, 669 }, //Baby Penguin
+            { 499, 3060 }, //Baby Face Monster
+            { 197, 1169 }, //Baby Skeletron Head
+            { 208, 1180 }, //Parrot
+            { 127, 753 }, //Turtle
+            { 209, 1181 }, //Baby Truffle
+            { 269, 1312 }, //Baby Snowman
+            { 175, 994 }, //Baby Eater
+            { 198, 1170 }, //Baby Hornet
+            { 200, 1172 }, //Pet Lizard
+            { 210, 1182 }, //Sapling 
+            { 199, 1171 }, //Tiki Spirit
+            { 268, 1311 }, //Eye Spring
+            { 314, 1799 }, //Squashling 
+            { 319, 1810 }, //Black Cat
+            { 324, 1837 }, //Cursed Sapling
+            { 378, 1798 }, //Spider Egg
+            { 334, 1927 }, //Puppy
+            { 353, 1959 }, //Baby Grinch
+            { 398, 2587 }, //Mini Minotaur
+            { 380, 2420 }, //Zephyr Fish
+            { 653, 3628 }, //Companion Cube
+            { 703, 3855 }, //Propeller Gato
+            { 701, 3857 }, //Hoardagron
+            { 18, 115 }, //Shadow Orb
+            { 500, 3062 }, //Crimson Heart
+            { 492, 3043 }, //Magic Lantern
+            { 72, 425 }, //Fairy Bell
+            { 86, 425 }, //Fairy Bell
+            { 87, 425 }, //Fairy Bell
+            { 702, 3856 }, //Flickerwick
+            { 211, 1183 }, //Wisp
+            { 650, 3577 }, //Suspicious Looking Tentacle
+        };
+
         //Defines a weapon to a projectile that spawns from another projectile
         public static Dictionary<int, int> FromWhatItem = new Dictionary<int, int> {
             { 19, 119 }, //Flamarang
