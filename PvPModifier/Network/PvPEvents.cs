@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Timers;
-using CustomWeaponAPI;
+using PvPModifier.CustomWeaponAPI;
 using PvPModifier.DataStorage;
 using PvPModifier.Network.Events;
 using PvPModifier.Network.Packets;

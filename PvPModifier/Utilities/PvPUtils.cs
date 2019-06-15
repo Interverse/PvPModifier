@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
-using CustomWeaponAPI;
+using PvPModifier.CustomWeaponAPI;
 using PvPModifier.DataStorage;
 using PvPModifier.Utilities.PvPConstants;
 using PvPModifier.Variables;
@@ -61,8 +61,12 @@ namespace PvPModifier.Utilities {
                 foreach (int num in itemIndex)
                     SSCUtils.SetItem(player, (byte)num, Constants.EmptyItem);
 
-                await player.WaitUntilNoUnmoddedItems();
-                await player.WaitUntilReleaseItem();
+                await Task.Run(() => {
+                    while (player.ConnectionAlive && ContainsModifiedItem(player) && !player.TPlayer.releaseUseItem) {
+                        Task.Delay((int)Constants.SecondPerFrame);
+                    }
+                });
+
                 await Task.Delay((int)(Constants.SecondPerFrame * 5));
 
                 player.GetInvTracker().DropModifiedItems();

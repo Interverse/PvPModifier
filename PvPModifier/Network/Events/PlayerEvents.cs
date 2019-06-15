@@ -1,10 +1,9 @@
-﻿using CustomWeaponAPI;
+﻿using PvPModifier.CustomWeaponAPI;
 using PvPModifier.DataStorage;
 using PvPModifier.Network.Packets;
 using PvPModifier.Utilities;
 using PvPModifier.Utilities.PvPConstants;
 using PvPModifier.Variables;
-using System.Threading.Tasks;
 using Terraria;
 
 namespace PvPModifier.Network.Events {
@@ -55,11 +54,6 @@ namespace PvPModifier.Network.Events {
 
                     if (item.netID != 0 && PvPUtils.IsModifiedItem(item.netID) && e.Player.CanModInventory()) {
                         SSCUtils.SetItem(e.Player, 58, Constants.EmptyItem);
-
-                        await e.Player.WaitUntilItemChanged(58, Constants.EmptyItem);
-                        await e.Player.WaitUntilReleaseItem();
-                        await Task.Delay((int)(Constants.SecondPerFrame * 5));
-
                         CustomWeaponDropper.DropItem(e.Player, new CustomWeapon {
                             ItemNetId = (short)item.netID,
                             Prefix = item.prefix,

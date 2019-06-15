@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using CustomWeaponAPI;
+using PvPModifier.CustomWeaponAPI;
 using PvPModifier.DataStorage;
 using PvPModifier.Network.Packets;
 using PvPModifier.Utilities;
