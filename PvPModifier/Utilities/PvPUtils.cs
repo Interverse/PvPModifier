@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
-using PvPModifier.CustomWeaponAPI;
+using CustomWeaponAPI;
 using PvPModifier.DataStorage;
 using PvPModifier.Utilities.PvPConstants;
 using PvPModifier.Variables;

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using PvPModifier.CustomWeaponAPI;
+using CustomWeaponAPI;
 using PvPModifier.DataStorage;
 using PvPModifier.Utilities;
 using Terraria;
