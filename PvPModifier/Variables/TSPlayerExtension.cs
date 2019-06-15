@@ -8,8 +8,8 @@ using Terraria;
 using Terraria.DataStructures;
 using Terraria.Localization;
 using TShockAPI;
-using System.Timers;
 using PvPModifier.Utilities.PvPConstants;
+using System.Threading.Tasks;
 
 namespace PvPModifier.Variables {
     public static class TSPlayerExtension {
@@ -264,6 +264,24 @@ namespace PvPModifier.Variables {
             }
 
             return true;
+        }
+
+        public static async Task WaitUntilReleaseItem(this TSPlayer player) {
+            while (player.ConnectionAlive && !player.TPlayer.releaseUseItem) {
+                await Task.Delay((int)Constants.SecondPerFrame);
+            }
+        }
+
+        public static async Task WaitUntilModdedItemsRemoved(this TSPlayer player) {
+            while (player.ConnectionAlive && PvPUtils.ContainsModifiedItem(player)) {
+                await Task.Delay((int)Constants.SecondPerFrame);
+            }
+        }
+
+        public static async Task WaitUntilItemChange(this TSPlayer player, int slotID, int itemID) {
+            while (player.ConnectionAlive && player.TPlayer.inventory[slotID].netID != itemID) {
+                await Task.Delay((int)Constants.SecondPerFrame);
+            }
         }
     }
 

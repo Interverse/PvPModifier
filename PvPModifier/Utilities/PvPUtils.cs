@@ -61,12 +61,8 @@ namespace PvPModifier.Utilities {
                 foreach (int num in itemIndex)
                     SSCUtils.SetItem(player, (byte)num, Constants.EmptyItem);
 
-                await Task.Run(() => {
-                    while (player.ConnectionAlive && ContainsModifiedItem(player) && !player.TPlayer.releaseUseItem) {
-                        Task.Delay((int)Constants.SecondPerFrame);
-                    }
-                });
-
+                await player.WaitUntilModdedItemsRemoved();
+                await player.WaitUntilReleaseItem();
                 await Task.Delay((int)(Constants.SecondPerFrame * 5));
 
                 player.GetInvTracker().DropModifiedItems();
