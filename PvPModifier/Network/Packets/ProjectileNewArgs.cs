@@ -3,7 +3,7 @@ using System.IO;
 using System.IO.Streams;
 using Microsoft.Xna.Framework;
 using PvPModifier.Utilities;
-using PvPModifier.Variables;
+using PvPModifier.Utilities.Extensions;
 using Terraria;
 using TerrariaApi.Server;
 using TShockAPI;
@@ -52,6 +52,8 @@ namespace PvPModifier.Network.Packets {
 
             arg.Proj = new Projectile().SetType(arg.Type).SetIdentity(arg.Identity);
             arg.Weapon = ProjectileUtils.GetProjectileWeapon(arg.Attacker, arg.Type);
+            arg.Ai[0] = Ai0;
+            arg.Ai[1] = Ai1;
 
             return true;
         }

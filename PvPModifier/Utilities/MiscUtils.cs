@@ -159,7 +159,7 @@ namespace PvPModifier.Utilities {
         }
 
         /// <summary>
-        /// Rotates a vector.
+        /// Rotates a vector in degrees.
         /// </summary>
         public static Vector2 Rotate(this Vector2 v, float degrees) {
             float radians = (float)(degrees * Math.PI / 180f);
@@ -168,7 +168,7 @@ namespace PvPModifier.Utilities {
         }
 
         /// <summary>
-        /// Rotates a vector.
+        /// Rotates a vector randomly within a range in degrees.
         /// </summary>
         public static Vector2 RotateRandom(this Vector2 v, float minDegrees, float maxDegrees) {
             float degrees = Main.rand.NextFloat() * (maxDegrees - minDegrees) - (maxDegrees - minDegrees) / 2f;
@@ -177,11 +177,17 @@ namespace PvPModifier.Utilities {
             return v.RotatedBy(radians);
         }
 
+        /// <summary>
+        /// Returns the <see cref="Vector2"/> of a normalized vector.
+        /// </summary>
         public static Vector2 Normalized(this Vector2 v) {
             v.Normalize();
             return v;
         }
 
+        /// <summary>
+        /// Selects a random element in a <see cref="IEnumerable{T}"/>
+        /// </summary>
         public static T SelectRandom<T>(this IEnumerable<T> obj) => obj.ElementAt(Main.rand.Next(obj.Count()));
     }
 }

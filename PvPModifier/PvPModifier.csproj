@@ -94,10 +94,10 @@
     <Compile Include="Utilities\SSCUtils.cs" />
     <Compile Include="Utilities\PvPConstants\Constants.cs" />
     <Compile Include="Utilities\TerrariaUtils.cs" />
-    <Compile Include="Variables\BuffInfo.cs" />
-    <Compile Include="Variables\ItemExtension.cs" />
-    <Compile Include="Variables\TSPlayerExtension.cs" />
-    <Compile Include="Variables\ProjectileExtension.cs" />
+    <Compile Include="Utilities\BuffInfo.cs" />
+    <Compile Include="Utilities\Extensions\ItemExtension.cs" />
+    <Compile Include="Utilities\Extensions\TSPlayerExtension.cs" />
+    <Compile Include="Utilities\Extensions\ProjectileExtension.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

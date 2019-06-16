@@ -2,8 +2,8 @@
 using PvPModifier.DataStorage;
 using PvPModifier.Network.Packets;
 using PvPModifier.Utilities;
+using PvPModifier.Utilities.Extensions;
 using PvPModifier.Utilities.PvPConstants;
-using PvPModifier.Variables;
 using System.Threading.Tasks;
 using Terraria;
 
@@ -13,12 +13,12 @@ namespace PvPModifier.Network.Events {
         /// Mods the player's inventory when their pvp is turned on.
         /// Resets their inventory to Terraria's defaults when their pvp is turned off.
         /// </summary>
-        public static async void OnPvPToggledAsync(object sender, TogglePvPArgs e) {
+        public static void OnPvPToggled(object sender, TogglePvPArgs e) {
             if (!PvPModifier.Config.EnablePlugin) return;
 
             if (e.Hostile) {
                 e.Player.GetInvTracker().StartForcePvPInventoryCheck = true;
-                await PvPUtils.SendCustomItemsAsync(e.Player);
+                _ = PvPUtils.SendCustomItemsAsync(e.Player);
             }
 
             if (!e.Hostile) {
@@ -101,6 +101,7 @@ namespace PvPModifier.Network.Events {
 
             e.Attacker.ApplyPvPEffects(e.Target, e.Weapon, e.Projectile, e.InflictedDamage);
 
+            // Applies projectile buffs, item buffs, and buff buffs.
             if (PvPModifier.Config.EnableBuffs) {
                 e.Target.SetBuff(Cache.Projectiles[e.PlayerHitReason.SourceProjectileType].InflictBuff);
                 e.Attacker.SetBuff(Cache.Projectiles[e.PlayerHitReason.SourceProjectileType].ReceiveBuff);

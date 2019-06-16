@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
-using PvPModifier.Variables;
 using Terraria;
 using Terraria.DataStructures;
 using TShockAPI;
@@ -75,7 +74,8 @@ namespace PvPModifier.Utilities {
         }
 
         /// <summary>
-        /// Gets the damage of a weapon based off its prefix.
+        /// Gets the multiplier of a weapon's stat based off its prefix.
+        /// For crits, the number returned is an integer that increases total percentage.
         /// </summary>
         public static float GetPrefixMultiplier(int prefix, Stat stat) {
             float damage = 1f;
@@ -311,7 +311,7 @@ namespace PvPModifier.Utilities {
         }
 
         /// <summary>
-        /// Spawns Counterweights/Additional yoyos when a person has hit with one.
+        /// Spawns Counterweights/Additional yoyos when a person hits with one.
         /// This normally does not work in vanilla servers, so this must be emulated on a 
         /// server for accessories such as Yoyo Bag to work.
         /// </summary>
@@ -341,7 +341,6 @@ namespace PvPModifier.Utilities {
             } else {
                 if (num2 >= num1)
                     return;
-                int index;
                 Vector2 vector21 = Vector2.Subtract(target.LastNetPosition, attacker.TPlayer.Center);
                 vector21.Normalize();
                 Vector2 vector22 = Vector2.Multiply(vector21, 16f);
@@ -352,6 +351,9 @@ namespace PvPModifier.Utilities {
             }
         }
 
+        /// <summary>
+        /// Spawns a spectre bolt where the attacker is.
+        /// </summary>
         public static void ActivateSpectreBolt(TSPlayer attacker, TSPlayer target, Item weapon, int dmg) {
             if (!weapon.magic)
                 return;

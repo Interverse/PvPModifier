@@ -1,7 +1,7 @@
 ﻿using PvPModifier.Network.Packets;
 using PvPModifier.Utilities;
+using PvPModifier.Utilities.Extensions;
 using PvPModifier.Utilities.PvPConstants;
-using PvPModifier.Variables;
 using System;
 
 namespace PvPModifier.Network.Events {
@@ -50,6 +50,7 @@ namespace PvPModifier.Network.Events {
                 return;
             }
 
+            // If the player's inventory being updated is currently empty, check the incoming drop in the InventoryTracker
             if (e.Player.TPlayer.inventory[e.SlotId].netID == Constants.EmptyItem)
                 e.Player.GetInvTracker().CheckFinishedModifications(e.NetID);
         }

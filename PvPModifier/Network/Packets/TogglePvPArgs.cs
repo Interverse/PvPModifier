@@ -1,5 +1,4 @@
 ﻿using System;
-using PvPModifier.Variables;
 using TShockAPI;
 
 namespace PvPModifier.Network.Packets {

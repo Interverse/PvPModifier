@@ -5,6 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace PvPModifier.Utilities {
+    /// <summary>
+    /// Stores the percentage chance of each item occuring.
+    /// </summary>
     public class RandomPool<T> {
         public string CurrentData = "";
 

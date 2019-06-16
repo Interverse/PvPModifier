@@ -1,12 +1,11 @@
 ﻿using PvPModifier.DataStorage;
 using PvPModifier.Utilities;
 using PvPModifier.Utilities.PvPConstants;
-using System;
 using System.Collections.Generic;
 using Terraria;
 using TShockAPI;
 
-namespace PvPModifier.Variables {
+namespace PvPModifier.Utilities.Extensions {
     /// <summary>
     /// The class used to store projectile data. Includes additional methods and variables to
     /// perform pvp based calculations and actions.
@@ -76,7 +75,11 @@ namespace PvPModifier.Variables {
             return proj;
         }
 
-        public static TSPlayer GetOwner(this Projectile proj) => TShock.Players[proj.owner];
+        public static TSPlayer GetOwner(this Projectile proj) {
+            if (proj.owner >= TShock.Players.Length) return null;
+            return TShock.Players[proj.owner];
+        }
+
         public static Item GetItemOriginated(this Projectile proj) {
             return proj.GetOwner()?.FindPlayerItem((int)proj.ai[(int)AI.ItemOriginated]);
         }

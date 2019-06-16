@@ -8,7 +8,6 @@ using Mono.Data.Sqlite;
 using MySql.Data.MySqlClient;
 using PvPModifier.Utilities;
 using PvPModifier.Utilities.PvPConstants;
-using PvPModifier.Variables;
 using Terraria;
 using TShockAPI;
 using TShockAPI.DB;
@@ -238,7 +237,7 @@ namespace PvPModifier.DataStorage {
                                               -1, -1, -1,
                                               -1, -1, "-1,1".SqlString(),
                                               -1, "-1,1".SqlString(), -1,
-                                              -1, -1));
+                                              0, -1));
 
                 case "Projectiles":
                     inflictBuff = PresetData.ProjectileDebuffs.ContainsKey(id)

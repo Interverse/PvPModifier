@@ -1,5 +1,5 @@
-﻿using PvPModifier.Utilities.PvPConstants;
-using PvPModifier.Variables;
+﻿using PvPModifier.Utilities;
+using PvPModifier.Utilities.PvPConstants;
 
 namespace PvPModifier.DataStorage {
     public class DbProjectile : DbObject {

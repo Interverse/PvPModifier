@@ -4,18 +4,17 @@ using PvPModifier.DataStorage;
 using PvPModifier.Network.Packets;
 using PvPModifier.Utilities;
 using PvPModifier.Utilities.PvPConstants;
-using PvPModifier.Variables;
 using System;
 using System.Collections.Generic;
 using Terraria;
 using TerrariaApi.Server;
 using TShockAPI;
+using PvPModifier.Utilities.Extensions;
 
 namespace PvPModifier.Network.Events {
     public class ProjectileEvents {
-
         /// <summary>
-        /// Handles projectile creation.
+        /// Handles projectile creation and extra <see cref="DbItem"/> projectile modifiers.
         /// </summary>
         public static void OnNewProjectile(object sender, ProjectileNewArgs e) {
             if (!PvPModifier.Config.EnablePlugin) return;
@@ -34,6 +33,7 @@ namespace PvPModifier.Network.Events {
                 e.Type = projectilePool.GetRandomItem();
             }
 
+            // Sets the projectile's stats to the ones received in ProjectileNewArgs
             projectile.SetDefaults(e.Type);
             projectile.identity = e.Identity;
             projectile.damage = e.Damage;
@@ -42,10 +42,12 @@ namespace PvPModifier.Network.Events {
             projectile.position = e.Position;
             projectile.velocity = e.Velocity;
             projectile.ai = e.Ai;
+            projectile.SetCooldown(weapon.ActiveFireRate);
 
             projectiles.Add(projectile);
 
-            if ((TShock.Players[e.Owner]?.TPlayer?.hostile ?? false) && PvPUtils.IsModifiedProjectile(e.Type)) {
+            // Modifies the shot projectile if it was changed in DbProjectile
+            if (PvPUtils.IsModifiedProjectile(e.Type)) {
                 e.Args.Handled = true;
                 DbProjectile proj = Cache.Projectiles[e.Type];
 
@@ -60,6 +62,7 @@ namespace PvPModifier.Network.Events {
                 NetMessage.SendData(27, -1, -1, null, e.Identity);
             }
 
+            // If weapon spread is not negative, handle multishot projectiles
             if (weapon.Spread >= 0) {
                 float spreadAmount = weapon.Spread / 2f;
                 for (int x = 0; x < weapon.NumShots; x++) {
@@ -89,15 +92,26 @@ namespace PvPModifier.Network.Events {
                     }
                     newProj.ai = e.Ai;
 
-                    ProjectileUtils.SpawnProjectile(e.Attacker, newProj, e.Weapon.netID);
+                    ProjectileUtils.SpawnProjectile(e.Attacker, newProj, e.Weapon.netID, weapon.ActiveFireRate);
 
                     projectiles.Add(newProj);
                 }
             }
 
+            // If the weapon mirrors projectiles, spawn every currently spawned projectile with opposite velocity
             if (weapon.IsMirror) {
                 foreach (var proj in projectiles) {
-                    ProjectileUtils.SpawnProjectile(e.Attacker, proj.position + new Vector2(proj.width, proj.height) / 2, proj.velocity * -1, proj.type, proj.damage, proj.knockBack, proj.owner, proj.ai[0], proj.ai[1], e.Weapon.netID);
+                    ProjectileUtils.SpawnProjectile(e.Attacker, 
+                        proj.position + new Vector2(proj.width, proj.height) / 2, 
+                        proj.velocity * -1, 
+                        proj.type, 
+                        proj.damage, 
+                        proj.knockBack, 
+                        proj.owner, 
+                        proj.ai[0], 
+                        proj.ai[1], 
+                        e.Weapon.netID, 
+                        weapon.ActiveFireRate);
                 }
             }
 
@@ -106,7 +120,7 @@ namespace PvPModifier.Network.Events {
         }
 
         /// <summary>
-        /// Runs every 1/60th second to reset any inactive projectiles.
+        /// Runs every game update to reset any inactive projectiles.
         /// </summary>
         public static void CleanupInactiveProjectiles(EventArgs args) {
             for (int x = 0; x < Main.maxProjectiles; x++) {
@@ -134,6 +148,7 @@ namespace PvPModifier.Network.Events {
 
             TSPlayer target = PvPUtils.FindClosestPlayer(projectile.position, projectile.owner, homingRadius * Constants.PixelToWorld);
 
+            // If there is a target in site, rotate the projectile towards the target.
             if (target != null) {
                 projectile.velocity = MiscUtils.TurnTowards(projectile.velocity, projectile.position, target.TPlayer.Center, angularVelocity);
                 foreach (var pvper in PvPUtils.ActivePlayers) {
@@ -155,9 +170,11 @@ namespace PvPModifier.Network.Events {
             }
         }
 
+        /// <summary>
+        /// Updates Active Projectile AI by changing their cooldown and performing actions when
+        /// their cooldown has reached zero.
+        /// </summary>
         public static void UpdateActiveProjectileAI(ProjectileAiUpdateEventArgs args) {
-            if (!PvPModifier.Config.EnableHoming) return;
-
             var projectile = args.Projectile;
 
             if (!projectile.HasInitializedExtraAISlots()) return;

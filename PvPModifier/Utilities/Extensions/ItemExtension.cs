@@ -2,7 +2,7 @@
 using Terraria;
 using TShockAPI;
 
-namespace PvPModifier.Variables {
+namespace PvPModifier.Utilities.Extensions {
     public static class ItemExtension {
         /// <summary>
         /// Gets damage based off server config.

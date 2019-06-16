@@ -1,10 +1,9 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using PvPModifier.DataStorage;
 using PvPModifier.Network;
-using PvPModifier.Variables;
+using PvPModifier.Utilities.Extensions;
 using Terraria;
 using TerrariaApi.Server;
 using TShockAPI;
@@ -25,25 +24,33 @@ namespace PvPModifier {
         public PvPModifier(Main game) : base(game) { }
 
         public override void Initialize() {
+            // Initializes the config, making one if it doesn't exist
             Config = Config.Read(Config.ConfigPath);
             if (!File.Exists(Config.ConfigPath)) {
                 Config.Write(Config.ConfigPath);
             }
 
+            // Connects the SQL database to the plugin
             Database.ConnectDB();
 
+            // Registers hooks to initialize plugin features
             ServerApi.Hooks.GamePostInitialize.Register(this, OnGamePostInitialize);
             ServerApi.Hooks.NetGetData.Register(this, GetData);
             ServerApi.Hooks.ServerJoin.Register(this, OnJoin);
 
+            // Registers an method to be called when /reload is used
             GeneralHooks.ReloadEvent += OnReload;
 
-            PlayerHooks.PlayerPostLogin += OnPlayerPostLogin;
-
+            // Registers all the hooks used to handle pvp
             _pvpevents = new PvPEvents(this);
+
+            // Adds commands to be used in this plugin
             PluginCommands.RegisterCommands();
         }
 
+        /// <summary>
+        /// Deregisters all the hooks the plugin uses.
+        /// </summary>
         protected override void Dispose(bool disposing) {
             if (disposing) {
                 ServerApi.Hooks.GamePostInitialize.Deregister(this, OnGamePostInitialize);
@@ -52,8 +59,6 @@ namespace PvPModifier {
 
                 GeneralHooks.ReloadEvent -= OnReload;
 
-                PlayerHooks.PlayerPostLogin -= OnPlayerPostLogin;
-
                 _pvpevents.Unsubscribe();
 
                 Config.Write(Config.ConfigPath);
@@ -61,6 +66,11 @@ namespace PvPModifier {
             base.Dispose(disposing);
         }
 
+        /// <summary>
+        /// On /reload, config is read from the .json file and <see cref="Cache"/> object is overwritten with
+        /// whatever is currently in the external SQL database.
+        /// </summary>
+        /// <param name="e"></param>
         private void OnReload(ReloadEventArgs e) {
             Config = Config.Read(Config.ConfigPath);
             Database.LoadDatabase();
@@ -68,23 +78,15 @@ namespace PvPModifier {
         }
 
         /// <summary>
-        /// Adds a player who just logged in to the plugin-stored collection of players.
-        /// </summary>
-        private void OnPlayerPostLogin(PlayerPostLoginEventArgs e) {
-            TShock.Players[e.Player.Index].Initialize();
-        }
-
-        /// <summary>
-        /// Adds the player to the plugin-stored collection of players.
+        /// Initializes extra variables for each <see cref="TSPlayer"/> who enters the server.
         /// </summary>
         private void OnJoin(JoinEventArgs args) {
             TShock.Players[args.Who].Initialize();
         }
 
         /// <summary>
-        /// Sets default config values if a config doesn't exist 
-        /// after the server has loaded the game.
-        /// Also loads the database.
+        /// Sets default config values if a config doesn't exist after the server has loaded the game.
+        /// Also loads the database and writes it in <see cref="Cache"/>.
         /// </summary>
         private void OnGamePostInitialize(EventArgs args) {
             if (Config.SetDefaultValues()) {
@@ -95,9 +97,9 @@ namespace PvPModifier {
         }
 
         /// <summary>
-        /// Processes data so it can be used in <see cref="Network.PvPEvents"/>.
+        /// Creates objects to be processes in <see cref="Network.PvPEvents"/>.
         /// </summary>
-        /// <param name="args">The data needed to be processed.</param> 
+        /// <param name="args">The data to be processed.</param> 
         private void GetData(GetDataEventArgs args) {
             MemoryStream data = new MemoryStream(args.Msg.readBuffer, args.Index, args.Length);
             TSPlayer attacker = TShock.Players[args.Msg.whoAmI];

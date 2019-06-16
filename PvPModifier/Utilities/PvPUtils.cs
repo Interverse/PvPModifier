@@ -6,9 +6,9 @@ using Microsoft.Xna.Framework;
 using CustomWeaponAPI;
 using PvPModifier.DataStorage;
 using PvPModifier.Utilities.PvPConstants;
-using PvPModifier.Variables;
 using Terraria;
 using TShockAPI;
+using PvPModifier.Utilities.Extensions;
 
 namespace PvPModifier.Utilities {
     public static class PvPUtils {
@@ -31,6 +31,7 @@ namespace PvPModifier.Utilities {
 
         /// <summary>
         /// Sends every modified weapon to the player.
+        /// 
         /// Steps:
         /// Change every weapon to default values.
         /// Stores the index of every modified weapon, and stores the index as the max index.
@@ -43,6 +44,7 @@ namespace PvPModifier.Utilities {
             List<int> itemIndex = new List<int>();
             InventoryIndexer indexer = new InventoryIndexer();
             
+            // Loops through every item in the order that drops appear in the player's inventory
             for (byte loop = 0; loop < indexer.MaxInventoryCycle; loop++) {
                 int index = indexer.NextIndex();
 
@@ -57,10 +59,13 @@ namespace PvPModifier.Utilities {
             }
 
             if (itemIndex.Count != 0) {
+                // Fills the player's inventory with junk in order to preserve item position in a player's inventory.
                 SSCUtils.FillInventoryToIndex(player, Constants.EmptyItem, Constants.JunkItem, indexer.MaxIndex);
                 foreach (int num in itemIndex)
                     SSCUtils.SetItem(player, (byte)num, Constants.EmptyItem);
 
+                // Waits until it is safe to drop items to the player
+                // The player cannot use an item and receive items in the same frame
                 await player.WaitUntilModdedItemsRemoved();
                 await player.WaitUntilReleaseItem();
                 await Task.Delay((int)(Constants.SecondPerFrame * 5));
@@ -93,6 +98,9 @@ namespace PvPModifier.Utilities {
             }
         }
 
+        /// <summary>
+        /// Loops through a player's inventory to check if they have an item that is modified in <see cref="Cache"/>
+        /// </summary>
         public static bool ContainsModifiedItem(TSPlayer player) {
             InventoryIndexer indexer = new InventoryIndexer();
 
@@ -126,6 +134,7 @@ namespace PvPModifier.Utilities {
             };
             DbItem dbitem = Cache.Items[type];
 
+            // Sets the custom weapon's stats and also applies prefix bonuses to these weapons.
             if (dbitem.Damage != -1)
                 custwep.Damage = (ushort)(TerrariaUtils.GetPrefixMultiplier(prefix, TerrariaUtils.Stat.Damage) * dbitem.Damage);
 

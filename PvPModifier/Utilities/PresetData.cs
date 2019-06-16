@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using PvPModifier.Variables;
 
 namespace PvPModifier.Utilities {
     class PresetData {

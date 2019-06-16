@@ -1,6 +1,5 @@
 ﻿using PvPModifier.Utilities;
 using PvPModifier.Utilities.PvPConstants;
-using PvPModifier.Variables;
 
 namespace PvPModifier.DataStorage {
     public class DbItem : DbObject {

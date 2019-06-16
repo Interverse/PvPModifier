@@ -11,8 +11,22 @@ using TShockAPI;
 using PvPModifier.Utilities.PvPConstants;
 using System.Threading.Tasks;
 
-namespace PvPModifier.Variables {
+namespace PvPModifier.Utilities.Extensions {
+    /// <summary>
+    /// Contains extension methods for TSPlayer to be used throughout this plugin.
+    /// </summary>
     public static class TSPlayerExtension {
+        /// <summary>
+        /// Initializes objects into memory to be used later.
+        /// </summary>
+        public static void Initialize(this TSPlayer player) {
+            player.SetLastHit(DateTime.Now);
+            player.SetLastInventoryModified(DateTime.Now);
+            player.SetData("ProjectileTracker", new ProjectileTracker());
+            player.SetData("InventoryTracker", new InventoryTracker(player));
+            player.SetData("PingCheck", true);
+        }
+
         public static void SetPingCheck(this TSPlayer player, bool check) {
             player.SetData("PingCheck", check);
         }
@@ -53,13 +67,10 @@ namespace PvPModifier.Variables {
             return player.GetData<InventoryTracker>("InventoryTracker");
         }
 
-        public static void Initialize(this TSPlayer player) {
-            player.SetLastHit(DateTime.Now);
-            player.SetLastInventoryModified(DateTime.Now);
-            player.SetData<ProjectileTracker>("ProjectileTracker", new ProjectileTracker());
-            player.SetData<InventoryTracker>("InventoryTracker", new InventoryTracker(player));
-            player.SetData<bool>("PingCheck", true);
-        }
+        /// <summary>
+        /// Sets a buff to the player based off <see cref="BuffInfo"/>
+        /// </summary>
+        public static void SetBuff(this TSPlayer player, BuffInfo buffInfo) => player.SetBuff(buffInfo.BuffId, buffInfo.BuffDuration);
 
         /// <summary>
         /// Finds the player's item from its inventory.
@@ -85,7 +96,7 @@ namespace PvPModifier.Variables {
         public static double AngleFrom(this TSPlayer player, Vector2 target) => Math.Atan2(target.Y - player.Y, target.X - player.X);
         
         /// <summary>
-        /// Checks whether a target is left from a player
+        /// Checks whether a target is left from a player.
         /// </summary>
         /// <returns>Returns true if the target is left of the player</returns>
         public static bool IsLeftFrom(this TSPlayer player, Vector2 target) => target.X > player.X;
@@ -101,24 +112,23 @@ namespace PvPModifier.Variables {
         /// <summary>
         /// Sets a velocity to a player, emulating directional knockback.
         /// 
-        /// This method requires SSC to be enabled. To allow knockback to work
+        /// Changing velocity requires SSC to be enabled. To allow knockback to work
         /// on non-SSC servers, the method will temporarily enable SSC to set player
         /// velocity.
         /// </summary>
         public static void KnockBack(this TSPlayer player, double knockback, double angle, double hitDirection = 1) {
             new SSCAction(player, () => {
                 if (player.TPlayer.velocity.Length() <= Math.Abs(knockback)) {
-                    if (player.TPlayer.velocity.Length() <= Math.Abs(knockback)) {
-                        if (Math.Abs(player.TPlayer.velocity.Length() + knockback) < knockback) {
-                            player.TPlayer.velocity.X += (float)(knockback * Math.Cos(angle) * hitDirection);
-                            player.TPlayer.velocity.Y += (float)(knockback * Math.Sin(angle));
-                        } else {
-                            player.TPlayer.velocity.X = (float)(knockback * Math.Cos(angle) * hitDirection);
-                            player.TPlayer.velocity.Y = (float)(knockback * Math.Sin(angle));
-                        }
+                    // Caps the player's velocity if their new velocity is higher than the incoming knockback
+                    if (Math.Abs(player.TPlayer.velocity.Length() + knockback) < knockback) {
+                        player.TPlayer.velocity.X += (float)(knockback * Math.Cos(angle) * hitDirection);
+                        player.TPlayer.velocity.Y += (float)(knockback * Math.Sin(angle));
+                    } else {
+                        player.TPlayer.velocity.X = (float)(knockback * Math.Cos(angle) * hitDirection);
+                        player.TPlayer.velocity.Y = (float)(knockback * Math.Sin(angle));
                     }
                     
-                    NetMessage.SendData(13, -1, -1, null, player.Index, 0, 4);
+                    NetMessage.SendData((int)PacketTypes.PlayerUpdate, -1, -1, null, player.Index, 0, 4);
                 }
             });
         }
@@ -162,15 +172,21 @@ namespace PvPModifier.Variables {
         /// Applies nebula, spectre, and frost armor effects.
         /// </summary>
         public static void ApplyArmorEffects(this TSPlayer player, TSPlayer target, Item weapon, Projectile projectile) {
+            // Spawns nebula boosters near the hit enemy if the player has nebula armor on and used a magic weapon
             if (player.TPlayer.setNebula && player.TPlayer.nebulaCD == 0 && Main.rand.Next(3) == 0 && PvPModifier.Config.EnableNebula && weapon.magic) {
                 player.TPlayer.nebulaCD = 30;
+                // Selects a booster at random
                 int type = new int[] { 3453, 3454, 3455 }.SelectRandom();
 
-                int index = Item.NewItem((int)player.TPlayer.position.X, (int)player.TPlayer.position.Y, player.TPlayer.width, player.TPlayer.height, type);
+                // Spawns the item near the target
+                int index = Item.NewItem((int)target.TPlayer.Center.X, (int)target.TPlayer.Center.Y, target.TPlayer.width, player.TPlayer.height, type);
 
+                // Generates a random velocity that the booster flies with
                 float velocityY = Main.rand.Next(-20, 1) * 0.2f;
                 float velocityX = Main.rand.Next(10, 31) * 0.2f * Main.rand.Next(-1, 1).Replace(0, 1);
 
+                // Sends the packet to the player that the booster is spawned
+                // The booster is only visible to the attacker at first, and becomes visible to everyone else after some time.
                 var itemDrop = new PacketWriter()
                     .SetType((int)PacketTypes.UpdateItemDrop)
                     .PackInt16((short)index)
@@ -195,10 +211,13 @@ namespace PvPModifier.Variables {
                 }
             }
 
+            // If the weapon used is melee or range and the player has frost armor, give frostburn to the target
             if ((weapon.ranged || weapon.melee) && player.TPlayer.frostArmor && PvPModifier.Config.EnableFrost) {
                 target.SetBuff(44, (int)(PvPModifier.Config.FrostDuration * 30));
             }
 
+            // If the player has Spectre Armor (attack), spawn a spectre bolt
+            // Makes sure the projectile isn't the spectre bolt itself to prevent an infinite loop
             if (player.TPlayer.ghostHurt && projectile?.type != 356) {
                 TerrariaUtils.ActivateSpectreBolt(player, target, weapon, weapon.GetConfigDamage());
             }
@@ -253,11 +272,6 @@ namespace PvPModifier.Variables {
 
             return false;
         }
-
-        /// <summary>
-        /// Sets a buff to the player based off <see cref="BuffInfo"/>
-        /// </summary>
-        public static void SetBuff(this TSPlayer player, BuffInfo buffInfo) => player.SetBuff(buffInfo.BuffId, buffInfo.BuffDuration);
         
         /// <summary>
         /// Determines whether a person can be hit with Medusa Head.
@@ -275,6 +289,12 @@ namespace PvPModifier.Variables {
             return true;
         }
 
+        /// <summary>
+        /// Sends a test packet and waits until the player sends a response.
+        /// Test packet sent: RemoveItemOwner
+        /// Receiving packet: ItemOwner
+        /// The code to that handles receiving ItemOwner is in <see cref="NetworkEvents"/>
+        /// </summary>
         public static async Task WaitUntilPingReceived(this TSPlayer player) {
             player.SendData(PacketTypes.RemoveItemOwner);
             player.SetPingCheck(false);
@@ -283,18 +303,27 @@ namespace PvPModifier.Variables {
             }
         }
 
+        /// <summary>
+        /// Loops every frame until the player releases their left click button.
+        /// </summary>
         public static async Task WaitUntilReleaseItem(this TSPlayer player) {
             while (player.ConnectionAlive && !player.TPlayer.releaseUseItem) {
                 await Task.Delay((int)Constants.SecondPerFrame);
             }
         }
 
+        /// <summary>
+        /// Checks every frame whether the player has removed all their items that are modified within <see cref="Cache"/>
+        /// </summary>
         public static async Task WaitUntilModdedItemsRemoved(this TSPlayer player) {
             while (player.ConnectionAlive && PvPUtils.ContainsModifiedItem(player)) {
                 await Task.Delay((int)Constants.SecondPerFrame);
             }
         }
 
+        /// <summary>
+        /// Checks every frame whether the player has gotten their item changed in their client
+        /// </summary>
         public static async Task WaitUntilItemChange(this TSPlayer player, int slotID, int itemID) {
             while (player.ConnectionAlive && player.TPlayer.inventory[slotID].netID != itemID) {
                 await Task.Delay((int)Constants.SecondPerFrame);

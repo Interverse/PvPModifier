@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using PvPModifier.Network.Packets;
-using PvPModifier.Variables;
 using TerrariaApi.Server;
 using TShockAPI;
 
@@ -19,6 +18,9 @@ namespace PvPModifier.Network {
         public static event EventHandler<PlayerSlotArgs> SlotUpdate;
         public static event EventHandler<ItemOwnerArgs> ItemOwner;
 
+        /// <summary>
+        /// Invokes events that can be used for pvp events.
+        /// </summary>
         public static void HandleData(GetDataEventArgs args, MemoryStream data, TSPlayer player) {
             switch (args.MsgID) {
                 case PacketTypes.PlayerHurtV2:

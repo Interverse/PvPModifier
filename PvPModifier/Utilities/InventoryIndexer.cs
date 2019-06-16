@@ -14,6 +14,9 @@
         private int _index;
         bool _isAscending = true;
 
+        public int MaxIndexPos => GetPosOfIndex(_maxIndex);
+        public int MaxIndex => _maxIndex;
+
         public InventoryIndexer() {
             _index = -1;
         }
@@ -61,8 +64,5 @@
 
             return indexPos;
         }
-
-        public int MaxIndexPos => GetPosOfIndex(_maxIndex);
-        public int MaxIndex => _maxIndex;
     }
 }

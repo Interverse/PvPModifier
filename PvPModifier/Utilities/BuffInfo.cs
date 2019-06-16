@@ -1,4 +1,4 @@
-﻿namespace PvPModifier.Variables {
+﻿namespace PvPModifier.Utilities {
     public class BuffInfo {
         public int BuffId { get; set; }
         public int BuffDuration { get; set; }
