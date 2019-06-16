@@ -60,7 +60,7 @@ namespace PvPModifier.Network.Events {
                 NetMessage.SendData(27, -1, -1, null, e.Identity);
             }
 
-            if (weapon.Spread > 0) {
+            if (weapon.Spread >= 0) {
                 float spreadAmount = weapon.Spread / 2f;
                 for (int x = 0; x < weapon.NumShots; x++) {
                     if (x == 0) {
