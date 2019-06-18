@@ -190,7 +190,6 @@ namespace PvPModifier.Utilities {
         public static bool IsModifiedProjectile(int type) {
             DbProjectile proj = Cache.Projectiles[type];
             return proj.Shoot != type ||
-                   proj.VelocityMultiplier != 1 ||
                    proj.Damage != -1;
         }
 

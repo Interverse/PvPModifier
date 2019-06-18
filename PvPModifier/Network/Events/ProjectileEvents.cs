@@ -42,6 +42,7 @@ namespace PvPModifier.Network.Events {
             projectile.position = e.Position;
             projectile.velocity = e.Velocity;
             projectile.ai = e.Ai;
+            projectile.active = true;
             projectile.SetCooldown(weapon.ActiveFireRate);
 
             projectiles.Add(projectile);
@@ -52,12 +53,16 @@ namespace PvPModifier.Network.Events {
                 DbProjectile proj = Cache.Projectiles[e.Type];
 
                 projectile.SetDefaults(proj.Shoot != -1 ? proj.Shoot : e.Type);
-                projectile.velocity = e.Velocity * proj.VelocityMultiplier;
                 projectile.damage = proj.Damage != -1 ? proj.Damage : e.Damage;
-                projectile.active = true;
-                projectile.identity = e.Identity;
-                projectile.owner = e.Owner;
-                projectile.position = e.Position;
+
+                NetMessage.SendData(27, -1, -1, null, e.Identity);
+            }
+
+            // Applies an item's velocity multiplier if it was changed
+            if (weapon.VelocityMultiplier != 1) {
+                e.Args.Handled = true;
+                e.Velocity = e.Velocity * weapon.VelocityMultiplier;
+                projectile.velocity = e.Velocity;
 
                 NetMessage.SendData(27, -1, -1, null, e.Identity);
             }

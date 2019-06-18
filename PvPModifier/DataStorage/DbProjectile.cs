@@ -6,7 +6,6 @@ namespace PvPModifier.DataStorage {
         public override string Section => DbTables.ProjectileTable;
 
         public int Shoot { get; set; }
-        public float VelocityMultiplier { get; set; }
         public int Damage { get; set; }
         public int InflictBuffID { get; set; }
         public int InflictBuffDuration { get; set; }
@@ -20,7 +19,6 @@ namespace PvPModifier.DataStorage {
             return $"ID: {ID}\n" +
                    $"Shoot: {Shoot}\n" +
                    $"Damage: {Damage}\n" +
-                   $"VelocityMultiplier: {VelocityMultiplier}\n" +
                    $"Inflict Buff: {Terraria.Lang.GetBuffName(InflictBuffID)} for {InflictBuffDuration / Constants.TicksPerSecond}s\n" +
                    $"Receive Buff: {Terraria.Lang.GetBuffName(ReceiveBuffID)} for {ReceiveBuffDuration / Constants.TicksPerSecond}s";
         }

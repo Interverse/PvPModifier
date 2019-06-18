@@ -14,6 +14,7 @@ namespace PvPModifier.DataStorage {
         public int UseTime { get; set; }
         public int Shoot { get; set; }
         public float ShootSpeed { get; set; }
+        public float VelocityMultiplier { get; set; }
         public int AmmoIdentifier { get; set; }
         public int UseAmmoIdentifier { get; set; }
         public int NotAmmo { get; set; }
@@ -98,6 +99,7 @@ namespace PvPModifier.DataStorage {
                    $"UseTime: {UseTime}\n" +
                    $"Shoot: {Shoot}\n" +
                    $"ShootSpeed: {ShootSpeed}\n" +
+                   $"VelocityMultiplier: {VelocityMultiplier}\n" +
                    $"AmmoIdentifier: {AmmoIdentifier}\n" +
                    $"UseAmmoIdentifier: {UseAmmoIdentifier}\n" +
                    $"NotAmmo: {IsNotAmmo}\n" +
