@@ -33,6 +33,7 @@
         public const string ActiveRange = "ActiveRange";
         public const string ActiveFireRate = "ActiveFireRate";
         public const string ActiveSpread = "ActiveSpread";
+        public const string ActiveShootSpeed = "ActiveShootSpeed";
     }
 
     /// <summary>

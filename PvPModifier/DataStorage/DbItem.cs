@@ -33,6 +33,7 @@ namespace PvPModifier.DataStorage {
         public string ActiveProjectilePool { get; set; }
         public float ActiveRange { get; set; }
         public int ActiveFireRate { get; set; }
+        public float ActiveShootSpeed { get; set; }
         public float ActiveSpread { get; set; }
 
         public BuffInfo InflictBuff => new BuffInfo(InflictBuffID, InflictBuffDuration);

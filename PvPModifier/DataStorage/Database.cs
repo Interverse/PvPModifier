@@ -75,6 +75,7 @@ namespace PvPModifier.DataStorage {
                 new SqlColumn(DbConsts.ActiveProjectilePool, MySqlDbType.Text) { Length = 255 },
                 new SqlColumn(DbConsts.ActiveRange, MySqlDbType.Float),
                 new SqlColumn(DbConsts.ActiveFireRate, MySqlDbType.Int32),
+                new SqlColumn(DbConsts.ActiveShootSpeed, MySqlDbType.Float),
                 new SqlColumn(DbConsts.ActiveSpread, MySqlDbType.Float)));
 
             sqlCreator.EnsureTableStructure(new SqlTable(DbTables.ProjectileTable,
@@ -228,7 +229,7 @@ namespace PvPModifier.DataStorage {
                                               DbConsts.AngularVelocity, DbConsts.Mirror, DbConsts.Spread,
                                               DbConsts.RandomSpread, DbConsts.NumShots, DbConsts.ProjectilePool,
                                               DbConsts.ActiveProjectileAI, DbConsts.ActiveProjectilePool, DbConsts.ActiveRange,
-                                              DbConsts.ActiveFireRate, DbConsts.ActiveSpread),
+                                              DbConsts.ActiveFireRate, DbConsts.ActiveShootSpeed, DbConsts.ActiveSpread),
                             string.Join(", ", id, -1, knockback, 
                                               -1, -1, -1, 
                                               -1, -1, -1, 
@@ -237,7 +238,7 @@ namespace PvPModifier.DataStorage {
                                               -1, -1, -1,
                                               -1, -1, "-1,1".SqlString(),
                                               -1, "-1,1".SqlString(), -1,
-                                              0, -1));
+                                              0, -1, -1));
 
                 case "Projectiles":
                     inflictBuff = PresetData.ProjectileDebuffs.ContainsKey(id)
@@ -301,6 +302,7 @@ namespace PvPModifier.DataStorage {
                         ActiveProjectilePool = reader.Get<string>(DbConsts.ActiveProjectilePool) ?? "-1,1",
                         ActiveRange = reader.Get<float?>(DbConsts.ActiveRange) ?? -1,
                         ActiveFireRate = reader.Get<int?>(DbConsts.ActiveFireRate) ?? 0,
+                        ActiveShootSpeed = reader.Get<float?>(DbConsts.ActiveShootSpeed) ?? -1,
                         ActiveSpread = reader.Get<float?>(DbConsts.ActiveSpread) ?? -1
                     };
                 }

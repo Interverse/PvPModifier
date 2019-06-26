@@ -195,6 +195,9 @@ namespace PvPModifier.Network.Events {
             Item item = new Item();
             item.SetDefaults(projectile.GetItemOriginated().type);
 
+            float shootSpeed = dbItem.ActiveShootSpeed.Replace(-1, item.shootSpeed);
+            Vector2 velocity;
+
             projectile.DecreaseCooldown();
 
             if (projectile.CooldownFinished()) {
@@ -202,26 +205,32 @@ namespace PvPModifier.Network.Events {
                     case ActiveAIType.Minion:
                         spread = spread.Replace(-1, 0);
                         TSPlayer target = PvPUtils.FindClosestPlayer(projectile.position, projectile.owner, dbItem.ActiveRange * Constants.PixelToWorld);
-                        if (target != null) {
-                            ProjectileUtils.SpawnProjectile(projectile.GetOwner(),
-                                projectile.Center,
-                                (target.TPlayer.Center - projectile.Center).Normalized().RotateRandom(-spread / 2, spread / 2) * dbItem.ShootSpeed.Replace(-1, item.shootSpeed),
-                                projectilePool.GetRandomItem(),
-                                projectile.damage,
-                                projectile.knockBack,
-                                projectile.owner,
-                                projectile.ai[0],
-                                projectile.ai[1],
-                                projectile.GetItemOriginated().netID,
-                                cooldown: 9999);
-                        }
+                        if (target == null) break;
+
+                        velocity = (target.TPlayer.Center - projectile.Center).Normalized().RotateRandom(-spread / 2, spread / 2) * shootSpeed;
+                        ProjectileUtils.SpawnProjectile(projectile.GetOwner(),
+                            projectile.Center,
+                            velocity,
+                            projectilePool.GetRandomItem(),
+                            projectile.damage,
+                            projectile.knockBack,
+                            projectile.owner,
+                            projectile.ai[0],
+                            projectile.ai[1],
+                            projectile.GetItemOriginated().netID,
+                            cooldown: 9999);
                         break;
 
                     case ActiveAIType.RandomScatter:
                         spread = spread.Replace(-1, 180);
+                        velocity = projectile.velocity;
+                        if (velocity.Length() == 0) {
+                            velocity = Vector2.One;
+                        }
+                        velocity = velocity.RotateRandom(-spread, spread).Normalized() * shootSpeed;
                         ProjectileUtils.SpawnProjectile(projectile.GetOwner(),
                             projectile.Center,
-                            projectile.velocity.RotateRandom(-spread, spread).Normalized() * dbItem.ShootSpeed.Replace(-1, item.shootSpeed),
+                            velocity,
                             projectilePool.GetRandomItem(),
                             projectile.damage,
                             projectile.knockBack,
@@ -234,10 +243,10 @@ namespace PvPModifier.Network.Events {
 
                     case ActiveAIType.V_Split:
                         spread = spread.Replace(-1, 30);
-                        for(float degrees = -spread / 2; degrees <= spread / 2; degrees += spread) {
+                        for (float degrees = -spread / 2; degrees <= spread / 2; degrees += spread) {
                             ProjectileUtils.SpawnProjectile(projectile.GetOwner(),
                                 projectile.Center,
-                                projectile.velocity.Rotate(degrees).Normalized() * dbItem.ShootSpeed.Replace(-1, item.shootSpeed),
+                                projectile.velocity.Rotate(degrees).Normalized() * shootSpeed,
                                 projectilePool.GetRandomItem(),
                                 projectile.damage,
                                 projectile.knockBack,

@@ -188,6 +188,11 @@
                     attribute = DbConsts.ActiveFireRate;
                     return true;
 
+                case "activeshootspeed":
+                case "ass":
+                    attribute = DbConsts.ActiveShootSpeed;
+                    return true;
+
                 case "activespread":
                 case "asp":
                 case "as":
