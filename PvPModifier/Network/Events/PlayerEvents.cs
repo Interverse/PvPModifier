@@ -82,6 +82,8 @@ namespace PvPModifier.Network.Events {
         public static void OnPlayerHurt(object sender, PlayerHurtArgs e) {
             if (!PvPModifier.Config.EnablePlugin) return;
 
+            if (e.Args.Handled) return;
+
             e.Args.Handled = true;
 
             if (e.Attacker.TPlayer.immune || !e.Target.CanBeHit()) return;

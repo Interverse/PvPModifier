@@ -71,14 +71,13 @@ namespace PvPModifier.Network.Events {
             if (weapon.Spread >= 0) {
                 float spreadAmount = weapon.Spread / 2f;
                 for (int x = 0; x < weapon.NumShots; x++) {
+                    Projectile newProj = new Projectile();
+
                     if (x == 0) {
+                        newProj = projectile;
                         e.Args.Handled = true;
-                        projectile.SetDefaults(0);
-                        NetMessage.SendData(27, -1, -1, null, e.Identity);
                         projectiles.Clear();
                     }
-
-                    Projectile newProj = new Projectile();
 
                     if (!projectilePool.IsEmpty()) {
                         e.Type = projectilePool.GetRandomItem();
@@ -100,6 +99,11 @@ namespace PvPModifier.Network.Events {
                     ProjectileUtils.SpawnProjectile(e.Attacker, newProj, e.Weapon.netID, weapon.ActiveFireRate);
 
                     projectiles.Add(newProj);
+
+                    if (x == 0) {
+                        newProj.position = newProj.position - new Vector2(newProj.width, newProj.height) / 2;
+                        NetMessage.SendData(27, -1, -1, null, e.Identity);
+                    }
                 }
             }
 

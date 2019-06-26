@@ -27,7 +27,7 @@ namespace PvPModifier.Network.Events {
                     SSCUtils.FillInventoryToIndex(e.Player, Constants.EmptyItem, Constants.JunkItem, e.SlotId);
                     SSCUtils.SetItem(e.Player, e.SlotId, Constants.EmptyItem);
                     e.Player.GetInvTracker().AddItem(PvPUtils.GetCustomWeapon(e.Player, e.NetID, e.Prefix, e.Stack));
-                    e.Player.GetInvTracker().DropModifiedItems();
+                    e.Player.GetInvTracker().StartDroppingItems();
                 }
             }
         }
@@ -52,7 +52,7 @@ namespace PvPModifier.Network.Events {
 
             // If the player's inventory being updated is currently empty, check the incoming drop in the InventoryTracker
             if (e.Player.TPlayer.inventory[e.SlotId].netID == Constants.EmptyItem)
-                e.Player.GetInvTracker().CheckFinishedModifications(e.NetID);
+                _ = e.Player.GetInvTracker().CheckFinishedModificationsAsync(e.NetID);
         }
     }
 }

@@ -66,14 +66,14 @@ namespace PvPModifier.Utilities {
 
                 // Waits until it is safe to drop items to the player
                 // The player cannot use an item and receive items in the same frame
-                await player.WaitUntilModdedItemsRemoved();
-                await player.WaitUntilReleaseItem();
-                await Task.Delay((int)(Constants.SecondPerFrame * 5));
-                await player.WaitUntilPingReceived();
+                //await player.WaitUntilModdedItemsRemoved();
+                //await player.WaitUntilReleaseItem();
+                //await player.WaitUntilPingReceived();
+                //await Task.Delay(400);
 
-                player.GetInvTracker().DropModifiedItems();
+                player.GetInvTracker().StartDroppingItems();
             } else {
-                player.GetInvTracker().CheckFinishedModifications(0);
+                _ = player.GetInvTracker().CheckFinishedModificationsAsync(0);
             }
         }
 

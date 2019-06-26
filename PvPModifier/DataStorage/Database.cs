@@ -246,10 +246,10 @@ namespace PvPModifier.DataStorage {
 
                     return "INSERT INTO {0} ({1}) VALUES ({2})"
                         .SFormat(DbTables.ProjectileTable,
-                            string.Join(", ", DbConsts.ID, DbConsts.Shoot, DbConsts.VelocityMultiplier, 
+                            string.Join(", ", DbConsts.ID, DbConsts.Shoot, 
                                               DbConsts.Damage, DbConsts.InflictBuffID, DbConsts.InflictBuffDuration, 
                                               DbConsts.ReceiveBuffID, DbConsts.ReceiveBuffDuration),
-                            string.Join(", ", id, id, 1, 
+                            string.Join(", ", id, id, 
                                               -1, inflictBuff.BuffId, inflictBuff.BuffDuration, 
                                               receiveBuff.BuffId, receiveBuff.BuffDuration));
 

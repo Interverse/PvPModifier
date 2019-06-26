@@ -10,6 +10,7 @@ using Terraria.Localization;
 using TShockAPI;
 using PvPModifier.Utilities.PvPConstants;
 using System.Threading.Tasks;
+using System.Timers;
 
 namespace PvPModifier.Utilities.Extensions {
     /// <summary>
@@ -359,6 +360,9 @@ namespace PvPModifier.Utilities.Extensions {
         private readonly TSPlayer _player;
         private readonly List<CustomWeapon> _inv = new List<CustomWeapon>();
 
+        private readonly Timer _timer;
+        private int _retryCounter;
+
         public bool LockModifications;
         public bool OnPvPInventoryChecked;
         public bool StartForcePvPInventoryCheck;
@@ -366,6 +370,8 @@ namespace PvPModifier.Utilities.Extensions {
 
         public InventoryTracker(TSPlayer player) {
             _player = player;
+            _timer = new Timer(Constants.RetryInventoryTime);
+            _timer.Elapsed += DropModifiedItems;
         }
 
         public void AddItem(CustomWeapon wep) {
@@ -374,13 +380,24 @@ namespace PvPModifier.Utilities.Extensions {
             _inv.Add(wep);
         }
 
-        public void DropModifiedItems() {
+        public void StartDroppingItems() {
+            DropModifiedItems();
+            _timer.Enabled = true;
+        }
+
+        private void DropModifiedItems(object sender = null, ElapsedEventArgs e = null) {
             foreach (var wep in _inv)
                 CustomWeaponDropper.DropItem(_player, wep);
+
+            _retryCounter++;
+            if (_retryCounter >= 10) {
+                Clear();
+                _ = CheckFinishedModificationsAsync(0);
+            }
         }
 
         public bool CheckItem(short id) {
-            _inv.Remove(new CustomWeapon {ItemNetId = id});
+            _inv.Remove(new CustomWeapon { ItemNetId = id });
 
             if (_inv.Count == 0 && LockModifications) {
                 LockModifications = false;
@@ -389,8 +406,9 @@ namespace PvPModifier.Utilities.Extensions {
             return !LockModifications;
         }
 
-        public bool CheckFinishedModifications(short id) {
+        public async Task<bool> CheckFinishedModificationsAsync(short id) {
             if (CheckItem(id) || _player == null) {
+                await _player.WaitUntilPingReceived();
                 SSCUtils.FillInventory(_player, Constants.JunkItem, Constants.EmptyItem);
                 LockModifications = false;
                 OnPvPInventoryChecked = true;
@@ -403,6 +421,8 @@ namespace PvPModifier.Utilities.Extensions {
 
         public void Clear() {
             _inv.Clear();
+            _timer.Enabled = false;
+            _retryCounter = 0;
         }
     }
 }

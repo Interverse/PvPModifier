@@ -323,7 +323,7 @@ namespace PvPModifier {
                                 SSCUtils.SetItem(pvper, (byte)itemindex, 0);
                                 pvper.GetInvTracker().AddItem(PvPUtils.GetCustomWeapon(pvper, id, item.prefix, (short)item.stack));
                             }
-                            pvper.GetInvTracker().DropModifiedItems();
+                            pvper.GetInvTracker().StartDroppingItems();
                         }
                     }
 
