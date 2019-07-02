@@ -98,7 +98,15 @@ namespace PvPModifier.Network.Events {
                 e.HitDirection = 0;
             }
 
-            e.Target.DamagePlayer(PvPUtils.GetPvPDeathMessage(e.PlayerHitReason.GetDeathText(e.Target.Name).ToString(), e.Weapon, e.Projectile),
+            if (PvPModifier.Config.LoseVortexOnHit && e.Target.TPlayer.vortexStealthActive) {
+                new SSCAction(e.Target, () => {
+                    e.Target.TPlayer.setVortex = false;
+                    e.Target.TPlayer.vortexStealthActive = false;
+                    NetMessage.SendData((int)PacketTypes.PlayerUpdate, -1, -1, null, e.Target.Index, 0, 8);
+                });
+            }
+
+            e.Target.DamagePlayer(e.Attacker, PvPUtils.GetPvPDeathMessage(e.PlayerHitReason.GetDeathText(e.Target.Name).ToString(), e.Weapon, e.Projectile),
                 e.Weapon, e.InflictedDamage, e.HitDirection, (e.Flag & 1) == 1);
 
             e.Attacker.ApplyPvPEffects(e.Target, e.Weapon, e.Projectile, e.InflictedDamage);

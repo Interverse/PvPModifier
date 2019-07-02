@@ -8,33 +8,33 @@ namespace PvPModifier.DataStorage {
         private RandomPool<int> _projectilePool = null;
         private RandomPool<int> _activeProjectilePool = null;
 
-        public int Damage { get; set; }
-        public float Knockback { get; set; }
-        public int UseAnimation { get; set; }
-        public int UseTime { get; set; }
-        public int Shoot { get; set; }
-        public float ShootSpeed { get; set; }
-        public float VelocityMultiplier { get; set; }
-        public int AmmoIdentifier { get; set; }
-        public int UseAmmoIdentifier { get; set; }
-        public int NotAmmo { get; set; }
-        public int InflictBuffID { get; set; }
-        public int InflictBuffDuration { get; set; }
-        public int ReceiveBuffID { get; set; }
-        public int ReceiveBuffDuration { get; set; }
-        public float HomingRadius { get; set; }
-        public float AngularVelocity { get; set; }
-        public float Mirror { get; set; }
-        public float Spread { get; set; }
-        public int RandomSpread { get; set; }
-        public int NumShots { get; set; }
-        public string ProjectilePool { get; set; }
-        public int ActiveProjectileAI { get; set; }
-        public string ActiveProjectilePool { get; set; }
-        public float ActiveRange { get; set; }
-        public int ActiveFireRate { get; set; }
-        public float ActiveShootSpeed { get; set; }
-        public float ActiveSpread { get; set; }
+        public int Damage;
+        public float Knockback;
+        public int UseAnimation;
+        public int UseTime;
+        public int Shoot;
+        public float ShootSpeed;
+        public float VelocityMultiplier;
+        public int AmmoIdentifier;
+        public int UseAmmoIdentifier;
+        public int NotAmmo;
+        public int InflictBuffID;
+        public int InflictBuffDuration;
+        public int ReceiveBuffID;
+        public int ReceiveBuffDuration;
+        public float HomingRadius;
+        public float AngularVelocity;
+        public float Mirror;
+        public float Spread;
+        public int RandomSpread;
+        public int NumShots;
+        public string ProjectilePool;
+        public int ActiveProjectileAI;
+        public string ActiveProjectilePool;
+        public float ActiveRange;
+        public int ActiveFireRate;
+        public float ActiveShootSpeed;
+        public float ActiveSpread;
 
         public BuffInfo InflictBuff => new BuffInfo(InflictBuffID, InflictBuffDuration);
         public BuffInfo ReceiveBuff => new BuffInfo(ReceiveBuffID, ReceiveBuffDuration);

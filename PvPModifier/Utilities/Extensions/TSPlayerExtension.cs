@@ -105,9 +105,10 @@ namespace PvPModifier.Utilities.Extensions {
         /// <summary>
         /// Damages players. Criticals and custom knockback will apply if enabled.
         /// </summary>
-        public static void DamagePlayer(this TSPlayer player, string deathmessage, Item weapon, int damage, int hitDirection, bool isCrit) {
-            NetMessage.SendPlayerHurt(player.Index, PlayerDeathReason.ByCustomReason(deathmessage),
-                damage, hitDirection, false, true, 5);
+        public static void DamagePlayer(this TSPlayer player, TSPlayer attacker, string deathmessage, Item weapon, int damage, int hitDirection, bool isCrit) {
+            var playerDeathReason = PlayerDeathReason.ByCustomReason(deathmessage);
+            playerDeathReason.SourcePlayerIndex = attacker.Index;
+            NetMessage.SendPlayerHurt(player.Index, playerDeathReason, damage, hitDirection, false, true, 5);
         }
 
         /// <summary>

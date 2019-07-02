@@ -7,29 +7,31 @@ namespace PvPModifier {
         public static string ConfigPath = Path.Combine(TShock.SavePath, "pvpmodifier.json");
         public static string LogPath = Path.Combine(TShock.SavePath, "pvplog.txt");
 
-        public bool EnablePlugin { get; set; }
+        public bool EnablePlugin;
 
-        public double IframeTime { get; set; }
-        public bool EnableKnockback { get; set; }
-        public bool ForceCustomKnockback { get; set; }
+        public double IframeTime;
+        public bool EnableKnockback;
+        public bool ForceCustomKnockback;
 
-        public bool EnableHoming { get; set; }
+        public bool EnableHoming;
         
-        public bool EnableSpectreMask { get; set; }
+        public bool EnableSpectreMask;
 
-        public bool EnableTurtle { get; set; }
-        public double TurtleMultiplier { get; set; }
-        public bool EnableThorns { get; set; }
-        public double ThornMultiplier { get; set; }
+        public bool EnableTurtle;
+        public double TurtleMultiplier;
+        public bool EnableThorns;
+        public double ThornMultiplier;
 
-        public bool EnableNebula { get; set; }
+        public bool EnableNebula;
 
-        public bool EnableFrost { get; set; }
-        public double FrostDuration { get; set; }
-        
-        public bool EnableBuffs { get; set; }
+        public bool EnableFrost;
+        public double FrostDuration;
 
-        public bool FirstConfigGeneration { get; set; } = true;
+        public bool LoseVortexOnHit;
+
+        public bool EnableBuffs;
+
+        public bool FirstConfigGeneration = true;
 
         /// <summary>
         /// Writes the current internal server config to the external .json file
@@ -72,6 +74,8 @@ namespace PvPModifier {
 
                 EnableFrost = true;
                 FrostDuration = 3.0;
+
+                LoseVortexOnHit = false;
 
                 EnableBuffs = true;
 

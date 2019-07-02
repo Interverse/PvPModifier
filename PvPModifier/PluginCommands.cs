@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Microsoft.Xna.Framework;
 using PvPModifier.DataStorage;
 using PvPModifier.Utilities;
@@ -203,6 +204,7 @@ namespace PvPModifier {
         /// Example: /modpvp item daybreak usetime 40 shootspeed 10
         /// </summary>
         private static void ModPvP(CommandArgs args) {
+            StringBuilder sb = new StringBuilder();
             var player = args.Player;
             var input = args.Parameters;
             int id = -1;
@@ -272,7 +274,7 @@ namespace PvPModifier {
             }
 
             // Gives an error if the user has not put in any attributes to modify
-            if (input.Count < 4) {
+            if (input.Count < (4 - (section == StringConsts.Config).ToInt())) {
                 player.SendErrorMessage(InvalidSyntax + "Please enter value(s) for the attribute(s).");
                 return;
             }
@@ -298,11 +300,13 @@ namespace PvPModifier {
                 case DbTables.BuffTable:
                     // Displays the object being modified
                     player.SendMessage($"Modifying {MiscUtils.GetNameFromInput(section, id)} ({id})", Color.Green);
+                    sb.AppendLine($"Modifying {MiscUtils.GetNameFromInput(section, id)} ({id})");
 
                     // For each pair, set the attribute to the value
                     foreach (var pair in pairedInputs) {
                         if (dbObject.TrySetValue(pair[0], pair[1])) {
                             player.SendMessage($"Set {pair[0]} to {pair[1]}", Color.YellowGreen);
+                            sb.AppendLine($"Set {pair[0]} to {pair[1]}");
                         } else {
                             player.SendErrorMessage(InvalidValue(pair[0], section));
                         }
@@ -325,6 +329,10 @@ namespace PvPModifier {
                             }
                             pvper.GetInvTracker().StartDroppingItems();
                         }
+                    }
+
+                    if (sb.Length > 0) {
+                        PvPModifier.Config.LogChange($"({DateTime.Now}: {player.Name}) {sb.ToString()}");
                     }
 
                     break;

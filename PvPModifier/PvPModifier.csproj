@@ -55,6 +55,9 @@
     <Reference Include="TShockAPI">
       <HintPath>references\TShockAPI.dll</HintPath>
     </Reference>
+    <Reference Include="Wolfje.Plugins.SEconomy">
+      <HintPath>references\Wolfje.Plugins.SEconomy.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config.cs" />
@@ -69,6 +72,7 @@
     <Compile Include="Network\Events\NetworkEvents.cs" />
     <Compile Include="Network\Events\PlayerEvents.cs" />
     <Compile Include="Network\Events\ProjectileEvents.cs" />
+    <Compile Include="Network\Events\SEconomyEvents.cs" />
     <Compile Include="Network\Packets\ItemOwnerArgs.cs" />
     <Compile Include="Network\Packets\PlayerDeathArgs.cs" />
     <Compile Include="Network\Packets\PlayerHurtArgs.cs" />

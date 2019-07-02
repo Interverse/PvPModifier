@@ -52,7 +52,7 @@ namespace PvPModifier.Network.Events {
                 e.Args.Handled = true;
                 DbProjectile proj = Cache.Projectiles[e.Type];
 
-                projectile.SetDefaults(proj.Shoot != -1 ? proj.Shoot : e.Type);
+                projectile.SetDefaults(proj.Shoot != e.Type ? proj.Shoot : e.Type);
                 projectile.damage = proj.Damage != -1 ? proj.Damage : e.Damage;
 
                 NetMessage.SendData(27, -1, -1, null, e.Identity);
@@ -194,6 +194,7 @@ namespace PvPModifier.Network.Events {
             float spread = dbItem.ActiveSpread;
             Item item = new Item();
             item.SetDefaults(projectile.GetItemOriginated().type);
+            float rangeInBlocks = dbItem.ActiveRange * Constants.PixelToWorld;
 
             float shootSpeed = dbItem.ActiveShootSpeed.Replace(-1, item.shootSpeed);
             Vector2 velocity;
@@ -204,7 +205,7 @@ namespace PvPModifier.Network.Events {
                 switch ((ActiveAIType)dbItem.ActiveProjectileAI) {
                     case ActiveAIType.Minion:
                         spread = spread.Replace(-1, 0);
-                        TSPlayer target = PvPUtils.FindClosestPlayer(projectile.position, projectile.owner, dbItem.ActiveRange * Constants.PixelToWorld);
+                        TSPlayer target = PvPUtils.FindClosestPlayer(projectile.position, projectile.owner, rangeInBlocks);
                         if (target == null) break;
 
                         velocity = (target.TPlayer.Center - projectile.Center).Normalized().RotateRandom(-spread / 2, spread / 2) * shootSpeed;
@@ -222,11 +223,15 @@ namespace PvPModifier.Network.Events {
                         break;
 
                     case ActiveAIType.RandomScatter:
+                        if (dbItem.ActiveRange != -1 && PvPUtils.FindClosestPlayer(projectile.position, projectile.owner, rangeInBlocks) == null)
+                            return;
+
                         spread = spread.Replace(-1, 180);
                         velocity = projectile.velocity;
                         if (velocity.Length() == 0) {
                             velocity = Vector2.One;
                         }
+
                         velocity = velocity.RotateRandom(-spread, spread).Normalized() * shootSpeed;
                         ProjectileUtils.SpawnProjectile(projectile.GetOwner(),
                             projectile.Center,
@@ -242,6 +247,9 @@ namespace PvPModifier.Network.Events {
                         break;
 
                     case ActiveAIType.V_Split:
+                        if (dbItem.ActiveRange != -1 && PvPUtils.FindClosestPlayer(projectile.position, projectile.owner, rangeInBlocks) == null)
+                            return;
+
                         spread = spread.Replace(-1, 30);
                         for (float degrees = -spread / 2; degrees <= spread / 2; degrees += spread) {
                             ProjectileUtils.SpawnProjectile(projectile.GetOwner(),

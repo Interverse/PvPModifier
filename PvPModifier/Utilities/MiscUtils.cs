@@ -98,9 +98,9 @@ namespace PvPModifier.Utilities {
         /// </summary>
         public static bool SetValueWithString(object obj, string propertyName, string val) {
             try {
-                var property = obj.GetType().GetProperty(propertyName);
-                if (property == null) return false;
-                property.SetValue(obj, Convert.ChangeType(val, property.GetValue(obj).GetType()));
+                var field = obj.GetType().GetField(propertyName);
+                if (field == null) return false;
+                field.SetValue(obj, Convert.ChangeType(val, field.GetValue(obj).GetType()));
                 return true;
             } catch {
                 return false;
