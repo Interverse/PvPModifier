@@ -290,47 +290,6 @@ namespace PvPModifier.Utilities.Extensions {
 
             return true;
         }
-
-        /// <summary>
-        /// Sends a test packet and waits until the player sends a response.
-        /// Test packet sent: RemoveItemOwner
-        /// Receiving packet: ItemOwner
-        /// The code to that handles receiving ItemOwner is in <see cref="NetworkEvents"/>
-        /// </summary>
-        public static async Task WaitUntilPingReceived(this TSPlayer player) {
-            player.SendData(PacketTypes.RemoveItemOwner);
-            player.SetPingCheck(false);
-            while (player.ConnectionAlive && !player.GetPingCheck()) {
-                await Task.Delay((int)Constants.SecondPerFrame);
-            }
-        }
-
-        /// <summary>
-        /// Loops every frame until the player releases their left click button.
-        /// </summary>
-        public static async Task WaitUntilReleaseItem(this TSPlayer player) {
-            while (player.ConnectionAlive && !player.TPlayer.releaseUseItem) {
-                await Task.Delay((int)Constants.SecondPerFrame);
-            }
-        }
-
-        /// <summary>
-        /// Checks every frame whether the player has removed all their items that are modified within <see cref="Cache"/>
-        /// </summary>
-        public static async Task WaitUntilModdedItemsRemoved(this TSPlayer player) {
-            while (player.ConnectionAlive && PvPUtils.ContainsModifiedItem(player)) {
-                await Task.Delay((int)Constants.SecondPerFrame);
-            }
-        }
-
-        /// <summary>
-        /// Checks every frame whether the player has gotten their item changed in their client
-        /// </summary>
-        public static async Task WaitUntilItemChange(this TSPlayer player, int slotID, int itemID) {
-            while (player.ConnectionAlive && player.TPlayer.inventory[slotID].netID != itemID) {
-                await Task.Delay((int)Constants.SecondPerFrame);
-            }
-        }
     }
 
     /// <summary>
@@ -393,7 +352,7 @@ namespace PvPModifier.Utilities.Extensions {
             _retryCounter++;
             if (_retryCounter >= 10) {
                 Clear();
-                _ = CheckFinishedModificationsAsync(0);
+                CheckFinishedModifications(0);
             }
         }
 
@@ -407,9 +366,8 @@ namespace PvPModifier.Utilities.Extensions {
             return !LockModifications;
         }
 
-        public async Task<bool> CheckFinishedModificationsAsync(short id) {
+        public bool CheckFinishedModifications(short id) {
             if (CheckItem(id) || _player == null) {
-                await _player.WaitUntilPingReceived();
                 SSCUtils.FillInventory(_player, Constants.JunkItem, Constants.EmptyItem);
                 LockModifications = false;
                 OnPvPInventoryChecked = true;

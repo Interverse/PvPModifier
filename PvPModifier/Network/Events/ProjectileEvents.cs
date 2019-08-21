@@ -150,12 +150,13 @@ namespace PvPModifier.Network.Events {
             if (!projectile.HasInitializedExtraAISlots()) return;
             if (projectile.GetOwner() == null) return;
 
+            projectile.netUpdate = true;
             float homingRadius = Cache.Items[projectile.GetItemOriginated().type].HomingRadius;
             if (homingRadius < 0) return;
 
             float angularVelocity = Cache.Items[projectile.GetItemOriginated().type].AngularVelocity;
 
-            TSPlayer target = PvPUtils.FindClosestPlayer(projectile.position, projectile.owner, homingRadius * Constants.PixelToWorld);
+            TSPlayer target = PvPUtils.FindClosestPlayer(projectile.position, projectile.owner, homingRadius * Constants.PixelToWorld, projectile.GetOwner().TPlayer.team);
 
             // If there is a target in site, rotate the projectile towards the target.
             if (target != null) {
@@ -189,6 +190,7 @@ namespace PvPModifier.Network.Events {
             if (!projectile.HasInitializedExtraAISlots()) return;
             if (projectile.GetOwner() == null) return;
 
+            TSPlayer owner = projectile.GetOwner();
             DbItem dbItem = Cache.Items[projectile.GetItemOriginated().type];
             RandomPool<int> projectilePool = dbItem.ActiveProjectilePoolList;
             float spread = dbItem.ActiveSpread;
@@ -205,7 +207,7 @@ namespace PvPModifier.Network.Events {
                 switch ((ActiveAIType)dbItem.ActiveProjectileAI) {
                     case ActiveAIType.Minion:
                         spread = spread.Replace(-1, 0);
-                        TSPlayer target = PvPUtils.FindClosestPlayer(projectile.position, projectile.owner, rangeInBlocks);
+                        TSPlayer target = PvPUtils.FindClosestPlayer(projectile.position, projectile.owner, rangeInBlocks, owner.TPlayer.team);
                         if (target == null) break;
 
                         velocity = (target.TPlayer.Center - projectile.Center).Normalized().RotateRandom(-spread / 2, spread / 2) * shootSpeed;
@@ -223,7 +225,7 @@ namespace PvPModifier.Network.Events {
                         break;
 
                     case ActiveAIType.RandomScatter:
-                        if (dbItem.ActiveRange != -1 && PvPUtils.FindClosestPlayer(projectile.position, projectile.owner, rangeInBlocks) == null)
+                        if (dbItem.ActiveRange != -1 && PvPUtils.FindClosestPlayer(projectile.position, projectile.owner, rangeInBlocks, owner.TPlayer.team) == null)
                             return;
 
                         spread = spread.Replace(-1, 180);
@@ -247,7 +249,7 @@ namespace PvPModifier.Network.Events {
                         break;
 
                     case ActiveAIType.V_Split:
-                        if (dbItem.ActiveRange != -1 && PvPUtils.FindClosestPlayer(projectile.position, projectile.owner, rangeInBlocks) == null)
+                        if (dbItem.ActiveRange != -1 && PvPUtils.FindClosestPlayer(projectile.position, projectile.owner, rangeInBlocks, owner.TPlayer.team) == null)
                             return;
 
                         spread = spread.Replace(-1, 30);

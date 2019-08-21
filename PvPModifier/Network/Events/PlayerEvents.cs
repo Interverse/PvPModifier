@@ -18,7 +18,7 @@ namespace PvPModifier.Network.Events {
 
             if (e.Hostile) {
                 e.Player.GetInvTracker().StartForcePvPInventoryCheck = true;
-                _ = PvPUtils.SendCustomItemsAsync(e.Player);
+                PvPUtils.SendCustomItems(e.Player);
             }
 
             if (!e.Hostile) {
@@ -39,7 +39,7 @@ namespace PvPModifier.Network.Events {
             //The plugin will detect it here and send the modified items.
             if (e.Player.TPlayer.hostile && !e.Player.GetInvTracker().StartForcePvPInventoryCheck) {
                 e.Player.GetInvTracker().StartForcePvPInventoryCheck = true;
-                await PvPUtils.SendCustomItemsAsync(e.Player);
+                PvPUtils.SendCustomItems(e.Player);
             }
 
             if (!e.Player.TPlayer.hostile && e.Player.GetInvTracker().StartForcePvPInventoryCheck) {
@@ -56,10 +56,7 @@ namespace PvPModifier.Network.Events {
                     if (item.netID != 0 && PvPUtils.IsModifiedItem(item.netID) && e.Player.CanModInventory()) {
                         SSCUtils.SetItem(e.Player, 58, Constants.EmptyItem);
 
-                        await e.Player.WaitUntilItemChange(58, Constants.EmptyItem);
-                        await e.Player.WaitUntilReleaseItem();
                         await Task.Delay((int)(Constants.SecondPerFrame * 5));
-                        await e.Player.WaitUntilPingReceived();
 
                         CustomWeaponDropper.DropItem(e.Player, new CustomWeapon {
                             ItemNetId = (short)item.netID,
