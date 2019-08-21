@@ -39,41 +39,39 @@ namespace PvPModifier.Utilities {
         /// Removes every item that was modified serverside with the list of indexes.
         /// Starts to drop the modified items.
         /// </summary>
-        public static async Task SendCustomItemsAsync(TSPlayer player) {
+        public static void SendCustomItems(TSPlayer player) {
             RefreshInventory(player);
+            List<int> airIndex = new List<int>();
             List<int> itemIndex = new List<int>();
             InventoryIndexer indexer = new InventoryIndexer();
-            
+
             // Loops through every item in the order that drops appear in the player's inventory
             for (byte loop = 0; loop < indexer.MaxInventoryCycle; loop++) {
                 int index = indexer.NextIndex();
 
                 Item item = player.TPlayer.inventory[index];
-                
+
                 var custwep = GetCustomWeapon(player, item.type, item.prefix, (short)item.stack);
                 if (IsModifiedItem(custwep.ItemNetId)) {
                     indexer.StoreMaxIndex(index);
                     itemIndex.Add(index);
                     player.GetInvTracker().AddItem(custwep);
                 }
+
+                if (item.IsAir) {
+                    airIndex.Add(index);
+                }
             }
 
             if (itemIndex.Count != 0) {
-                // Fills the player's inventory with junk in order to preserve item position in a player's inventory.
-                SSCUtils.FillInventoryToIndex(player, Constants.EmptyItem, Constants.JunkItem, indexer.MaxIndex);
-                foreach (int num in itemIndex)
-                    SSCUtils.SetItem(player, (byte)num, Constants.EmptyItem);
+                SSCUtils.FillInventoryWithList(player, Constants.EmptyItem, itemIndex);
 
-                // Waits until it is safe to drop items to the player
-                // The player cannot use an item and receive items in the same frame
-                //await player.WaitUntilModdedItemsRemoved();
-                //await player.WaitUntilReleaseItem();
-                //await player.WaitUntilPingReceived();
-                //await Task.Delay(400);
+                // Fills the player's inventory with junk in order to preserve item position in a player's inventory.
+                SSCUtils.FillInventoryWithList(player, Constants.JunkItem, airIndex);
 
                 player.GetInvTracker().StartDroppingItems();
             } else {
-                _ = player.GetInvTracker().CheckFinishedModificationsAsync(0);
+                _ = player.GetInvTracker().CheckFinishedModifications(0);
             }
         }
 
@@ -199,7 +197,7 @@ namespace PvPModifier.Utilities {
         /// <param name="position">The position to find players from</param>
         /// <param name="selfIndex">The user to ignore</param>
         /// <param name="radius">The radius in which to find players (in pixels)</param>
-        public static TSPlayer FindClosestPlayer(Vector2 position, int selfIndex, float radius = -1) {
+        public static TSPlayer FindClosestPlayer(Vector2 position, int selfIndex, float radius = -1, int team = 0) {
             float closestPersonDistance = -1;
             TSPlayer target = null;
             foreach (var pvper in PvPUtils.ActivePlayers) {
@@ -208,7 +206,8 @@ namespace PvPModifier.Utilities {
                 var distance = Vector2.Distance(position, pvper.TPlayer.Center);
 
                 if (pvper.Index != selfIndex && (distance < closestPersonDistance || closestPersonDistance == -1) 
-                                             && (distance < radius || radius == -1)) {
+                                             && (distance < radius || radius == -1)
+                                             && (team == 0 || team != pvper.TPlayer.team)) {
                     closestPersonDistance = distance;
                     target = pvper;
                 }

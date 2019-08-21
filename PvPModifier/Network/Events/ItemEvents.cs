@@ -52,7 +52,7 @@ namespace PvPModifier.Network.Events {
 
             // If the player's inventory being updated is currently empty, check the incoming drop in the InventoryTracker
             if (e.Player.TPlayer.inventory[e.SlotId].netID == Constants.EmptyItem)
-                _ = e.Player.GetInvTracker().CheckFinishedModificationsAsync(e.NetID);
+                e.Player.GetInvTracker().CheckFinishedModifications(e.NetID);
         }
     }
 }

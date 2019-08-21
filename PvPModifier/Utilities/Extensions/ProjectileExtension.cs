@@ -100,7 +100,7 @@ namespace PvPModifier.Utilities.Extensions {
             switch (proj.type) {
                 //Medusa Ray projectile
                 case 536:
-                    var target = PvPUtils.FindClosestPlayer(owner.TPlayer.position, owner.Index, Constants.MedusaHeadRange);
+                    var target = PvPUtils.FindClosestPlayer(owner.TPlayer.position, owner.Index, Constants.MedusaHeadRange, owner.TPlayer.team);
 
                     if (target != null) {
                         if (Collision.CanHit(owner.TPlayer.position, owner.TPlayer.width, owner.TPlayer.height,

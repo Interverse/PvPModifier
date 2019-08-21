@@ -1,4 +1,6 @@
 ﻿using CustomWeaponAPI;
+using System.Collections;
+using System.Collections.Generic;
 using Terraria;
 using TShockAPI;
 
@@ -46,6 +48,23 @@ namespace PvPModifier.Utilities {
                         player.TPlayer.inventory[index].SetDefaults(replacementItemID);
                         NetMessage.SendData((int)PacketTypes.PlayerSlot, -1, -1, null, player.Index, index, 1, 0, replacementItemID);
                     }
+                }
+            });
+        }
+
+        /// <summary>
+        /// Replaces every instance of an item that matches the target item id with an item
+        /// that matches the replacement item id.
+        /// </summary>
+        /// <param name="player">The player to change inventory from.</param>
+        /// <param name="targetItemID">The numerical ID of the item to be replaced.</param>
+        /// <param name="replacementItemID">The numerical ID of the item to replace.</param>
+        public static void FillInventoryWithList(TSPlayer player, short replacementItemID, IEnumerable<int> list) {
+            new SSCAction(player, () => {
+                foreach (int index in list) {
+                    if (!player.ConnectionAlive) return;
+                    player.TPlayer.inventory[index].SetDefaults(replacementItemID);
+                    NetMessage.SendData((int)PacketTypes.PlayerSlot, -1, -1, null, player.Index, index, 1, 0, replacementItemID);
                 }
             });
         }

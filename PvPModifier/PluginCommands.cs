@@ -399,7 +399,7 @@ namespace PvPModifier {
             // Gives everyone the updated items
             foreach (var player in PvPUtils.ActivePlayers) {
                 if (player.TPlayer.hostile)
-                    _ = PvPUtils.SendCustomItemsAsync(player);
+                    PvPUtils.SendCustomItems(player);
             }
         }
     }
