@@ -127,8 +127,8 @@ namespace PvPModifier.Utilities {
                 ItemNetId = (short)wep.netID,
                 Prefix = prefix,
                 Stack = stack,
-                DropAreaWidth = short.MaxValue,
-                DropAreaHeight = short.MaxValue,
+                DropAreaWidth = 10000,
+                DropAreaHeight = 10000,
             };
             DbItem dbitem = Cache.Items[type];
 
