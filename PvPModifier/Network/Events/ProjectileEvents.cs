@@ -53,7 +53,15 @@ namespace PvPModifier.Network.Events {
                 DbProjectile proj = Cache.Projectiles[e.Type];
 
                 projectile.SetDefaults(proj.Shoot != -1 ? proj.Shoot : e.Type);
+                projectile.identity = e.Identity;
                 projectile.damage = proj.Damage != -1 ? proj.Damage : e.Damage;
+                projectile.knockBack = e.Knockback;
+                projectile.owner = e.Owner;
+                projectile.position = e.Position;
+                projectile.velocity = e.Velocity;
+                projectile.ai = e.Ai;
+                projectile.active = true;
+                projectile.SetCooldown(weapon.ActiveFireRate);
 
                 NetMessage.SendData(27, -1, -1, null, e.Identity);
             }
