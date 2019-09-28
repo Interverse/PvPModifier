@@ -39,7 +39,7 @@ namespace PvPModifier.Network {
                     return;
 
                 case PacketTypes.PlayerDeathV2:
-                    if (new PlayerDeathArgs().ExtractData(player, out var playerdeath))
+                    if (new PlayerDeathArgs().ExtractData(data, player, out var playerdeath))
                         PlayerDeath?.Invoke(typeof(DataHandler), playerdeath);
                     return;
 
