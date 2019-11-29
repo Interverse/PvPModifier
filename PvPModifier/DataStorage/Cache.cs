@@ -49,9 +49,9 @@ namespace PvPModifier.DataStorage {
         }
 
         public static void Clear() {
-            Items = new Dictionary<int, DbItem>();
-            Projectiles = new Dictionary<int, DbProjectile>();
-            Buffs = new Dictionary<int, DbBuff>();
+            Items.Clear();
+            Projectiles.Clear();
+            Buffs.Clear();
         }
 
         public static DbObject Load(string section, int id) {
