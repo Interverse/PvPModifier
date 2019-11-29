@@ -95,22 +95,25 @@ namespace PvPModifier.Network.Events {
                 e.HitDirection = 0;
             }
 
-            e.Target.DamagePlayer(PvPUtils.GetPvPDeathMessage(e.PlayerHitReason.GetDeathText(e.Target.Name).ToString(), e.Weapon, e.Projectile),
-                e.Weapon, e.InflictedDamage, e.HitDirection, (e.Flag & 1) == 1);
+            // If the player did not attack with a projectile that's disabled (Projectile's shoot is set to 0)
+            if (e.Projectile == null || ((DbProjectile)Cache.GetDbObject(DbTables.ProjectileTable, e.Projectile.identity)).Shoot != 0) {
+                e.Target.DamagePlayer(PvPUtils.GetPvPDeathMessage(e.PlayerHitReason.GetDeathText(e.Target.Name).ToString(), e.Weapon, e.Projectile),
+                    e.Weapon, e.InflictedDamage, e.HitDirection, (e.Flag & 1) == 1);
 
-            e.Attacker.ApplyPvPEffects(e.Target, e.Weapon, e.Projectile, e.InflictedDamage);
+                e.Attacker.ApplyPvPEffects(e.Target, e.Weapon, e.Projectile, e.InflictedDamage);
 
-            // Applies projectile buffs, item buffs, and buff buffs.
-            if (PvPModifier.Config.EnableBuffs) {
-                DbProjectile proj = (DbProjectile)Cache.GetDbObject(DbTables.ProjectileTable, e.PlayerHitReason.SourceProjectileType);
-                DbItem item = (DbItem)Cache.GetDbObject(DbTables.ItemTable, e.Attacker.TPlayer.HeldItem.netID);
+                // Applies projectile buffs, item buffs, and buff buffs.
+                if (PvPModifier.Config.EnableBuffs) {
+                    DbProjectile proj = (DbProjectile)Cache.GetDbObject(DbTables.ProjectileTable, e.PlayerHitReason.SourceProjectileType);
+                    DbItem item = (DbItem)Cache.GetDbObject(DbTables.ItemTable, e.Attacker.TPlayer.HeldItem.netID);
 
-                e.Target.SetBuff(proj.InflictBuff);
-                e.Attacker.SetBuff(proj.ReceiveBuff);
-                e.Target.SetBuff(item.InflictBuff);
-                e.Attacker.SetBuff(item.ReceiveBuff);
-                e.Target.ApplyBuffDebuffs(e.Attacker, e.Weapon);
-                e.Attacker.ApplyReceiveBuff();
+                    e.Target.SetBuff(proj.InflictBuff);
+                    e.Attacker.SetBuff(proj.ReceiveBuff);
+                    e.Target.SetBuff(item.InflictBuff);
+                    e.Attacker.SetBuff(item.ReceiveBuff);
+                    e.Target.ApplyBuffDebuffs(e.Attacker, e.Weapon);
+                    e.Attacker.ApplyReceiveBuff();
+                }
             }
         }
     }
