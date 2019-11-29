@@ -19,7 +19,6 @@ namespace PvPModifier.Network {
             DataHandler.SlotUpdate += ItemEvents.CheckIncomingItems;
             DataHandler.SlotUpdate += ItemEvents.CheckDrops;
             DataHandler.ItemOwner += NetworkEvents.ReceivePing;
-            DataHandler.PlayerDeath += SEconomyEvents.OnPlayerDeath;
 
             _plugin = plugin;
 
@@ -36,7 +35,6 @@ namespace PvPModifier.Network {
             DataHandler.SlotUpdate -= ItemEvents.CheckIncomingItems;
             DataHandler.SlotUpdate -= ItemEvents.CheckDrops;
             DataHandler.ItemOwner -= NetworkEvents.ReceivePing;
-            DataHandler.PlayerDeath -= SEconomyEvents.OnPlayerDeath;
 
             ServerApi.Hooks.ProjectileAIUpdate.Deregister(_plugin, ProjectileEvents.UpdateProjectileHoming);
             ServerApi.Hooks.ProjectileAIUpdate.Deregister(_plugin, ProjectileEvents.UpdateActiveProjectileAI);
