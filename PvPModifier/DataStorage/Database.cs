@@ -310,7 +310,7 @@ namespace PvPModifier.DataStorage {
                         case DbTables.ProjectileTable:
                             return new DbProjectile {
                                 ID = reader.Get<int>(DbConsts.ID),
-                                Shoot = reader.Get<int?>(DbConsts.Shoot) ?? reader.Get<int>(DbConsts.ID),
+                                Shoot = reader.Get<int?>(DbConsts.Shoot) ?? id,
                                 Damage = reader.Get<int?>(DbConsts.Damage) ?? -1,
                                 InflictBuffID = reader.Get<int?>(DbConsts.InflictBuffID) ?? 0,
                                 InflictBuffDuration = reader.Get<int?>(DbConsts.InflictBuffDuration) ?? 0,

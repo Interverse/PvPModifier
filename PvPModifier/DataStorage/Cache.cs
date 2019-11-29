@@ -29,14 +29,20 @@ namespace PvPModifier.DataStorage {
                     break;
                 case DbTables.ProjectileTable:
                     if (id >= 0 && id <= Terraria.Main.maxProjectileTypes) {
-                        Projectiles[id] = (DbProjectile)Database.GetObject(section, id);
+                        if (!Projectiles.ContainsKey(id)) {
+                            Projectiles[id] = (DbProjectile)Database.GetObject(section, id);
+                        }
+                        return Projectiles[id];
                     }
-                    return Projectiles[id];
+                    break;
                 case DbTables.BuffTable:
                     if (id >= 0 && id <= Terraria.Main.maxBuffTypes) {
-                        Buffs[id] = (DbBuff)Database.GetObject(section, id);
+                        if (!Buffs.ContainsKey(id)) {
+                            Buffs[id] = (DbBuff)Database.GetObject(section, id);
+                        }
+                        return Buffs[id];
                     }
-                    return Buffs[id];
+                    break;
             }
 
             return null;
