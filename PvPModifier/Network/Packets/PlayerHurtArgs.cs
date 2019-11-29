@@ -9,20 +9,20 @@ using TShockAPI;
 
 namespace PvPModifier.Network.Packets {
     public class PlayerHurtArgs : EventArgs {
-        public GetDataEventArgs Args { get; set; }
+        public GetDataEventArgs Args;
 
-        public TSPlayer Attacker { get; set; }
-        public TSPlayer Target { get; set; }
+        public TSPlayer Attacker;
+        public TSPlayer Target;
 
-        public Item Weapon { get; set; }
-        public Projectile Projectile { get; set; }
+        public Item Weapon;
+        public Projectile Projectile;
 
-        public PlayerDeathReason PlayerHitReason { get; set; }
+        public PlayerDeathReason PlayerHitReason;
 
-        public int InflictedDamage { get; set; }
-        public int DamageReceived { get; set; }
-        public int HitDirection { get; set; }
-        public int Flag { get; set; }
+        public int InflictedDamage;
+        public int DamageReceived;
+        public int HitDirection;
+        public int Flag;
 
         public bool ExtractData(GetDataEventArgs args, MemoryStream data, TSPlayer attacker, out PlayerHurtArgs arg) {
             arg = null;

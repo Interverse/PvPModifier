@@ -322,6 +322,11 @@
                     attribute = ConfigConsts.IframeTime;
                     return true;
 
+                case "losevortexonhit":
+                case "lvoh":
+                    attribute = ConfigConsts.LoseVortexOnHit;
+                    return true;
+
                 default:
                     attribute = input;
                     return false;

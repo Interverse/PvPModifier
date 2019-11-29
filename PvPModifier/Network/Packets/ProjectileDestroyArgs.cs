@@ -4,8 +4,8 @@ using System.IO.Streams;
 
 namespace PvPModifier.Network.Packets {
     public class ProjectileDestroyArgs : EventArgs {
-        public int ProjectileIndex { get; set; }
-        public int Owner { get; set; }
+        public int ProjectileIndex;
+        public int Owner;
 
         public bool ExtractData(MemoryStream data, out ProjectileDestroyArgs arg) {
             arg = new ProjectileDestroyArgs {

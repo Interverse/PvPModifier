@@ -26,6 +26,8 @@
         public const string EnableFrost = "EnableFrost";
         public const string FrostDuration = "FrostDuration";
 
+        public const string LoseVortexOnHit = "LoseVortexOnHit";
+
         public const string EnableBuffs = "EnableBuffs";
     }
 }

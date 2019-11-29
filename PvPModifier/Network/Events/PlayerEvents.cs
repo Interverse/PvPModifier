@@ -97,7 +97,7 @@ namespace PvPModifier.Network.Events {
 
             // If the player did not attack with a projectile that's disabled (Projectile's shoot is set to 0)
             if (e.Projectile == null || ((DbProjectile)Cache.GetDbObject(DbTables.ProjectileTable, e.Projectile.identity)).Shoot != 0) {
-                e.Target.DamagePlayer(PvPUtils.GetPvPDeathMessage(e.PlayerHitReason.GetDeathText(e.Target.Name).ToString(), e.Weapon, e.Projectile),
+                e.Target.DamagePlayer(e.Attacker, PvPUtils.GetPvPDeathMessage(e.PlayerHitReason.GetDeathText(e.Target.Name).ToString(), e.Weapon, e.Projectile),
                     e.Weapon, e.InflictedDamage, e.HitDirection, (e.Flag & 1) == 1);
 
                 e.Attacker.ApplyPvPEffects(e.Target, e.Weapon, e.Projectile, e.InflictedDamage);
@@ -113,6 +113,14 @@ namespace PvPModifier.Network.Events {
                     e.Attacker.SetBuff(item.ReceiveBuff);
                     e.Target.ApplyBuffDebuffs(e.Attacker, e.Weapon);
                     e.Attacker.ApplyReceiveBuff();
+                }
+
+                if (PvPModifier.Config.LoseVortexOnHit && e.Target.TPlayer.vortexStealthActive) {
+                    new SSCAction(e.Target, () => {
+                        e.Target.TPlayer.setVortex = false;
+                        e.Target.TPlayer.vortexStealthActive = false;
+                        NetMessage.SendData((int)PacketTypes.PlayerUpdate, -1, -1, null, e.Target.Index, 0, 8);
+                    });
                 }
             }
         }

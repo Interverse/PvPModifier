@@ -34,7 +34,7 @@ namespace PvPModifier.Utilities.Extensions {
         }
 
         public static bool CooldownFinished(this Projectile proj) {
-            return proj.ai[(int)AI.Cooldown] == 0;
+            return proj.ai[(int)AI.Cooldown] <= 0;
         }
 
         public static bool HasInitializedExtraAISlots(this Projectile proj) {
@@ -107,7 +107,7 @@ namespace PvPModifier.Utilities.Extensions {
                             target.TPlayer.position, target.TPlayer.width, target.TPlayer.height)) {
                             if (target.CheckMedusa()) {
                                 string deathmessage = target.Name + " was petrified by " + target.Name + "'s Medusa Head.";
-                                target.DamagePlayer(PvPUtils.GetPvPDeathMessage(deathmessage, ItemOriginated),
+                                target.DamagePlayer(owner, PvPUtils.GetPvPDeathMessage(deathmessage, ItemOriginated),
                                     ItemOriginated, ItemOriginated.GetConfigDamage(), 0, false);
                                 target.SetBuff(((DbProjectile)Cache.GetDbObject(DbTables.ProjectileTable, 535)).InflictBuff);
                             }

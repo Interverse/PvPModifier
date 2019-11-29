@@ -204,10 +204,10 @@ namespace PvPModifier.Network.Events {
             float spread = dbItem.ActiveSpread;
             Item item = new Item();
             item.SetDefaults(projectile.GetItemOriginated().type);
+            float rangeInBlocks = dbItem.ActiveRange * Constants.PixelToWorld;
 
             float shootSpeed = dbItem.ActiveShootSpeed.Replace(-1, item.shootSpeed);
             Vector2 velocity;
-            float rangeInBlocks = dbItem.ActiveRange * 16;
 
             projectile.DecreaseCooldown();
 
@@ -241,6 +241,7 @@ namespace PvPModifier.Network.Events {
                         if (velocity.Length() == 0) {
                             velocity = Vector2.One;
                         }
+
                         velocity = velocity.RotateRandom(-spread, spread).Normalized() * shootSpeed;
                         ProjectileUtils.SpawnProjectile(projectile.GetOwner(),
                             projectile.Center,
@@ -258,6 +259,7 @@ namespace PvPModifier.Network.Events {
                     case ActiveAIType.V_Split:
                         if (dbItem.ActiveRange != -1 && PvPUtils.FindClosestPlayer(projectile.position, projectile.owner, rangeInBlocks, owner.TPlayer.team) == null)
                             return;
+
                         spread = spread.Replace(-1, 30);
                         for (float degrees = -spread / 2; degrees <= spread / 2; degrees += spread) {
                             ProjectileUtils.SpawnProjectile(projectile.GetOwner(),
