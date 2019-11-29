@@ -102,10 +102,13 @@ namespace PvPModifier.Network.Events {
 
             // Applies projectile buffs, item buffs, and buff buffs.
             if (PvPModifier.Config.EnableBuffs) {
-                e.Target.SetBuff(Cache.Projectiles[e.PlayerHitReason.SourceProjectileType].InflictBuff);
-                e.Attacker.SetBuff(Cache.Projectiles[e.PlayerHitReason.SourceProjectileType].ReceiveBuff);
-                e.Target.SetBuff(Cache.Items[e.Attacker.TPlayer.HeldItem.netID].InflictBuff);
-                e.Attacker.SetBuff(Cache.Items[e.Attacker.TPlayer.HeldItem.netID].ReceiveBuff);
+                DbProjectile proj = (DbProjectile)Cache.GetDbObject(DbTables.ProjectileTable, e.PlayerHitReason.SourceProjectileType);
+                DbItem item = (DbItem)Cache.GetDbObject(DbTables.ItemTable, e.Attacker.TPlayer.HeldItem.netID);
+
+                e.Target.SetBuff(proj.InflictBuff);
+                e.Attacker.SetBuff(proj.ReceiveBuff);
+                e.Target.SetBuff(item.InflictBuff);
+                e.Attacker.SetBuff(item.ReceiveBuff);
                 e.Target.ApplyBuffDebuffs(e.Attacker, e.Weapon);
                 e.Attacker.ApplyReceiveBuff();
             }

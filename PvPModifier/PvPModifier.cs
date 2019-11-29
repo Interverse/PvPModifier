@@ -73,7 +73,6 @@ namespace PvPModifier {
         /// <param name="e"></param>
         private void OnReload(ReloadEventArgs e) {
             Config = Config.Read(Config.ConfigPath);
-            Database.LoadDatabase();
             e.Player.SendSuccessMessage("PvPModifier reloaded.");
         }
 
@@ -93,7 +92,6 @@ namespace PvPModifier {
                 Database.InitDefaultTables();
             }
             Config.Write(Config.ConfigPath);
-            Database.LoadDatabase();
         }
 
         /// <summary>

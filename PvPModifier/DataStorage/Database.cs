@@ -271,70 +271,65 @@ namespace PvPModifier.DataStorage {
             }
         }
 
-        public static void LoadDatabase() {
-            using (var reader = QueryReader($"SELECT * FROM {DbTables.ItemTable}")) {
+        public static DbObject GetObject(string table, int id) {
+            using (var reader = QueryReader($"SELECT * FROM {table} WHERE ID = {id}")) {
                 while (reader.Read()) {
-                    int id = reader.Get<int>(DbConsts.ID);
-                    Cache.Items[id] = new DbItem {
-                        ID = id,
-                        Damage = reader.Get<int?>(DbConsts.Damage) ?? -1,
-                        Knockback = reader.Get<float?>(DbConsts.Knockback) ?? 0,
-                        UseAnimation = reader.Get<int?>(DbConsts.UseAnimation) ?? -1,
-                        UseTime = reader.Get<int?>(DbConsts.UseTime) ?? -1,
-                        Shoot = reader.Get<int?>(DbConsts.Shoot) ?? -1,
-                        ShootSpeed = reader.Get<float?>(DbConsts.ShootSpeed) ?? -1,
-                        VelocityMultiplier = reader.Get<float?>(DbConsts.VelocityMultiplier) ?? 1,
-                        AmmoIdentifier = reader.Get<int?>(DbConsts.AmmoIdentifier) ?? -1,
-                        UseAmmoIdentifier = reader.Get<int?>(DbConsts.UseAmmoIdentifier) ?? -1,
-                        NotAmmo = reader.Get<int?>(DbConsts.NotAmmo) ?? 0,
-                        InflictBuffID = reader.Get<int?>(DbConsts.InflictBuffID) ?? 0,
-                        InflictBuffDuration = reader.Get<int?>(DbConsts.InflictBuffDuration) ?? 0,
-                        ReceiveBuffID = reader.Get<int?>(DbConsts.ReceiveBuffDuration) ?? 0,
-                        ReceiveBuffDuration = reader.Get<int?>(DbConsts.ReceiveBuffDuration) ?? 0,
-                        HomingRadius = reader.Get<float?>(DbConsts.HomingRadius) ?? -1,
-                        AngularVelocity = reader.Get<float?>(DbConsts.AngularVelocity) ?? -1,
-                        Mirror = reader.Get<int?>(DbConsts.Mirror) ?? -1,
-                        Spread = reader.Get<float?>(DbConsts.Spread) ?? -1,
-                        RandomSpread = reader.Get<int?>(DbConsts.RandomSpread) ?? -1,
-                        NumShots = reader.Get<int?>(DbConsts.NumShots) ?? -1,
-                        ProjectilePool = reader.Get<string>(DbConsts.ProjectilePool) ?? "-1,1",
-                        ActiveProjectileAI = reader.Get<int?>(DbConsts.ActiveProjectileAI) ?? -1,
-                        ActiveProjectilePool = reader.Get<string>(DbConsts.ActiveProjectilePool) ?? "-1,1",
-                        ActiveRange = reader.Get<float?>(DbConsts.ActiveRange) ?? -1,
-                        ActiveFireRate = reader.Get<int?>(DbConsts.ActiveFireRate) ?? 0,
-                        ActiveShootSpeed = reader.Get<float?>(DbConsts.ActiveShootSpeed) ?? -1,
-                        ActiveSpread = reader.Get<float?>(DbConsts.ActiveSpread) ?? -1
-                    };
-                }
-            }
+                    switch (table) {
+                        case DbTables.ItemTable:
+                            return new DbItem {
+                                ID = reader.Get<int>(DbConsts.ID),
+                                Damage = reader.Get<int?>(DbConsts.Damage) ?? -1,
+                                Knockback = reader.Get<float?>(DbConsts.Knockback) ?? 0,
+                                UseAnimation = reader.Get<int?>(DbConsts.UseAnimation) ?? -1,
+                                UseTime = reader.Get<int?>(DbConsts.UseTime) ?? -1,
+                                Shoot = reader.Get<int?>(DbConsts.Shoot) ?? -1,
+                                ShootSpeed = reader.Get<float?>(DbConsts.ShootSpeed) ?? -1,
+                                VelocityMultiplier = reader.Get<float?>(DbConsts.VelocityMultiplier) ?? 1,
+                                AmmoIdentifier = reader.Get<int?>(DbConsts.AmmoIdentifier) ?? -1,
+                                UseAmmoIdentifier = reader.Get<int?>(DbConsts.UseAmmoIdentifier) ?? -1,
+                                NotAmmo = reader.Get<int?>(DbConsts.NotAmmo) ?? 0,
+                                InflictBuffID = reader.Get<int?>(DbConsts.InflictBuffID) ?? 0,
+                                InflictBuffDuration = reader.Get<int?>(DbConsts.InflictBuffDuration) ?? 0,
+                                ReceiveBuffID = reader.Get<int?>(DbConsts.ReceiveBuffDuration) ?? 0,
+                                ReceiveBuffDuration = reader.Get<int?>(DbConsts.ReceiveBuffDuration) ?? 0,
+                                HomingRadius = reader.Get<float?>(DbConsts.HomingRadius) ?? -1,
+                                AngularVelocity = reader.Get<float?>(DbConsts.AngularVelocity) ?? -1,
+                                Mirror = reader.Get<int?>(DbConsts.Mirror) ?? -1,
+                                Spread = reader.Get<float?>(DbConsts.Spread) ?? -1,
+                                RandomSpread = reader.Get<int?>(DbConsts.RandomSpread) ?? -1,
+                                NumShots = reader.Get<int?>(DbConsts.NumShots) ?? -1,
+                                ProjectilePool = reader.Get<string>(DbConsts.ProjectilePool) ?? "-1,1",
+                                ActiveProjectileAI = reader.Get<int?>(DbConsts.ActiveProjectileAI) ?? -1,
+                                ActiveProjectilePool = reader.Get<string>(DbConsts.ActiveProjectilePool) ?? "-1,1",
+                                ActiveRange = reader.Get<float?>(DbConsts.ActiveRange) ?? -1,
+                                ActiveFireRate = reader.Get<int?>(DbConsts.ActiveFireRate) ?? 0,
+                                ActiveShootSpeed = reader.Get<float?>(DbConsts.ActiveShootSpeed) ?? -1,
+                                ActiveSpread = reader.Get<float?>(DbConsts.ActiveSpread) ?? -1
+                            };
 
-            using (var reader = QueryReader($"SELECT * FROM {DbTables.ProjectileTable}")) {
-                while (reader.Read()) {
-                    int id = reader.Get<int>(DbConsts.ID);
-                    Cache.Projectiles[id] = new DbProjectile {
-                        ID = id,
-                        Shoot = reader.Get<int?>(DbConsts.Shoot) ?? id,
-                        Damage = reader.Get<int?>(DbConsts.Damage) ?? -1,
-                        InflictBuffID = reader.Get<int?>(DbConsts.InflictBuffID) ?? 0,
-                        InflictBuffDuration = reader.Get<int?>(DbConsts.InflictBuffDuration) ?? 0,
-                        ReceiveBuffID = reader.Get<int?>(DbConsts.ReceiveBuffDuration) ?? 0,
-                        ReceiveBuffDuration = reader.Get<int?>(DbConsts.ReceiveBuffDuration) ?? 0
-                    };
-                }
-            }
+                        case DbTables.ProjectileTable:
+                            return new DbProjectile {
+                                ID = reader.Get<int>(DbConsts.ID),
+                                Shoot = reader.Get<int?>(DbConsts.Shoot) ?? reader.Get<int>(DbConsts.ID),
+                                Damage = reader.Get<int?>(DbConsts.Damage) ?? -1,
+                                InflictBuffID = reader.Get<int?>(DbConsts.InflictBuffID) ?? 0,
+                                InflictBuffDuration = reader.Get<int?>(DbConsts.InflictBuffDuration) ?? 0,
+                                ReceiveBuffID = reader.Get<int?>(DbConsts.ReceiveBuffDuration) ?? 0,
+                                ReceiveBuffDuration = reader.Get<int?>(DbConsts.ReceiveBuffDuration) ?? 0
+                            };
 
-            using (var reader = QueryReader($"SELECT * FROM {DbTables.BuffTable}")) {
-                while (reader.Read()) {
-                    var id = reader.Get<int>(DbConsts.ID);
-                    Cache.Buffs[id] = new DbBuff {
-                        ID = id,
-                        InflictBuffID = reader.Get<int?>(DbConsts.InflictBuffID) ?? 0,
-                        InflictBuffDuration = reader.Get<int?>(DbConsts.InflictBuffDuration) ?? 0,
-                        ReceiveBuffID = reader.Get<int?>(DbConsts.ReceiveBuffDuration) ?? 0,
-                        ReceiveBuffDuration = reader.Get<int?>(DbConsts.ReceiveBuffDuration) ?? 0
-                    };
+                        case DbTables.BuffTable:
+                            return new DbBuff {
+                                ID = reader.Get<int>(DbConsts.ID),
+                                InflictBuffID = reader.Get<int?>(DbConsts.InflictBuffID) ?? 0,
+                                InflictBuffDuration = reader.Get<int?>(DbConsts.InflictBuffDuration) ?? 0,
+                                ReceiveBuffID = reader.Get<int?>(DbConsts.ReceiveBuffDuration) ?? 0,
+                                ReceiveBuffDuration = reader.Get<int?>(DbConsts.ReceiveBuffDuration) ?? 0
+                            };
+                    }
                 }
             }
+            return null;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using PvPModifier.Utilities.PvPConstants;
+using System.Collections.Generic;
 
 namespace PvPModifier.DataStorage {
     /// <summary>
@@ -6,9 +7,9 @@ namespace PvPModifier.DataStorage {
     /// the SQL database and stores it in this object.
     /// </summary>
     public class Cache {
-        public static DbItem[] Items = new DbItem[Terraria.Main.maxItemTypes + 1];
-        public static DbProjectile[] Projectiles = new DbProjectile[Terraria.Main.maxProjectileTypes + 1];
-        public static DbBuff[] Buffs = new DbBuff[Terraria.Main.maxBuffTypes + 1];
+        private static Dictionary<int, DbItem> Items = new Dictionary<int, DbItem>();
+        private static Dictionary<int, DbProjectile> Projectiles = new Dictionary<int, DbProjectile>();
+        private static Dictionary<int, DbBuff> Buffs = new Dictionary<int, DbBuff>();
 
         /// <summary>
         /// Gets the <see cref="DbObject"/> from the section and ID.
@@ -16,19 +17,53 @@ namespace PvPModifier.DataStorage {
         /// <param name="section">Item, Projectile, or Buff</param>
         /// <param name="id">The numerical ID of the object</param>
         /// <returns></returns>
-        public static DbObject GetSection(string section, int id) {
+        public static DbObject GetDbObject(string section, int id) {
             switch (section) {
                 case DbTables.ItemTable:
-                    if (id >= 0 && id <= Terraria.Main.maxItemTypes)
+                    if (id >= 0 && id <= Terraria.Main.maxItemTypes) {
+                        if (!Items.ContainsKey(id)) {
+                            Items[id] = (DbItem)Database.GetObject(section, id);
+                        }
                         return Items[id];
+                    }
                     break;
                 case DbTables.ProjectileTable:
-                    if (id >= 0 && id <= Terraria.Main.maxProjectileTypes)
-                        return Projectiles[id];
+                    if (id >= 0 && id <= Terraria.Main.maxProjectileTypes) {
+                        Projectiles[id] = (DbProjectile)Database.GetObject(section, id);
+                    }
+                    return Projectiles[id];
+                case DbTables.BuffTable:
+                    if (id >= 0 && id <= Terraria.Main.maxBuffTypes) {
+                        Buffs[id] = (DbBuff)Database.GetObject(section, id);
+                    }
+                    return Buffs[id];
+            }
+
+            return null;
+        }
+
+        public static void Clear() {
+            Items = new Dictionary<int, DbItem>();
+            Projectiles = new Dictionary<int, DbProjectile>();
+            Buffs = new Dictionary<int, DbBuff>();
+        }
+
+        public static DbObject Load(string section, int id) {
+            switch (section) {
+                case DbTables.ItemTable:
+                    if (id >= 0 && id <= Terraria.Main.maxItemTypes) {
+                            Items[id] = (DbItem)Database.GetObject(section, id);
+                    }
+                    break;
+                case DbTables.ProjectileTable:
+                    if (id >= 0 && id <= Terraria.Main.maxProjectileTypes) {
+                        Projectiles[id] = (DbProjectile)Database.GetObject(section, id);
+                    }
                     break;
                 case DbTables.BuffTable:
-                    if (id >= 0 && id <= Terraria.Main.maxBuffTypes)
-                        return Buffs[id];
+                    if (id >= 0 && id <= Terraria.Main.maxBuffTypes) {
+                        Buffs[id] = (DbBuff)Database.GetObject(section, id);
+                    }
                     break;
             }
 

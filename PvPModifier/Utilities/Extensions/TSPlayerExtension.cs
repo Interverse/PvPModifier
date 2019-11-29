@@ -232,11 +232,11 @@ namespace PvPModifier.Utilities.Extensions {
                 int buffType = attacker.TPlayer.buffType[x];
                 if (PresetData.FlaskDebuffs.ContainsKey(buffType)) {
                     if (weapon.melee) {
-                        player.SetBuff(Cache.Buffs[buffType].InflictBuff);
+                        player.SetBuff(((DbBuff)Cache.GetDbObject(DbTables.BuffTable, buffType)).InflictBuff);
                     }
                     continue;
                 }
-                player.SetBuff(Cache.Buffs[buffType].InflictBuff);
+                player.SetBuff(((DbBuff)Cache.GetDbObject(DbTables.BuffTable, buffType)).InflictBuff);
             }
         }
 
@@ -246,7 +246,7 @@ namespace PvPModifier.Utilities.Extensions {
         public static void ApplyReceiveBuff(this TSPlayer player) {
             for (int x = 0; x < Terraria.Player.maxBuffs; x++) {
                 int buffType = player.TPlayer.buffType[x];
-                player.SetBuff(Cache.Buffs[buffType].ReceiveBuff);
+                player.SetBuff(((DbBuff)Cache.GetDbObject(DbTables.BuffTable, buffType)).ReceiveBuff);
             }
         }
 

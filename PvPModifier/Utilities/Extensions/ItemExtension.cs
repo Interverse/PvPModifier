@@ -1,4 +1,5 @@
 ﻿using PvPModifier.DataStorage;
+using PvPModifier.Utilities.PvPConstants;
 using Terraria;
 using TShockAPI;
 
@@ -9,7 +10,7 @@ namespace PvPModifier.Utilities.Extensions {
         /// Returns the base damage of an item if the config damage value is -1
         /// </summary>
         public static int GetConfigDamage(this Item item) {
-            var configDamage = Cache.Items[item.type].Damage;
+            var configDamage = ((DbItem)Cache.GetDbObject(DbTables.ItemTable, item.type)).Damage;
             if (configDamage == -1) {
                 return item.damage;
             }
@@ -20,6 +21,7 @@ namespace PvPModifier.Utilities.Extensions {
         /// <summary>
         /// Gets the knockback of an item from the player's stats.
         /// </summary>
-        public static float GetKnockback(this Item item, TSPlayer owner) => owner.TPlayer.GetWeaponKnockback(item, Cache.Items[item.type].Knockback);
+        public static float GetKnockback(this Item item, TSPlayer owner) => 
+            owner.TPlayer.GetWeaponKnockback(item, ((DbItem)Cache.GetDbObject(DbTables.ItemTable, item.type)).Knockback);
     }
 }

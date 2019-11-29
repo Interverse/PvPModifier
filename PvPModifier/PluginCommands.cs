@@ -62,7 +62,7 @@ namespace PvPModifier {
                 // Resets every person's inventory in the case that they have the modified items.
                 case StringConsts.Database:
                     Database.InitDefaultTables();
-                    Database.LoadDatabase();
+                    Cache.Clear();
                     foreach (var pvper in PvPUtils.ActivePlayers)
                         PvPUtils.RefreshInventory(pvper);
                     player.SendSuccessMessage("Reset database to default.");
@@ -120,7 +120,7 @@ namespace PvPModifier {
                     // Logs the change to an external file and reloads the entire database.
                     string log = "Reset the values of {0}".SFormat(MiscUtils.GetNameFromInput(section, id));
                     player.SendSuccessMessage(log);
-                    Database.LoadDatabase();
+                    Cache.Load(section, id);
                     PvPModifier.Config.LogChange($"[{player.Name} ({DateTime.Now})] {log}");
 
                     // If the item is an Item, reset everyone's instance of that item.
@@ -172,19 +172,19 @@ namespace PvPModifier {
             switch (section) {
                 case DbTables.ItemTable:
                     if (id > 0 && id < Terraria.Main.maxItemTypes) {
-                        player.SendMessage(Cache.Items[id].ToString(), Color.YellowGreen);
+                        player.SendMessage(Cache.GetDbObject(section, id).ToString(), Color.YellowGreen);
                         player.SendMessage(ScrollUp + "\n" + NegativeExplanation, Color.Yellow);
                     }
                     return;
                 case DbTables.ProjectileTable:
                     if (id > 0 && id < Terraria.Main.maxProjectileTypes) {
-                        player.SendMessage(Cache.Projectiles[id].ToString(), Color.YellowGreen);
+                        player.SendMessage(Cache.GetDbObject(section, id).ToString(), Color.YellowGreen);
                         player.SendMessage(ScrollUp + "\n" + NegativeExplanation, Color.Yellow);
                     }
                     return;
                 case DbTables.BuffTable:
                     if (id > 0 && id < Terraria.Main.maxBuffTypes) {
-                        player.SendMessage(Cache.Buffs[id].ToString(), Color.YellowGreen);
+                        player.SendMessage(Cache.GetDbObject(section, id).ToString(), Color.YellowGreen);
                         player.SendMessage(ScrollUp + "\n" + NegativeExplanation, Color.Yellow);
                     }
                     return;
@@ -264,7 +264,7 @@ namespace PvPModifier {
                 }
 
                 // Get the DbObject the ID was referencing
-                dbObject = Cache.GetSection(section, id);
+                dbObject = Cache.GetDbObject(section, id);
                 if (dbObject == null) {
                     player.SendErrorMessage(NothingFoundError);
                     return;
@@ -382,7 +382,9 @@ namespace PvPModifier {
                 Item item = new Item();
                 item.SetDefaults(x);
 
-                int useanimation = Cache.Items[x].UseAnimation != -1 ? Cache.Items[x].UseAnimation.Replace(0, 1) : item.useAnimation;
+                var dbitem = (DbItem)Cache.GetDbObject(DbTables.ItemTable, x);
+                int useanimation = dbitem.UseAnimation != -1 ?
+                    dbitem.UseAnimation.Replace(0, 1) : item.useAnimation;
 
                 if (item.damage > 0 && item.ammo == 0) {
                     queries.Add($"UPDATE {DbTables.ItemTable} SET {DbConsts.Damage} = {(int)Math.Sqrt(dps * useanimation / 60.0)} WHERE ID = {x}");
@@ -391,7 +393,7 @@ namespace PvPModifier {
 
             // Updates the damage to every weapon and logs the action
             Database.PerformTransaction(queries.ToArray());
-            Database.LoadDatabase();
+            Cache.Clear();
             string log = $"Set all weapon's pvp dps to be approx {Math.Sqrt(dps)}";
             args.Player.SendSuccessMessage(log);
             PvPModifier.Config.LogChange($"({DateTime.Now}) {log}");
