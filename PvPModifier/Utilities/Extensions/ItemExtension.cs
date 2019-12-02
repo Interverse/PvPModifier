@@ -10,7 +10,7 @@ namespace PvPModifier.Utilities.Extensions {
         /// Returns the base damage of an item if the config damage value is -1
         /// </summary>
         public static int GetConfigDamage(this Item item) {
-            var configDamage = ((DbItem)Cache.GetDbObject(DbTables.ItemTable, item.type)).Damage;
+            var configDamage = Cache.GetItem(item.type).Damage;
             if (configDamage == -1) {
                 return item.damage;
             }
@@ -22,6 +22,6 @@ namespace PvPModifier.Utilities.Extensions {
         /// Gets the knockback of an item from the player's stats.
         /// </summary>
         public static float GetKnockback(this Item item, TSPlayer owner) => 
-            owner.TPlayer.GetWeaponKnockback(item, ((DbItem)Cache.GetDbObject(DbTables.ItemTable, item.type)).Knockback);
+            owner.TPlayer.GetWeaponKnockback(item, Cache.GetItem(item.type).Knockback);
     }
 }

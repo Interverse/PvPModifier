@@ -26,7 +26,7 @@ namespace PvPModifier.Network.Events {
             if (projectile.active && projectile.type == e.Type) return;
 
             List<Projectile> projectiles = new List<Projectile>();
-            DbItem weapon = (DbItem)Cache.GetDbObject(DbTables.ItemTable, e.Weapon.netID);
+            DbItem weapon = Cache.GetItem(e.Weapon.netID);
             RandomPool<int> projectilePool = weapon.ProjectilePoolList;
 
             if (!projectilePool.IsEmpty()) {
@@ -50,7 +50,7 @@ namespace PvPModifier.Network.Events {
             // Modifies the shot projectile if it was changed in DbProjectile
             if (PvPUtils.IsModifiedProjectile(e.Type)) {
                 e.Args.Handled = true;
-                DbProjectile proj = (DbProjectile)Cache.GetDbObject(DbTables.ProjectileTable, e.Type);
+                DbProjectile proj = Cache.GetProjectile(e.Type);
 
                 projectile.SetDefaults(proj.Shoot != -1 ? proj.Shoot : e.Type);
                 projectile.identity = e.Identity;
@@ -159,10 +159,10 @@ namespace PvPModifier.Network.Events {
             if (projectile.GetOwner() == null) return;
 
             projectile.netUpdate = true;
-            float homingRadius = ((DbItem)Cache.GetDbObject(DbTables.ItemTable, projectile.GetItemOriginated().type)).HomingRadius;
+            float homingRadius = Cache.GetItem(projectile.GetItemOriginated().type).HomingRadius;
             if (homingRadius < 0) return;
 
-            float angularVelocity = ((DbItem)Cache.GetDbObject(DbTables.ItemTable, projectile.GetItemOriginated().type)).AngularVelocity;
+            float angularVelocity = Cache.GetItem(projectile.GetItemOriginated().type).AngularVelocity;
 
             TSPlayer target = PvPUtils.FindClosestPlayer(projectile.position, projectile.owner, homingRadius * Constants.PixelToWorld, projectile.GetOwner().TPlayer.team);
 
@@ -199,7 +199,7 @@ namespace PvPModifier.Network.Events {
             if (projectile.GetOwner() == null) return;
 
             TSPlayer owner = projectile.GetOwner();
-            DbItem dbItem = (DbItem)Cache.GetDbObject(DbTables.ItemTable, projectile.GetItemOriginated().type);
+            DbItem dbItem = Cache.GetItem(projectile.GetItemOriginated().type);
             RandomPool<int> projectilePool = dbItem.ActiveProjectilePoolList;
             float spread = dbItem.ActiveSpread;
             Item item = new Item();

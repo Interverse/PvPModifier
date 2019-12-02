@@ -54,7 +54,19 @@ namespace PvPModifier.DataStorage {
             Buffs.Clear();
         }
 
-        public static DbObject Load(string section, int id) {
+        public static DbItem GetItem(int id) {
+            return (DbItem)GetDbObject(DbTables.ItemTable, id);
+        }
+
+        public static DbProjectile GetProjectile(int id) {
+            return (DbProjectile)GetDbObject(DbTables.ProjectileTable, id);
+        }
+
+        public static DbBuff GetBuff(int id) {
+            return (DbBuff)GetDbObject(DbTables.BuffTable, id);
+        }
+
+        public static void Load(string section, int id) {
             switch (section) {
                 case DbTables.ItemTable:
                     if (id >= 0 && id <= Terraria.Main.maxItemTypes) {
@@ -72,8 +84,6 @@ namespace PvPModifier.DataStorage {
                     }
                     break;
             }
-
-            return null;
         }
 
         /// <summary>

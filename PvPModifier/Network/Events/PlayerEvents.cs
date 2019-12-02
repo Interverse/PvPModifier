@@ -96,7 +96,7 @@ namespace PvPModifier.Network.Events {
             }
 
             // If the player did not attack with a projectile that's disabled (Projectile's shoot is set to 0)
-            if (e.Projectile == null || ((DbProjectile)Cache.GetDbObject(DbTables.ProjectileTable, e.Projectile.type)).Shoot != 0) {
+            if (e.Projectile == null || Cache.GetProjectile(e.Projectile.type).Shoot != 0) {
                 e.Target.DamagePlayer(e.Attacker, PvPUtils.GetPvPDeathMessage(e.PlayerHitReason.GetDeathText(e.Target.Name).ToString(), e.Weapon, e.Projectile),
                     e.Weapon, e.InflictedDamage, e.HitDirection, (e.Flag & 1) == 1);
 
@@ -104,8 +104,8 @@ namespace PvPModifier.Network.Events {
 
                 // Applies projectile buffs, item buffs, and buff buffs.
                 if (PvPModifier.Config.EnableBuffs) {
-                    DbProjectile proj = (DbProjectile)Cache.GetDbObject(DbTables.ProjectileTable, e.PlayerHitReason.SourceProjectileType);
-                    DbItem item = (DbItem)Cache.GetDbObject(DbTables.ItemTable, e.Attacker.TPlayer.HeldItem.netID);
+                    DbProjectile proj = Cache.GetProjectile(e.PlayerHitReason.SourceProjectileType);
+                    DbItem item = Cache.GetItem(e.Attacker.TPlayer.HeldItem.netID);
 
                     e.Target.SetBuff(proj.InflictBuff);
                     e.Attacker.SetBuff(proj.ReceiveBuff);

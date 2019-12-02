@@ -109,7 +109,7 @@ namespace PvPModifier.Utilities.Extensions {
                                 string deathmessage = target.Name + " was petrified by " + target.Name + "'s Medusa Head.";
                                 target.DamagePlayer(owner, PvPUtils.GetPvPDeathMessage(deathmessage, ItemOriginated),
                                     ItemOriginated, ItemOriginated.GetConfigDamage(), 0, false);
-                                target.SetBuff(((DbProjectile)Cache.GetDbObject(DbTables.ProjectileTable, 535)).InflictBuff);
+                                target.SetBuff(Cache.GetProjectile(535).InflictBuff);
                             }
                         }
                     }

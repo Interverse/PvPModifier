@@ -212,7 +212,7 @@ namespace PvPModifier.DataStorage {
             var receiveBuff = new BuffInfo();
 
             switch (table) {
-                case "Items":
+                case DbTables.ItemTable:
                     Item item = new Item();
                     item.SetDefaults(id);
                     
@@ -223,16 +223,16 @@ namespace PvPModifier.DataStorage {
                         .SFormat(DbTables.ItemTable,
                             string.Join(", ", DbConsts.ID, DbConsts.Damage, DbConsts.Knockback, 
                                               DbConsts.UseAnimation, DbConsts.UseTime, DbConsts.Shoot, 
-                                              DbConsts.ShootSpeed, DbConsts.AmmoIdentifier, DbConsts.UseAmmoIdentifier, 
+                                              DbConsts.ShootSpeed, DbConsts.VelocityMultiplier, DbConsts.AmmoIdentifier, DbConsts.UseAmmoIdentifier, 
                                               DbConsts.NotAmmo, DbConsts.InflictBuffID, DbConsts.InflictBuffDuration, 
                                               DbConsts.ReceiveBuffID, DbConsts.ReceiveBuffDuration, DbConsts.HomingRadius, 
                                               DbConsts.AngularVelocity, DbConsts.Mirror, DbConsts.Spread,
                                               DbConsts.RandomSpread, DbConsts.NumShots, DbConsts.ProjectilePool,
                                               DbConsts.ActiveProjectileAI, DbConsts.ActiveProjectilePool, DbConsts.ActiveRange,
                                               DbConsts.ActiveFireRate, DbConsts.ActiveShootSpeed, DbConsts.ActiveSpread),
-                            string.Join(", ", id, -1, knockback, 
+                            string.Join(", ", id, -1, knockback.SanitizeString(), 
                                               -1, -1, -1, 
-                                              -1, -1, -1, 
+                                              -1, 1, -1, -1, 
                                               notAmmo.ToInt(), inflictBuff.BuffId, inflictBuff.BuffDuration, 
                                               receiveBuff.BuffId, receiveBuff.BuffDuration, -1, 
                                               -1, -1, -1,
@@ -240,7 +240,7 @@ namespace PvPModifier.DataStorage {
                                               -1, "-1,1".SqlString(), -1,
                                               0, -1, -1));
 
-                case "Projectiles":
+                case DbTables.ProjectileTable:
                     inflictBuff = PresetData.ProjectileDebuffs.ContainsKey(id)
                         ? PresetData.ProjectileDebuffs[id]
                         : new BuffInfo();
@@ -254,7 +254,7 @@ namespace PvPModifier.DataStorage {
                                               -1, inflictBuff.BuffId, inflictBuff.BuffDuration, 
                                               receiveBuff.BuffId, receiveBuff.BuffDuration));
 
-                case "Buffs":
+                case DbTables.BuffTable:
                     inflictBuff = PresetData.FlaskDebuffs.ContainsKey(id)
                         ? PresetData.FlaskDebuffs[id]
                         : new BuffInfo();

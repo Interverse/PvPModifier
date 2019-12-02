@@ -130,7 +130,7 @@ namespace PvPModifier.Utilities {
                 DropAreaWidth = 10000,
                 DropAreaHeight = 10000,
             };
-            DbItem dbitem = (DbItem)Cache.GetDbObject(DbTables.ItemTable, type);
+            DbItem dbitem = Cache.GetItem(type);
 
             // Sets the custom weapon's stats and also applies prefix bonuses to these weapons.
             if (dbitem.Damage != -1)
@@ -167,7 +167,7 @@ namespace PvPModifier.Utilities {
         /// Checks whether an item was modified in the database.
         /// </summary>
         public static bool IsModifiedItem(int type) {
-            DbItem dbitem = (DbItem)Cache.GetDbObject(DbTables.ItemTable, type);
+            DbItem dbitem = Cache.GetItem(type);
             Item item = new Item();
             item.SetDefaults(type);
 
@@ -186,7 +186,7 @@ namespace PvPModifier.Utilities {
         /// Checks whether a projectile was modified in the database.
         /// </summary>
         public static bool IsModifiedProjectile(int type) {
-            DbProjectile proj = (DbProjectile)Cache.GetDbObject(DbTables.ProjectileTable, type);
+            DbProjectile proj = Cache.GetProjectile(type);
             return proj.Shoot != type ||
                    proj.Damage != -1;
         }

@@ -25,6 +25,13 @@ namespace PvPModifier.Utilities {
         }
 
         /// <summary>
+        /// Attempts to sanitize any ' characters in a string to '' for sql queries.
+        /// </summary>
+        public static string SanitizeString(this float s) {
+            return s.ToString().Replace(",", ".");
+        }
+
+        /// <summary>
         /// Converts a string to be friendly with sql inputs.
         /// </summary>
         public static string SqlString(this string s) => "'" + SanitizeString(s) + "'";

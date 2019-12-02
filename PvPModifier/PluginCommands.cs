@@ -173,19 +173,19 @@ namespace PvPModifier {
             switch (section) {
                 case DbTables.ItemTable:
                     if (id > 0 && id < Terraria.Main.maxItemTypes) {
-                        player.SendMessage(Cache.GetDbObject(section, id).ToString(), Color.YellowGreen);
+                        player.SendMessage(Cache.GetItem(id).ToString(), Color.YellowGreen);
                         player.SendMessage(ScrollUp + "\n" + NegativeExplanation, Color.Yellow);
                     }
                     return;
                 case DbTables.ProjectileTable:
                     if (id > 0 && id < Terraria.Main.maxProjectileTypes) {
-                        player.SendMessage(Cache.GetDbObject(section, id).ToString(), Color.YellowGreen);
+                        player.SendMessage(Cache.GetProjectile(id).ToString(), Color.YellowGreen);
                         player.SendMessage(ScrollUp + "\n" + NegativeExplanation, Color.Yellow);
                     }
                     return;
                 case DbTables.BuffTable:
                     if (id > 0 && id < Terraria.Main.maxBuffTypes) {
-                        player.SendMessage(Cache.GetDbObject(section, id).ToString(), Color.YellowGreen);
+                        player.SendMessage(Cache.GetBuff(id).ToString(), Color.YellowGreen);
                         player.SendMessage(ScrollUp + "\n" + NegativeExplanation, Color.Yellow);
                     }
                     return;
@@ -390,7 +390,7 @@ namespace PvPModifier {
                 Item item = new Item();
                 item.SetDefaults(x);
 
-                var dbitem = (DbItem)Cache.GetDbObject(DbTables.ItemTable, x);
+                var dbitem = Cache.GetItem(x);
                 int useanimation = dbitem.UseAnimation != -1 ?
                     dbitem.UseAnimation.Replace(0, 1) : item.useAnimation;
 
