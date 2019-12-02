@@ -33,6 +33,7 @@ namespace PvPModifier.Network.Events {
         /// </summary>
         public static async void OnPlayerUpdateAsync(object sender, PlayerUpdateArgs e) {
             if (!PvPModifier.Config.EnablePlugin) return;
+
             if (e.Player.TPlayer.dead) return;
 
             //If the player has their pvp turned on without sending a TogglePvP packet (ex. through a /pvp command),

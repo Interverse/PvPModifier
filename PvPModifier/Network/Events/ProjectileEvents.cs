@@ -140,6 +140,8 @@ namespace PvPModifier.Network.Events {
         /// Runs every game update to reset any inactive projectiles.
         /// </summary>
         public static void CleanupInactiveProjectiles(EventArgs args) {
+            if (!PvPModifier.Config.EnablePlugin) return;
+
             for (int x = 0; x < Main.maxProjectiles; x++) {
                 if (!Main.projectile[x].active) {
                     Main.projectile[x] = new Projectile();
@@ -151,6 +153,7 @@ namespace PvPModifier.Network.Events {
         /// Handles homing projectiles.
         /// </summary>
         public static void UpdateProjectileHoming(ProjectileAiUpdateEventArgs args) {
+            if (!PvPModifier.Config.EnablePlugin) return;
             if (!PvPModifier.Config.EnableHoming) return;
 
             var projectile = args.Projectile;
@@ -193,6 +196,8 @@ namespace PvPModifier.Network.Events {
         /// their cooldown has reached zero.
         /// </summary>
         public static void UpdateActiveProjectileAI(ProjectileAiUpdateEventArgs args) {
+            if (!PvPModifier.Config.EnablePlugin) return;
+
             var projectile = args.Projectile;
 
             if (!projectile.HasInitializedExtraAISlots()) return;
