@@ -4,6 +4,7 @@ using System.Reflection;
 using PvPModifier.DataStorage;
 using PvPModifier.Network;
 using PvPModifier.Utilities.Extensions;
+using PvPModifier.Utilities.PvPConstants;
 using Terraria;
 using TerrariaApi.Server;
 using TShockAPI;
@@ -21,7 +22,26 @@ namespace PvPModifier {
         public override string Description => "Adds customizability to pvp";
         public override Version Version => Assembly.GetExecutingAssembly().GetName().Version;
 
-        public PvPModifier(Main game) : base(game) { }
+        // Reads command line arguments to write custom database table names
+        public PvPModifier(Main game) : base(game) {
+            var commandLineArgs = Environment.GetCommandLineArgs();
+            for (int args = 1; args < commandLineArgs.Length; args++) {
+                string arg = commandLineArgs[args];
+                switch (arg) {
+                    case "-pvpitemtable":
+                        DbTables.ItemTable = commandLineArgs[++args];
+                        break;
+
+                    case "-pvpprojtable":
+                        DbTables.ProjectileTable = commandLineArgs[++args];
+                        break;
+
+                    case "-pvpbufftable":
+                        DbTables.BuffTable = commandLineArgs[++args];
+                        break;
+                }
+            }
+        }
 
         public override void Initialize() {
             // Initializes the config, making one if it doesn't exist

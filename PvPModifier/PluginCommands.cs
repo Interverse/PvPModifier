@@ -57,84 +57,74 @@ namespace PvPModifier {
                 player.SendErrorMessage(InvalidSyntax + ResetList);
                 return;
             }
-
-            switch (section) {
+            if (section.Equals(StringConsts.Database)) {
                 // Runs the database's methods to reset the database
                 // Resets every person's inventory in the case that they have the modified items.
-                case StringConsts.Database:
-                    Database.InitDefaultTables();
-                    Cache.Clear();
-                    foreach (var pvper in PvPUtils.ActivePlayers)
-                        PvPUtils.RefreshInventory(pvper);
-                    player.SendSuccessMessage("Reset database to default.");
-                    return;
+                Database.InitDefaultTables();
+                Cache.Clear();
+                foreach (var pvper in PvPUtils.ActivePlayers)
+                    PvPUtils.RefreshInventory(pvper);
+                player.SendSuccessMessage("Reset database to default.");
 
+            } else if (section.Equals(StringConsts.Config)) {
                 // Resets the config file's values and writes it in the .json file
-                case StringConsts.Config:
-                    PvPModifier.Config.ResetConfigValues();
-                    PvPModifier.Config.Write(Config.ConfigPath);
-                    player.SendSuccessMessage("Reset config values to default.");
-                    return;
+                PvPModifier.Config.ResetConfigValues();
+                PvPModifier.Config.Write(Config.ConfigPath);
+                player.SendSuccessMessage("Reset config values to default.");
 
+            } else if (section.Equals(DbTables.ItemTable) || section.Equals(DbTables.ProjectileTable) || section.Equals(DbTables.BuffTable)) {
                 // Resets an individual item, projectile, or buff
-                case DbTables.ItemTable:
-                case DbTables.ProjectileTable:
-                case DbTables.BuffTable:
-                    int id = -1;
-                    // Attempts to get an item from the player's second argument
-                    // Note: "item" in this case means any object (Item, Projectile, or Buff)
-                    if (input.Count == 2 && !int.TryParse(input[1], out id)) {
-                        var foundList = TShock.Utils.GetIdFromInput(section, input[1]);
 
-                        // If no items have been found, exit the method and give an error message.
-                        if (foundList.Count == 0) {
-                            player.SendErrorMessage(NothingFoundError);
-                            return;
-                        }
+                int id = -1;
+                // Attempts to get an item from the player's second argument
+                // Note: "item" in this case means any object (Item, Projectile, or Buff)
+                if (input.Count == 2 && !int.TryParse(input[1], out id)) {
+                    var foundList = TShock.Utils.GetIdFromInput(section, input[1]);
 
-                        // If multiple items have been found, send an error message and list all items found.
-                        if (foundList.Count > 1) {
-                            player.SendErrorMessage("Found multiple of input");
-                            foreach (int items in foundList) {
-                                player.SendMessage($"({items}) {MiscUtils.GetNameFromInput(section, items)}", Color.Yellow);
-                            }
-                            return;
-                        }
-
-                        // Stores the found item id, given it has not triggered any errors along the way.
-                        id = foundList[0];
-                    }
-
-                    // If the ID is out of range for the item/projectile/buff, send an error message.
-                    if ((section == DbTables.ItemTable && (id < 0 || id > Terraria.Main.maxItemTypes)) ||
-                        (section == DbTables.ProjectileTable && (id < 0 || id > Terraria.Main.maxProjectileTypes)) ||
-                        (section == DbTables.BuffTable && (id < 0 || id > Terraria.Main.maxBuffTypes))) {
-
-                        player.SendErrorMessage(OverflowID);
+                    // If no items have been found, exit the method and give an error message.
+                    if (foundList.Count == 0) {
+                        player.SendErrorMessage(NothingFoundError);
                         return;
                     }
 
-                    // Deletes the data of the item found and writes a new line with default stats.
-                    Database.DeleteRow(section, id);
-                    Database.Query(Database.GetDefaultValueSqlString(section, id));
+                    // If multiple items have been found, send an error message and list all items found.
+                    if (foundList.Count > 1) {
+                        player.SendErrorMessage("Found multiple of input");
+                        foreach (int items in foundList) {
+                            player.SendMessage($"({items}) {MiscUtils.GetNameFromInput(section, items)}", Color.Yellow);
+                        }
+                        return;
+                    }
 
-                    // Logs the change to an external file and reloads the entire database.
-                    string log = "Reset the values of {0}".SFormat(MiscUtils.GetNameFromInput(section, id));
-                    player.SendSuccessMessage(log);
-                    Cache.Load(section, id);
-                    PvPModifier.Config.LogChange($"[{player.Name} ({DateTime.Now})] {log}");
+                    // Stores the found item id, given it has not triggered any errors along the way.
+                    id = foundList[0];
+                }
 
-                    // If the item is an Item, reset everyone's instance of that item.
-                    if (section == DbTables.ItemTable)
-                        foreach (var pvper in PvPUtils.ActivePlayers)
-                            PvPUtils.RefreshItem(pvper, id);
+                // If the ID is out of range for the item/projectile/buff, send an error message.
+                if ((section == DbTables.ItemTable && (id < 0 || id > Terraria.Main.maxItemTypes)) ||
+                    (section == DbTables.ProjectileTable && (id < 0 || id > Terraria.Main.maxProjectileTypes)) ||
+                    (section == DbTables.BuffTable && (id < 0 || id > Terraria.Main.maxBuffTypes))) {
 
-                    break;
-
-                default:
-                    // The first argument was not valid.
-                    player.SendErrorMessage("Invalid parameters. " + ResetList);
+                    player.SendErrorMessage(OverflowID);
                     return;
+                }
+
+                // Deletes the data of the item found and writes a new line with default stats.
+                Database.DeleteRow(section, id);
+                Database.Query(Database.GetDefaultValueSqlString(section, id));
+
+                // Logs the change to an external file and reloads the entire database.
+                string log = "Reset the values of {0}".SFormat(MiscUtils.GetNameFromInput(section, id));
+                player.SendSuccessMessage(log);
+                Cache.Load(section, id);
+                PvPModifier.Config.LogChange($"[{player.Name} ({DateTime.Now})] {log}");
+
+                // If the item is an Item, reset everyone's instance of that item.
+                if (section == DbTables.ItemTable)
+                    foreach (var pvper in PvPUtils.ActivePlayers)
+                        PvPUtils.RefreshItem(pvper, id);
+            } else {
+                player.SendErrorMessage("Invalid parameters. " + ResetList);
             }
         }
 
@@ -170,28 +160,33 @@ namespace PvPModifier {
             }
 
             // Sends the stats of the item to the player
-            switch (section) {
-                case DbTables.ItemTable:
-                    if (id > 0 && id < Terraria.Main.maxItemTypes) {
-                        player.SendMessage(Cache.GetItem(id).ToString(), Color.YellowGreen);
-                        player.SendMessage(ScrollUp + "\n" + NegativeExplanation, Color.Yellow);
-                    }
-                    return;
-                case DbTables.ProjectileTable:
-                    if (id > 0 && id < Terraria.Main.maxProjectileTypes) {
-                        player.SendMessage(Cache.GetProjectile(id).ToString(), Color.YellowGreen);
-                        player.SendMessage(ScrollUp + "\n" + NegativeExplanation, Color.Yellow);
-                    }
-                    return;
-                case DbTables.BuffTable:
-                    if (id > 0 && id < Terraria.Main.maxBuffTypes) {
-                        player.SendMessage(Cache.GetBuff(id).ToString(), Color.YellowGreen);
-                        player.SendMessage(ScrollUp + "\n" + NegativeExplanation, Color.Yellow);
-                    }
-                    return;
-                case StringConsts.Config:
-                    player.SendErrorMessage(InvalidCheckStat);
-                    return;
+            if (section.Equals(DbTables.ItemTable)) {
+                if (id > 0 && id < Terraria.Main.maxItemTypes) {
+                    player.SendMessage(Cache.GetItem(id).ToString(), Color.YellowGreen);
+                    player.SendMessage(ScrollUp + "\n" + NegativeExplanation, Color.Yellow);
+                }
+                return;
+            }
+
+            if (section.Equals(DbTables.ProjectileTable)) {
+                if (id > 0 && id < Terraria.Main.maxProjectileTypes) {
+                    player.SendMessage(Cache.GetProjectile(id).ToString(), Color.YellowGreen);
+                    player.SendMessage(ScrollUp + "\n" + NegativeExplanation, Color.Yellow);
+                }
+                return;
+            }
+
+            if (section.Equals(DbTables.BuffTable)) {
+                if (id > 0 && id < Terraria.Main.maxBuffTypes) {
+                    player.SendMessage(Cache.GetBuff(id).ToString(), Color.YellowGreen);
+                    player.SendMessage(ScrollUp + "\n" + NegativeExplanation, Color.Yellow);
+                }
+                return;
+            }
+
+            if (section.Equals(StringConsts.Config)) {
+                player.SendErrorMessage(InvalidCheckStat);
+                return;
             }
 
             // Gives an error message if the ID is out of bounds.
@@ -294,66 +289,60 @@ namespace PvPModifier {
                 pair[0] = attribute;
             }
 
-            switch (section) {
-                case DbTables.ItemTable:
-                case DbTables.ProjectileTable:
-                case DbTables.BuffTable:
-                    // Displays the object being modified
-                    player.SendMessage($"Modifying {MiscUtils.GetNameFromInput(section, id)} ({id})", Color.Green);
-                    sb.AppendLine($"Modifying {MiscUtils.GetNameFromInput(section, id)} ({id})");
 
-                    // For each pair, set the attribute to the value
-                    foreach (var pair in pairedInputs) {
-                        if (dbObject.TrySetValue(pair[0], pair[1])) {
-                            player.SendMessage($"Set {pair[0]} to {pair[1]}", Color.YellowGreen);
-                            sb.AppendLine($"Set {pair[0]} to {pair[1]}");
-                        } else {
-                            player.SendErrorMessage(InvalidValue(pair[0], section));
+            if (section.Equals(DbTables.ItemTable) || section.Equals(DbTables.ProjectileTable) || section.Equals(DbTables.BuffTable)) {
+                // Displays the object being modified
+                player.SendMessage($"Modifying {MiscUtils.GetNameFromInput(section, id)} ({id})", Color.Green);
+                sb.AppendLine($"Modifying {MiscUtils.GetNameFromInput(section, id)} ({id})");
+
+                // For each pair, set the attribute to the value
+                foreach (var pair in pairedInputs) {
+                    if (dbObject.TrySetValue(pair[0], pair[1])) {
+                        player.SendMessage($"Set {pair[0]} to {pair[1]}", Color.YellowGreen);
+                        sb.AppendLine($"Set {pair[0]} to {pair[1]}");
+                    } else {
+                        player.SendErrorMessage(InvalidValue(pair[0], section));
+                    }
+                }
+
+                // If the item is an Item, update everyone's instance of that Item
+                if (dbObject is DbItem) {
+                    foreach (var pvper in PvPUtils.ActivePlayers) {
+                        if (!pvper.TPlayer.hostile) continue;
+
+                        // If they have the item, remove that item and replace it with an updated one
+                        int itemindex = pvper.TPlayer.FindItem(id);
+                        if (itemindex != -1) {
+                            // Fills everyone's inventory with a junk item to preserve the item slot,
+                            // as dropped items go to the closest empty item slot
+                            SSCUtils.FillInventoryToIndex(pvper, 0, Constants.JunkItem, itemindex);
+                            var item = pvper.TPlayer.inventory[itemindex];
+                            SSCUtils.SetItem(pvper, (byte)itemindex, 0);
+                            pvper.GetInvTracker().AddItem(PvPUtils.GetCustomWeapon(pvper, id, item.prefix, (short)item.stack));
                         }
+                        pvper.GetInvTracker().StartDroppingItems();
                     }
+                }
 
-                    // If the item is an Item, update everyone's instance of that Item
-                    if (dbObject is DbItem) {
-                        foreach (var pvper in PvPUtils.ActivePlayers) {
-                            if (!pvper.TPlayer.hostile) continue;
+                if (sb.Length > 0) {
+                    PvPModifier.Config.LogChange($"({DateTime.Now}: {player.Name}) {sb.ToString()}");
+                }
 
-                            // If they have the item, remove that item and replace it with an updated one
-                            int itemindex = pvper.TPlayer.FindItem(id);
-                            if (itemindex != -1) {
-                                // Fills everyone's inventory with a junk item to preserve the item slot,
-                                // as dropped items go to the closest empty item slot
-                                SSCUtils.FillInventoryToIndex(pvper, 0, Constants.JunkItem, itemindex);
-                                var item = pvper.TPlayer.inventory[itemindex];
-                                SSCUtils.SetItem(pvper, (byte)itemindex, 0);
-                                pvper.GetInvTracker().AddItem(PvPUtils.GetCustomWeapon(pvper, id, item.prefix, (short)item.stack));
-                            }
-                            pvper.GetInvTracker().StartDroppingItems();
-                        }
-                    }
-
-                    if (sb.Length > 0) {
-                        PvPModifier.Config.LogChange($"({DateTime.Now}: {player.Name}) {sb.ToString()}");
-                    }
-
-                    break;
-
+            } else if (section.Equals(StringConsts.Config)) {
                 // Sets the values to each config attribute
-                case StringConsts.Config:
-                    foreach (var pair in pairedInputs) {
-                        if (MiscUtils.SetValueWithString(PvPModifier.Config, pair[0], pair[1])) {
-                            player.SendSuccessMessage($"Set {pair[0]} to {pair[1]}");
-                        } else {
-                            player.SendErrorMessage(ConfigValueFail(pair[0], pair[1]));
-                        }
+                foreach (var pair in pairedInputs) {
+                    if (MiscUtils.SetValueWithString(PvPModifier.Config, pair[0], pair[1])) {
+                        player.SendSuccessMessage($"Set {pair[0]} to {pair[1]}");
+                    } else {
+                        player.SendErrorMessage(ConfigValueFail(pair[0], pair[1]));
                     }
+                }
 
-                    // Writes the current changes to the .json file
-                    PvPModifier.Config.Write(Config.ConfigPath);
-                    break;
+                // Writes the current changes to the .json file
+                PvPModifier.Config.Write(Config.ConfigPath);
 
-                default:
-                    player.SendErrorMessage(HelpModPvP);
-                    return;
+            } else {
+                player.SendErrorMessage(HelpModPvP);
             }
         }
 

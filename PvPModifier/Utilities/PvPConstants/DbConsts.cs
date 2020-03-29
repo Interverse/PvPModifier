@@ -40,8 +40,8 @@
     /// Contains variables that have the SQL table names.
     /// </summary>
     public static class DbTables {
-        public const string ItemTable = "PvPItems";
-        public const string ProjectileTable = "PvPProjectiles";
-        public const string BuffTable = "PvPBuffs";
+        public static string ItemTable = "PvPItems";
+        public static string ProjectileTable = "PvPProjectiles";
+        public static string BuffTable = "PvPBuffs";
     }
 }

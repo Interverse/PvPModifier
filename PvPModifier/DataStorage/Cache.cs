@@ -18,31 +18,31 @@ namespace PvPModifier.DataStorage {
         /// <param name="id">The numerical ID of the object</param>
         /// <returns></returns>
         public static DbObject GetDbObject(string section, int id) {
-            switch (section) {
-                case DbTables.ItemTable:
-                    if (id >= 0 && id <= Terraria.Main.maxItemTypes) {
-                        if (!Items.ContainsKey(id)) {
-                            Items[id] = (DbItem)Database.GetObject(section, id);
-                        }
-                        return Items[id];
+            if (section.Equals(DbTables.ItemTable)) {
+                if (id >= 0 && id <= Terraria.Main.maxItemTypes) {
+                    if (!Items.ContainsKey(id)) {
+                        Items[id] = (DbItem)Database.GetObject(section, id);
                     }
-                    break;
-                case DbTables.ProjectileTable:
-                    if (id >= 0 && id <= Terraria.Main.maxProjectileTypes) {
-                        if (!Projectiles.ContainsKey(id)) {
-                            Projectiles[id] = (DbProjectile)Database.GetObject(section, id);
-                        }
-                        return Projectiles[id];
+                    return Items[id];
+                }
+            }
+
+            if (section.Equals(DbTables.ProjectileTable)) {
+                if (id >= 0 && id <= Terraria.Main.maxProjectileTypes) {
+                    if (!Projectiles.ContainsKey(id)) {
+                        Projectiles[id] = (DbProjectile)Database.GetObject(section, id);
                     }
-                    break;
-                case DbTables.BuffTable:
-                    if (id >= 0 && id <= Terraria.Main.maxBuffTypes) {
-                        if (!Buffs.ContainsKey(id)) {
-                            Buffs[id] = (DbBuff)Database.GetObject(section, id);
-                        }
-                        return Buffs[id];
+                    return Projectiles[id];
+                }
+            }
+
+            if (section.Equals(DbTables.BuffTable)) {
+                if (id >= 0 && id <= Terraria.Main.maxBuffTypes) {
+                    if (!Buffs.ContainsKey(id)) {
+                        Buffs[id] = (DbBuff)Database.GetObject(section, id);
                     }
-                    break;
+                    return Buffs[id];
+                }
             }
 
             return null;
@@ -67,22 +67,22 @@ namespace PvPModifier.DataStorage {
         }
 
         public static void Load(string section, int id) {
-            switch (section) {
-                case DbTables.ItemTable:
-                    if (id >= 0 && id <= Terraria.Main.maxItemTypes) {
-                            Items[id] = (DbItem)Database.GetObject(section, id);
-                    }
-                    break;
-                case DbTables.ProjectileTable:
-                    if (id >= 0 && id <= Terraria.Main.maxProjectileTypes) {
-                        Projectiles[id] = (DbProjectile)Database.GetObject(section, id);
-                    }
-                    break;
-                case DbTables.BuffTable:
-                    if (id >= 0 && id <= Terraria.Main.maxBuffTypes) {
-                        Buffs[id] = (DbBuff)Database.GetObject(section, id);
-                    }
-                    break;
+            if (section.Equals(DbTables.ItemTable)) {
+                if (id >= 0 && id <= Terraria.Main.maxItemTypes) {
+                    Items[id] = (DbItem)Database.GetObject(section, id);
+                }
+            }
+
+            if (section.Equals(DbTables.ProjectileTable)) {
+                if (id >= 0 && id <= Terraria.Main.maxProjectileTypes) {
+                    Projectiles[id] = (DbProjectile)Database.GetObject(section, id);
+                }
+            }
+
+            if (section.Equals(DbTables.BuffTable)) {
+                if (id >= 0 && id <= Terraria.Main.maxBuffTypes) {
+                    Buffs[id] = (DbBuff)Database.GetObject(section, id);
+                }
             }
         }
 
