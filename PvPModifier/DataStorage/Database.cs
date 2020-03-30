@@ -143,14 +143,10 @@ namespace PvPModifier.DataStorage {
         /// </summary>
         /// <param name="queries"></param>
         public static void PerformTransaction(string[] queries) {
-            var conn = IsMySql
-                ? (DbConnection)new MySqlConnection(db.ConnectionString)
-                : new SqliteConnection(db.ConnectionString);
+            db.Open();
 
-            conn.Open();
-
-            using (var cmd = conn.CreateCommand()) {
-                using (var transaction = conn.BeginTransaction()) {
+            using (var cmd = db.CreateCommand()) {
+                using (var transaction = db.BeginTransaction()) {
                     foreach (string query in queries) {
                         cmd.CommandText = query;
                         cmd.ExecuteNonQuery();
@@ -160,7 +156,7 @@ namespace PvPModifier.DataStorage {
                 }
             }
 
-            conn.Close();
+            db.Close();
         }
 
         /// <summary>
