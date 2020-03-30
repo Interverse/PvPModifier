@@ -1,11 +1,17 @@
 # PvPModifier
 
 ## Table of Contents
+* [Installation](#Installation)
 * [Just the important things (tl;dr)](#Just-the-Important-Things)
 * [About](#About)
 * [Install](#Install)
 * [Commands](#Commands)
 * [Dev Notes](#Dev-Notes)
+
+## Installation
+
+To install, download BOTH [CustomWeaponsAPI.dll](https://github.com/Interverse/PvPModifier/raw/develop/PvPModifier/bin/Debug/CustomWeaponAPI.dll) and [PvPModifier.dll](https://github.com/Interverse/PvPModifier/raw/develop/PvPModifier/bin/Debug/PvPModifier.dll) from [PvPModifier/bin/Debug](https://github.com/Interverse/PvPModifier/tree/develop/PvPModifier/bin/Debug).  
+Place the downloaded .dll files into the ServerPlugins folder in your ServerPlugins folder.
 
 ## Just the Important Things
 
