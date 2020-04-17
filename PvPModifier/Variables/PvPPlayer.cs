@@ -14,7 +14,7 @@ using PvPModifier.Utilities.PvPConstants;
 
 namespace PvPModifier.Variables {
     public class PvPPlayer : TSPlayer {
-        //make this not public later(hit time)
+
         DateTime _lastHit;
         DateTime _lastInventoryModified;
         public ProjectileTracker ProjTracker = new ProjectileTracker();
@@ -26,7 +26,7 @@ namespace PvPModifier.Variables {
         private int _medusaHitCount;
 
         private int _timesHit;    
-
+        
         public PvPPlayer(int index) : base(index) {
             _lastHit = DateTime.Now;
             _lastInventoryModified = DateTime.Now;
