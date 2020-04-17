@@ -30,6 +30,13 @@ namespace PvPModifier {
 
         public bool FirstConfigGeneration { get; set; } = true;
 
+        public double KnockbackMultiplier { get; set; }
+        public double KnockupAmount { get; set; }
+        public double KnockbackFalloff { get; set; }
+        public double MaxKnockbackSpeed { get; set; }
+        public uint ComboTime { get; set; }
+        
+
         /// <summary>
         /// Writes the current internal server config to the external .json file
         /// </summary>
@@ -74,6 +81,14 @@ namespace PvPModifier {
                 EnableBuffs = true;
 
                 FirstConfigGeneration = false;
+
+                KnockbackMultiplier = 1.0;
+                KnockupAmount = 1.0;
+                KnockbackFalloff = 0.5;
+                MaxKnockbackSpeed = 30;
+                ComboTime = 500;
+               
+
                 return true;
             }
 
