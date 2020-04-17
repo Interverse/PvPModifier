@@ -26,5 +26,13 @@
         public const string FrostDuration = "FrostDuration";
 
         public const string EnableBuffs = "EnableBuffs";
+      
+        public const string KnockbackMultiplier = "KnockbackMultiplier";
+        public const string KnockupAmount = "KnockupAmount";
+        public const string KnockbackFalloff = "KnockbackFalloff";
+        public const string MaxKnockbackSpeed = "MaxKnockbacSpeed";
+        public const string ComboTime = "ComboTime";
+
+
     }
 }
