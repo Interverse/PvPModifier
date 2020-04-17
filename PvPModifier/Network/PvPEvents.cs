@@ -208,17 +208,25 @@ namespace PvPModifier.Network {
         /// Handles pvp attacks.
         /// </summary>
         private void OnPlayerHurt(object sender, PlayerHurtArgs e) {
-            if (!PvPModifier.Config.EnablePlugin) return;
-
+            if (!PvPModifier.Config.EnablePlugin) return;          
             e.Args.Handled = true;
-
+           
             if (e.Attacker.TPlayer.immune || !e.Target.CanBeHit()) return;
 
             if (PvPModifier.Config.EnableKnockback) {
                 int direction = e.HitDirection;
+                double angle;
+                if (e.PlayerHitReason.SourceProjectileIndex != -1) {
+                    angle = Math.Atan2(e.Projectile.velocity.Y, e.Projectile.velocity.X);
+                    direction = e.Target.IsLeftFrom(e.Projectile.position) ? -direction : direction;
+                }
+                else { 
+                    angle = e.Attacker.AngleFrom(e.Target.TPlayer.position);
+                    direction = e.Target.IsLeftFrom(e.Attacker.TPlayer.position) ? -direction : direction;
+                }
                 e.Target.KnockBack(e.Weapon.GetKnockback(e.Attacker),
-                    e.Attacker.AngleFrom(e.Target.TPlayer.position),
-                    e.Target.IsLeftFrom(e.Attacker.TPlayer.position) ? -direction : direction);
+                   angle,
+                   direction);
                 e.HitDirection = 0;
             }
             
