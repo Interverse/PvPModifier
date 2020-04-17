@@ -11,9 +11,10 @@ using TShockAPI;
 using System.Timers;
 using PvPModifier.Utilities.PvPConstants;
 
+
 namespace PvPModifier.Variables {
     public class PvPPlayer : TSPlayer {
-
+        //make this not public later(hit time)
         DateTime _lastHit;
         DateTime _lastInventoryModified;
         public ProjectileTracker ProjTracker = new ProjectileTracker();
@@ -21,8 +22,10 @@ namespace PvPModifier.Variables {
         public PvPPlayer LastHitBy = null;
         public PvPItem LastHitWeapon = null;
         public PvPProjectile LastHitProjectile = null;
-
+        
         private int _medusaHitCount;
+
+        private int _timesHit;    
 
         public PvPPlayer(int index) : base(index) {
             _lastHit = DateTime.Now;
@@ -46,7 +49,8 @@ namespace PvPModifier.Variables {
         /// <summary>
         /// Gets the damage received from an attack.
         /// </summary>
-        public int DamageReceived(int damage) => (int)TerrariaUtils.GetHurtDamage(this, damage);
+        public int DamageReceived(int damage) => (int)TerrariaUtils.
+            GetHurtDamage(this, damage);
 
         /// <summary>
         /// Gets the angle that a target is from the player in radians.
@@ -73,27 +77,27 @@ namespace PvPModifier.Variables {
         /// This method requires SSC to be enabled. To allow knockback to work
         /// on non-SSC servers, the method will temporarily enable SSC to set player
         /// velocity.
-        /// </summary>
+        /// </summary
         public void KnockBack(double knockback, double angle, double hitDirection = 1) {
-            if (TPlayer.noKnockback) return;
+           
+            if ((DateTime.Now - _lastHit).TotalMilliseconds < PvPModifier.Config.ComboTime) _timesHit++;
+            else _timesHit = 1;
 
             new SSCAction(this, () => {
-                if (TPlayer.velocity.Length() <= Math.Abs(knockback)) {
-                    if (TPlayer.velocity.Length() <= Math.Abs(knockback)) {
-                        if (Math.Abs(TPlayer.velocity.Length() + knockback) < knockback) {
-                            TPlayer.velocity.X += (float)(knockback * Math.Cos(angle) * hitDirection);
-                            TPlayer.velocity.Y += (float)(knockback * Math.Sin(angle));
-                        } else {
-                            TPlayer.velocity.X = (float)(knockback * Math.Cos(angle) * hitDirection);
-                            TPlayer.velocity.Y = (float)(knockback * Math.Sin(angle));
-                        }
-                    }
-                    
-                    NetMessage.SendData(13, -1, -1, null, Index, 0, 4);
+                if (Math.Abs(TPlayer.velocity.Length() + knockback) < PvPModifier.Config.MaxKnockbackSpeed) {
+                    TPlayer.velocity.X += (float)((knockback * Math.Cos(angle) * PvPModifier.Config.KnockbackMultiplier * hitDirection) / Math.Pow(_timesHit, PvPModifier.Config.KnockbackFalloff));
+                    TPlayer.velocity.Y += (float)((knockback * Math.Sin(angle) * PvPModifier.Config.KnockbackMultiplier - PvPModifier.Config.KnockupAmount) / Math.Pow(_timesHit, PvPModifier.Config.KnockbackFalloff));
                 }
+                else if (Math.Abs(TPlayer.velocity.Length()) < Math.Abs(knockback)) {
+                    TPlayer.velocity.X = (float)((knockback * Math.Cos(angle) * PvPModifier.Config.KnockbackMultiplier * hitDirection));
+                    TPlayer.velocity.Y = (float)((knockback * Math.Sin(angle) * PvPModifier.Config.KnockbackMultiplier - PvPModifier.Config.KnockupAmount));
+                }
+
+                NetMessage.SendData(13, -1, -1, null, Index, 0, 4);
+              
             });
         }
-
+       
         /// <summary>
         /// Applies effects that normally won't work in vanilla pvp.
         /// Effects include nebula/frost armor, yoyo-bag projectiles, and thorns/turtle damage.
@@ -119,7 +123,7 @@ namespace PvPModifier.Variables {
                 NetMessage.SendPlayerHurt(this.Index, PlayerDeathReason.ByCustomReason(PvPUtils.GetPvPDeathMessage(deathmessage, reflectTag, type: 2)),
                     turtleDamage, 0, false, true, 5);
             }
-
+            
             if (PvPModifier.Config.EnableThorns && attacker.TPlayer.FindBuffIndex(14) != -1) {
                 int thornDamage = (int)(damage * PvPModifier.Config.ThornMultiplier);
                 deathmessage = Name + deathmessage + attacker.Name + "'s Thorns.";
