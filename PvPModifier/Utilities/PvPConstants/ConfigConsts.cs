@@ -30,7 +30,7 @@
         public const string KnockbackMultiplier = "KnockbackMultiplier";
         public const string KnockupAmount = "KnockupAmount";
         public const string KnockbackFalloff = "KnockbackFalloff";
-        public const string MaxKnockbackSpeed = "MaxKnockbacSpeed";
+        public const string MaxKnockbackSpeed = "MaxKnockbackSpeed";
         public const string ComboTime = "ComboTime";
 
 
