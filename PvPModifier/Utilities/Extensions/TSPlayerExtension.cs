@@ -22,6 +22,7 @@ namespace PvPModifier.Utilities.Extensions {
         /// </summary>
         public static void Initialize(this TSPlayer player) {
             player.SetLastHit(DateTime.Now);
+            player.SetLastComboHit(DateTime.Now);
             player.SetLastInventoryModified(DateTime.Now);
             player.SetData("ProjectileTracker", new ProjectileTracker());
             player.SetData("InventoryTracker", new InventoryTracker(player));
@@ -44,6 +45,23 @@ namespace PvPModifier.Utilities.Extensions {
             return player.GetData<DateTime>("_lastHit");
         }
 
+        private static void SetTimesHit(this TSPlayer player, int count) {
+            player.SetData("_timesHit", count);
+        }
+
+        private static int GetTimesHit(this TSPlayer player) {
+            return player.GetData<int>("_timesHit");
+        }
+
+        private static void SetLastComboHit(this TSPlayer player, DateTime time) {
+            player.SetData("_lastComboHit", time);
+        }
+
+        private static DateTime GetLastComboHit(this TSPlayer player) {
+            return player.GetData<DateTime>("_lastComboHit");
+        }
+
+
         private static void SetLastInventoryModified(this TSPlayer player, DateTime time) {
             player.SetData("_lastInventoryModified", time);
         }
@@ -59,6 +77,7 @@ namespace PvPModifier.Utilities.Extensions {
         private static int GetMedusaHitCount(this TSPlayer player) {
             return player.GetData<int>("_medusaHitCount");
         }
+
 
         public static ProjectileTracker GetProjectileTracker(this TSPlayer player) {
             return player.GetData<ProjectileTracker>("ProjectileTracker");
@@ -119,19 +138,24 @@ namespace PvPModifier.Utilities.Extensions {
         /// velocity.
         /// </summary>
         public static void KnockBack(this TSPlayer player, double knockback, double angle, double hitDirection = 1) {
+           
+            if ((DateTime.Now - player.GetLastComboHit()).TotalMilliseconds < PvPModifier.Config.ComboTime) player.SetTimesHit(player.GetTimesHit() + 1);
+            else player.SetTimesHit(1);
+            player.SetLastComboHit(DateTime.Now);
+
             new SSCAction(player, () => {
-                if (player.TPlayer.velocity.Length() <= Math.Abs(knockback)) {
-                    // Caps the player's velocity if their new velocity is higher than the incoming knockback
-                    if (Math.Abs(player.TPlayer.velocity.Length() + knockback) < knockback) {
-                        player.TPlayer.velocity.X += (float)(knockback * Math.Cos(angle) * hitDirection);
-                        player.TPlayer.velocity.Y += (float)(knockback * Math.Sin(angle));
-                    } else {
-                        player.TPlayer.velocity.X = (float)(knockback * Math.Cos(angle) * hitDirection);
-                        player.TPlayer.velocity.Y = (float)(knockback * Math.Sin(angle));
-                    }
-                    
-                    NetMessage.SendData((int)PacketTypes.PlayerUpdate, -1, -1, null, player.Index, 0, 4);
+                //Caps succesive knockback if total velocity is above a config value, else if the player velocity is less than the knockback apply the regular knockback to the player resetting their velocity
+                if (Math.Abs(player.TPlayer.velocity.Length() + knockback) < PvPModifier.Config.MaxKnockbackSpeed) {
+                    player.TPlayer.velocity.X += (float)((knockback * Math.Cos(angle) * PvPModifier.Config.KnockbackMultiplier * hitDirection) / Math.Pow(player.GetTimesHit(), PvPModifier.Config.KnockbackFalloff));
+                    player.TPlayer.velocity.Y += (float)((knockback * Math.Sin(angle) * PvPModifier.Config.KnockbackMultiplier - PvPModifier.Config.KnockupAmount) / Math.Pow(player.GetTimesHit(), PvPModifier.Config.KnockbackFalloff));
                 }
+                else if (player.TPlayer.velocity.Length() < Math.Abs(knockback)) {
+                    player.TPlayer.velocity.X = (float)((knockback * Math.Cos(angle) * PvPModifier.Config.KnockbackMultiplier * hitDirection));
+                    player.TPlayer.velocity.Y = (float)((knockback * Math.Sin(angle) * PvPModifier.Config.KnockbackMultiplier - PvPModifier.Config.KnockupAmount));
+                }
+
+                NetMessage.SendData(13, -1, -1, null, player.Index, 0, 4);
+
             });
         }
 
