@@ -327,6 +327,39 @@
                     attribute = ConfigConsts.LoseVortexOnHit;
                     return true;
 
+                case "knockbackmultiplier":
+                case "kbmultiplier":
+                case "multiplier":
+                case "kbmult":
+                case "kbm":
+                    attribute = ConfigConsts.KnockbackMultiplier;
+                    return true;
+
+                case "knockupamount":
+                case "knockup":
+                case "kbup":
+                    attribute = ConfigConsts.KnockupAmount;
+                    return true;
+
+                case "knockbackfalloff":
+                case "falloff":
+                case "foff":
+                case "kboff":
+                    attribute = ConfigConsts.KnockbackFalloff;
+                    return true;
+
+                case "maxknockbackspeed":
+                case "maxkbspeed":
+                case "mkbspeed":
+                    attribute = ConfigConsts.MaxKnockbackSpeed;
+                    return true;
+
+                case "combotime":
+                case "ctime":
+                case "ct":
+                    attribute = ConfigConsts.ComboTime;
+                    return true;
+
                 default:
                     attribute = input;
                     return false;
