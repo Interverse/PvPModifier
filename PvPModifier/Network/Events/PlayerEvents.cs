@@ -88,11 +88,24 @@ namespace PvPModifier.Network.Events {
 
             if (PvPModifier.Config.EnableKnockback) {
                 int direction = e.HitDirection;
-                if (!e.Target.TPlayer.noKnockback || PvPModifier.Config.ForceCustomKnockback) {
-                    e.Target.KnockBack(e.Weapon.GetKnockback(e.Attacker),
-                        e.Attacker.AngleFrom(e.Target.TPlayer.position),
-                        e.Target.IsLeftFrom(e.Attacker.TPlayer.position) ? -direction : direction);
+                double angle;
+                if (e.PlayerHitReason.SourceProjectileIndex != -1) {
+                    //If the projectile doesn't have a velocity(or is segmented like vilethorn/nettle burst we must use another method to calculate angle, this fixes projectiles like vilethorn/proximity mines
+                    if (e.Projectile.velocity.Length() > 0 && e.Projectile.type != 7 && e.Projectile.type != 8 && e.Projectile.type != 150 && e.Projectile.type != 151 && e.Projectile.type != 152 && e.Projectile.type != 493 && e.Projectile.type != 494) {
+                        angle = System.Math.Atan2(e.Projectile.velocity.Y, e.Projectile.velocity.X);
+                    }
+                    else {              
+                        angle = System.Math.Atan2(e.Attacker.TPlayer.position.Y - e.Projectile.position.Y, e.Attacker.TPlayer.position.X - e.Projectile.position.X);
+                    }
+                    direction = e.Target.IsLeftFrom(e.Projectile.position) ? -direction : direction;
                 }
+                else {
+                    angle = e.Attacker.AngleFrom(e.Target.TPlayer.position);
+                    direction = e.Target.IsLeftFrom(e.Attacker.TPlayer.position) ? -direction : direction;
+                }
+                e.Target.KnockBack(e.Weapon.GetKnockback(e.Attacker),
+                   angle,
+                   direction);
                 e.HitDirection = 0;
             }
 

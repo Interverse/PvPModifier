@@ -31,6 +31,12 @@ namespace PvPModifier {
 
         public bool EnableBuffs;
 
+        public double KnockbackMultiplier;
+        public double KnockupAmount;
+        public double KnockbackFalloff;
+        public double MaxKnockbackSpeed;
+        public uint ComboTime;
+
         public bool FirstConfigGeneration = true;
 
         /// <summary>
@@ -78,6 +84,12 @@ namespace PvPModifier {
                 LoseVortexOnHit = false;
 
                 EnableBuffs = true;
+
+                KnockbackMultiplier = 1.0;
+                KnockupAmount = 1.0;
+                KnockbackFalloff = 0.5;
+                MaxKnockbackSpeed = 30.0;
+                ComboTime = 500;
 
                 FirstConfigGeneration = false;
                 return true;
