@@ -29,7 +29,7 @@ namespace PvPModifier.DataStorage {
                 try {
                     var host = TShock.Config.MySqlHost.Split(':');
                     db = new MySqlConnection {
-                        ConnectionString = string.Format("Server={0}; Port={1}; Database={2}; Uid={3}; Pwd={4}",
+                        ConnectionString = string.Format("Server={0}; Port={1}; Database={2}; Uid={3}; Pwd={4}; Persist Security Info=true",
                             host[0],
                             host.Length == 1 ? "3306" : host[1],
                             TShock.Config.MySqlDbName,
